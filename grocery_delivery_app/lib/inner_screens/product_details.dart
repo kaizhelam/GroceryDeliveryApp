@@ -126,7 +126,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         TextWidget(
-                          text: '\$${usedPrice.toStringAsFixed(2)}/',
+                          text: 'RM${usedPrice.toStringAsFixed(2)}/',
                           color: Colors.green,
                           textSize: 24,
                           isTitle: true,
@@ -279,7 +279,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 child: Row(
                                   children: [
                                     TextWidget(
-                                      text: '\$${sumPrice.toStringAsFixed(2)}/',
+                                      text: 'RM${sumPrice.toStringAsFixed(2)}/',
                                       color: color,
                                       textSize: 24,
                                       isTitle: true,

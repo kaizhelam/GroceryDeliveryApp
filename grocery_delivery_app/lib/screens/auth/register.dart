@@ -33,12 +33,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passTextController = TextEditingController();
   final _addressTextController = TextEditingController();
   final _phoneNumberController = TextEditingController();
+  final _confirmPassTextController = TextEditingController();
 
   final _passFocusNode = FocusNode();
   final _emailFocusNode = FocusNode();
   final _addressFocusNode = FocusNode();
   final _phoneNumberFocusNode = FocusNode();
+  final _confirmPassFocusNode = FocusNode();
   bool _obscureText = true;
+  bool _obscureConfirmText = true;
+
   @override
   void dispose() {
     _fullNameController.dispose();
@@ -50,6 +54,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _addressFocusNode.dispose();
     _phoneNumberController.dispose();
     _phoneNumberFocusNode.dispose();
+    _confirmPassFocusNode.dispose();
+    _confirmPassTextController.dispose();
     super.dispose();
   }
 
@@ -71,16 +77,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'id': _uid,
           'name': _fullNameController.text,
           'email': _emailTextController.text.toLowerCase(),
-          'shippingAddress': _addressTextController.text,
+          'shippingAddress': "Empty",
           'phoneNumber' :_phoneNumberController.text,
           'userWish': [],
           'userCart': [],
+          'gender' : "null",
+          'birth' : "",
           'createdAt': Timestamp.now(),
         });
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Account Created'),
-        ));
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const FetchScreen(),
@@ -132,16 +136,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(
                   height: 60.0,
                 ),
-                InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () =>
-                      Navigator.canPop(context) ? Navigator.pop(context) : null,
-                  child: Icon(
-                    IconlyLight.arrowLeft2,
-                    color: theme == true ? Colors.white : Colors.black,
-                    size: 24,
-                  ),
-                ),
                 const SizedBox(
                   height: 40.0,
                 ),
@@ -169,8 +163,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     children: [
                       TextFormField(
                         textInputAction: TextInputAction.next,
-                        onEditingComplete: () => FocusScope.of(context)
-                            .requestFocus(_emailFocusNode),
                         keyboardType: TextInputType.name,
                         controller: _fullNameController,
                         validator: (value) {
@@ -196,13 +188,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
                       TextFormField(
                         focusNode: _emailFocusNode,
                         textInputAction: TextInputAction.next,
-                        onEditingComplete: () =>
-                            FocusScope.of(context).requestFocus(_passFocusNode),
                         keyboardType: TextInputType.emailAddress,
                         controller: _emailTextController,
                         validator: (value) {
@@ -228,9 +218,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
-                      //Password
                       TextFormField(
                         focusNode: _passFocusNode,
                         obscureText: _obscureText,
@@ -244,8 +233,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           }
                         },
                         style: const TextStyle(color: Colors.white),
-                        onEditingComplete: () => FocusScope.of(context)
-                            .requestFocus(_addressFocusNode),
                         decoration: InputDecoration(
                           suffixIcon: GestureDetector(
                             onTap: () {
@@ -274,7 +261,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
+                      ),
+                      TextFormField(
+                        focusNode: _confirmPassFocusNode,
+                        obscureText: _obscureConfirmText,
+                        keyboardType: TextInputType.visiblePassword,
+                        controller: _confirmPassTextController,
+                        validator: (value) {
+                          if (value!.isEmpty || value.length < 7) {
+                            return "Please enter a valid password";
+                          } else if (value != _passTextController.text) {
+                            return "Passwords do not match";
+                          } else {
+                            return null;
+                          }
+                        },
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          suffixIcon: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _obscureConfirmText = !_obscureConfirmText;
+                              });
+                            },
+                            child: Icon(
+                              _obscureConfirmText
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.white,
+                            ),
+                          ),
+                          hintText: 'Confirm Password',
+                          hintStyle: const TextStyle(color: Colors.white),
+                          enabledBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                          ),
+                          errorBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.red),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(
+                        height: 10,
                       ),
                       TextFormField(
                         focusNode: _phoneNumberFocusNode,
@@ -294,7 +327,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           }
                         },
                         style: const TextStyle(color: Colors.white),
-                        maxLines: 2,
                         textAlign: TextAlign.start,
                         decoration: const InputDecoration(
                           hintText: 'Phone Number',
@@ -311,42 +343,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                       const SizedBox(
-                        height: 20,
+                        height: 10,
                       ),
-                      TextFormField(
-                        focusNode: _addressFocusNode,
-                        textInputAction: TextInputAction.done,
-                        onEditingComplete: _submitFormOnRegister,
-                        controller: _addressTextController,
-                        validator: (value) {
-                          if (value!.isEmpty || value.length < 10) {
-                            return "Please enter a valid  address";
-                          } else {
-                            return null;
-                          }
-                        },
-                        style: const TextStyle(color: Colors.white),
-                        maxLines: 2,
-                        textAlign: TextAlign.start,
-                        decoration: const InputDecoration(
-                          hintText: 'Shipping address',
-                          hintStyle: TextStyle(color: Colors.white),
-                          enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
-                          ),
-                        ),
-                      ),
+                      // TextFormField(
+                      //   focusNode: _addressFocusNode,
+                      //   textInputAction: TextInputAction.done,
+                      //   onEditingComplete: _submitFormOnRegister,
+                      //   controller: _addressTextController,
+                      //   validator: (value) {
+                      //     if (value!.isEmpty || value.length < 10) {
+                      //       return "Please enter a valid  address";
+                      //     } else {
+                      //       return null;
+                      //     }
+                      //   },
+                      //   style: const TextStyle(color: Colors.white),
+                      //   maxLines: 2,
+                      //   textAlign: TextAlign.start,
+                      //   decoration: const InputDecoration(
+                      //     hintText: 'Shipping address',
+                      //     hintStyle: TextStyle(color: Colors.white),
+                      //     enabledBorder: UnderlineInputBorder(
+                      //       borderSide: BorderSide(color: Colors.white),
+                      //     ),
+                      //     focusedBorder: UnderlineInputBorder(
+                      //       borderSide: BorderSide(color: Colors.white),
+                      //     ),
+                      //     errorBorder: UnderlineInputBorder(
+                      //       borderSide: BorderSide(color: Colors.red),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 5.0,
                 ),
                 Align(
                   alignment: Alignment.centerRight,

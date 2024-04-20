@@ -53,10 +53,6 @@ class _LoginScreenState extends State<LoginScreen> {
           email: _emailTextController.text,
           password: _passTextController.text,
         );
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('User logged in'),
-        ));
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const FetchScreen(),

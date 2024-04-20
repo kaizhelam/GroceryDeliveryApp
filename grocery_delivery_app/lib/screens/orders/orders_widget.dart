@@ -52,7 +52,7 @@ class _OrderWidgetState extends State<OrderWidget> {
             textSize: 18,
           ),
           Text(
-            'Paid: \$${double.parse(ordersModel.price).toStringAsFixed(2)}',
+            'Paid: RM${double.parse(ordersModel.price).toStringAsFixed(2)}',
             style: TextStyle(fontSize: 16, color: color),
           ),
           Text(

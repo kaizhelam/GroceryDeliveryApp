@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grocery_delivery_app/inner_screens/location_screen.dart';
 import 'package:grocery_delivery_app/screens/orders/orders_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -284,7 +285,7 @@ class _CartScreenState extends State<CartScreen> {
                   const Spacer(),
                   FittedBox(
                     child: TextWidget(
-                      text: 'Total: \$${total.toStringAsFixed(2)}',
+                      text: 'Total: RM${total.toStringAsFixed(2)}',
                       color: color,
                       textSize: 18,
                       isTitle: true,
@@ -337,11 +338,14 @@ class _CartScreenState extends State<CartScreen> {
       builder: (BuildContext context) {
         return Center(
           child: Container(
-            width: MediaQuery.of(context).size.width * 1.5, // Adjust the width as needed
+            width: MediaQuery.of(context).size.width *
+                1.5, // Adjust the width as needed
             child: AlertDialog(
-              contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Adjust padding as needed
+              contentPadding: EdgeInsets.symmetric(
+                  horizontal: 24, vertical: 20), // Adjust padding as needed
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15), // Adjust border radius as needed
+                borderRadius:
+                    BorderRadius.circular(15), // Adjust border radius as needed
               ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -372,10 +376,7 @@ class _CartScreenState extends State<CartScreen> {
                   SizedBox(height: 5),
                   Text(
                     address,
-                    style: TextStyle(
-                      color: Colors.black,
-                        fontSize: 15
-                    ),
+                    style: TextStyle(color: Colors.black, fontSize: 15),
                   ),
                   SizedBox(height: 5),
                   Divider(
@@ -401,7 +402,8 @@ class _CartScreenState extends State<CartScreen> {
                                 Image.network(
                                   productDetails['imageUrl'],
                                   fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
+                                  loadingBuilder:
+                                      (context, child, loadingProgress) {
                                     if (loadingProgress == null) {
                                       return child; // Return the actual image when loading is complete
                                     }
@@ -441,7 +443,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                         ),
                         Text(
-                          '\$${total.toStringAsFixed(2)}',
+                          'RM${total.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
@@ -477,7 +479,6 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _sendOrder(BuildContext ctx, DateTime orderDateTime) {
-    triggerNotification();
     User? user = authInstance.currentUser;
 
     final productProvider = Provider.of<ProductsProvider>(ctx, listen: false);
@@ -485,76 +486,90 @@ class _CartScreenState extends State<CartScreen> {
     final ordersProvider = Provider.of<OrdersProvider>(ctx, listen: false);
 
     double total = 0.0;
-    cartProvider.getCardItems.forEach((key, value) async {
-      final getCurrProduct = productProvider.findProdById(
-        value.productId,
-      );
-      total += (getCurrProduct.isOnSale
-              ? getCurrProduct.salePrice
-              : getCurrProduct.price) *
-          value.quantity;
+    cartProvider.getCardItems.forEach(
+      (key, value) async {
+        final getCurrProduct = productProvider.findProdById(
+          value.productId,
+        );
+        total += (getCurrProduct.isOnSale
+                ? getCurrProduct.salePrice
+                : getCurrProduct.price) *
+            value.quantity;
 
-      try {
-        final orderId = const Uuid().v4();
-        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user!.uid)
-            .get();
-        String shippingAddress = userSnapshot.get('shippingAddress');
-        String phoneNumber = userSnapshot.get('phoneNumber');
-        print(shippingAddress);
+        try {
+          final orderId = const Uuid().v4();
+          DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user!.uid)
+              .get();
+          String shippingAddress = userSnapshot.get('shippingAddress');
+          String phoneNumber = userSnapshot.get('phoneNumber');
 
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (BuildContext context) {
-            return const Dialog(
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 20),
-                    Text('Processing Order...'),
-                  ],
-                ),
-              ),
+          if (shippingAddress == 'Empty' || shippingAddress.isEmpty) {
+            Fluttertoast.showToast(
+                msg: "Please add your address before placing the order",
+                toastLength: Toast.LENGTH_SHORT,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.grey.shade600,
+                textColor: Colors.white,
+                fontSize: 16.0);
+          } else {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (BuildContext context) {
+                return const Dialog(
+                  child: Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 20),
+                        Text('Processing Order...'),
+                      ],
+                    ),
+                  ),
+                );
+              },
             );
-          },
-        );
+            triggerNotification();
+            await FirebaseFirestore.instance
+                .collection('orders')
+                .doc(orderId)
+                .set({
+              'orderId': orderId,
+              'userId': user!.uid,
+              'productId': value.productId,
+              'price': (getCurrProduct.isOnSale
+                  ? getCurrProduct.salePrice
+                  : getCurrProduct.price) *
+                  value.quantity,
+              'totalPrice': total,
+              'quantity': value.quantity,
+              'imageUrl': getCurrProduct.imageUrl,
+              'userName': user.displayName,
+              'orderDate': orderDateTime,
+              'orderStatus': 0,
+              'shippingAddress': shippingAddress,
+              'phoneNumber': phoneNumber,
+              'title': getCurrProduct.title,
+            });
 
-        await FirebaseFirestore.instance.collection('orders').doc(orderId).set({
-          'orderId': orderId,
-          'userId': user!.uid,
-          'productId': value.productId,
-          'price': (getCurrProduct.isOnSale
-              ? getCurrProduct.salePrice
-              : getCurrProduct.price) *
-              value.quantity,
-          'totalPrice': total,
-          'quantity': value.quantity,
-          'imageUrl': getCurrProduct.imageUrl,
-          'userName': user.displayName,
-          'orderDate': orderDateTime,
-          'orderStatus': 0,
-          'shippingAddress': shippingAddress,
-          'phoneNumber': phoneNumber,
-          'title' : getCurrProduct.title,
-        });
+            await cartProvider.clearOnlineCart();
+            cartProvider.clearLocalCart();
+            ordersProvider.fetchOrders();
 
-        await cartProvider.clearOnlineCart();
-        cartProvider.clearLocalCart();
-        ordersProvider.fetchOrders();
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const OrdersScreen()),
-        );
-      }
-      catch (error) {
-        GlobalMethods.errorDialog(subtitle: error.toString(), context: ctx);
-      } finally {}
-    });
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const OrdersScreen()),
+            );
+          }
+        } catch (error) {
+          GlobalMethods.errorDialog(subtitle: error.toString(), context: ctx);
+        } finally {}
+      },
+    );
   }
 }

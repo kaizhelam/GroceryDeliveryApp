@@ -22,9 +22,9 @@ class PriceWidget extends StatelessWidget {
         child: Row(
           children: [
             TextWidget(
-              text: '\$${(userPrice * int.parse(textPrice)).toStringAsFixed(2)}',
+              text: 'RM${(userPrice * int.parse(textPrice)).toStringAsFixed(2)}',
               color: Colors.green,
-              textSize: 20,
+              textSize: 18,
             ),
             const SizedBox(
               width: 5,
@@ -32,11 +32,12 @@ class PriceWidget extends StatelessWidget {
             Visibility(
               visible: isOnSale? true :false,
               child: Text(
-                '\$${(price * int.parse(textPrice)).toStringAsFixed(2)}',
+                'RM${(price * int.parse(textPrice)).toStringAsFixed(2)}',
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 13.5,
                   color: color,
                   decoration: TextDecoration.lineThrough,
+                  decorationColor: color,
                 ),
               ),
             ),
