@@ -781,6 +781,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1"
+  text_hover:
+    dependency: "direct main"
+    description:
+      name: text_hover
+      sha256: "2eb6b21ae1298af584779b138777997f8ca53a3eaab9531d1a701d619e9fc64a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0+1"
   typed_data:
     dependency: transitive
     description:

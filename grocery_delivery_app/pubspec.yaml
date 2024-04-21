@@ -57,6 +57,7 @@ dependencies:
   geolocator: ^11.0.0
   geocoding: ^3.0.0
   get: ^4.6.6
+  text_hover: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:

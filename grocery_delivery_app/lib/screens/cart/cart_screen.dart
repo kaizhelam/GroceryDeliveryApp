@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 import 'package:grocery_delivery_app/inner_screens/location_screen.dart';
 import 'package:grocery_delivery_app/screens/orders/orders_screen.dart';
 import 'package:intl/intl.dart';
@@ -30,6 +31,14 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   DateTime? _selectedDateTime;
+  TextEditingController _noteMessage = TextEditingController();
+  String? _noteMessageForDriver;
+
+  @override
+  void dispose() {
+    _noteMessage.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -184,11 +193,13 @@ class _CartScreenState extends State<CartScreen> {
 
     void _presentDatePicker() async {
       final now = DateTime.now();
+      final endDate =
+          now.add(Duration(days: 7)); // Allow selection up to 7 days from now
       final pickedDate = await showDatePicker(
         context: context,
         initialDate: now,
         firstDate: now,
-        lastDate: DateTime(now.year + 1, now.month, now.day),
+        lastDate: endDate,
         builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.dark().copyWith(
@@ -229,7 +240,7 @@ class _CartScreenState extends State<CartScreen> {
             _selectedDateTime = selectedDateTime;
           });
           await Fluttertoast.showToast(
-            msg: "You have schedule your delivery date & time",
+            msg: "You have scheduled your delivery date & time",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.CENTER,
           );
@@ -251,10 +262,52 @@ class _CartScreenState extends State<CartScreen> {
     String formattedDateTime =
         DateFormat('yyyy-MM-dd hh:mm:ss a').format(orderDateTime);
 
+    void _noteForDriver() async {
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Add a Note for Driver'),
+            content: TextField(
+              controller: _noteMessage,
+              maxLines: 5, // Set maxLines to 5
+              decoration: InputDecoration(
+                hintText: 'Enter your note here',
+                hintStyle:
+                    TextStyle(color: Colors.black), // Set the hint text color
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                },
+                child: Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Close the dialog
+                  Navigator.pop(context);
+                  // Update the visibility of the remove circle icon
+                  setState(() {
+                    _noteMessageForDriver = _noteMessage.text;
+                  });
+                },
+                child: Text('OK'),
+              ),
+            ],
+          );
+        },
+      ).then((_) {
+        // Update the state of the widget containing GestureDetector
+        setState(() {});
+      });
+    }
+
     return SingleChildScrollView(
       child: SizedBox(
         width: double.infinity,
-        height: size.height * 0.17,
+        height: size.height * 0.31,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
@@ -270,7 +323,7 @@ class _CartScreenState extends State<CartScreen> {
                       borderRadius: BorderRadius.circular(10),
                       onTap: () async {
                         _showCardDialog(context, total, productDetailsList,
-                            address!, orderDateTime);
+                            address!, orderDateTime, _noteMessageForDriver);
                       },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -293,32 +346,179 @@ class _CartScreenState extends State<CartScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 8), // Add some space between the buttons
-              ElevatedButton.icon(
-                onPressed: _presentDatePicker, // Add an icon
-                label: const Text(
-                  'Schedule Delivery time and date',
-                  style: TextStyle(
-                    fontSize: 18, // Adjust the font size as needed
+              const SizedBox(height: 18), // Add some space between the buttons
+              Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start, // Align elements to the start
+                children: [
+                  GestureDetector(
+                    onTap: _presentDatePicker,
+                    child: Container(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.edit,
+                            color: color,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Schedule Delivery Time and Date *Optional',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ), // Empty text
-                icon: const Icon(Icons.schedule),
-                style: ButtonStyle(
-                  foregroundColor: MaterialStateProperty.all(Colors.white),
-                  backgroundColor: MaterialStateProperty.all(
-                      Colors.green), // Specify the background color
-                ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 40, // Adjust the height as needed
+                          child: Row(
+                            children: [
+                              Text(
+                                _selectedDateTime != null
+                                    ? 'Delivery Date and Time: ${DateFormat.yMd().add_jm().format(_selectedDateTime!)}'
+                                    : '',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: color,
+                                ),
+                              ),
+                              SizedBox(width: 24),
+                              if (_selectedDateTime != null)
+                                Container(
+                                  width: 24, // Fixed width for the icon
+                                  height: 24, // Fixed height for the icon
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _selectedDateTime = null;
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.remove_circle_outline,
+                                        color: Colors.red,
+                                        size: 24, // Adjust size as needed
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(
+                    color: Colors.black,
+                    thickness: 1,
+                  ),
+                  SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: _noteForDriver,
+                    child: Container(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.edit,
+                            color: color,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Note for Driver *Optional',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 5),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: 60, // Adjust the height as needed
+                          child: Row(
+                            children: [
+                              Container(
+                                width:
+                                    357, // Set a specific width for the TextField container
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: color, // Set the border color
+                                    width: 1, // Set the border width
+                                  ),
+                                  borderRadius: BorderRadius.circular(
+                                      5), // Optionally, add border radius
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal:
+                                          8), // Add padding to TextField
+                                  child: TextField(
+                                    controller: _noteMessage,
+                                    maxLines: null,
+                                    readOnly: true,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: color,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              // Add SizedBox for spacing between TextField and the remove icon
+                              SizedBox(width: 8),
+                              // Use if-else to check if the note message is not empty
+                              if (_noteMessageForDriver != null)
+                                Container(
+                                  width: 24, // Fixed width for the icon
+                                  height: 24, // Fixed height for the icon
+                                  child: Align(
+                                    alignment: Alignment.center,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _noteMessage
+                                              .clear(); // Clear the text
+                                          _noteMessageForDriver =
+                                              null; // Clear the note message
+                                        });
+                                      },
+                                      child: Icon(
+                                        Icons.remove_circle_outline,
+                                        color: Colors.red,
+                                        size: 24, // Adjust size as needed
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Center(
-                child: TextWidget(
-                  text: _selectedDateTime != null
-                      ? 'Delivery Date and Time: ${DateFormat.yMd().add_jm().format(_selectedDateTime!)}'
-                      : '',
-                  color: color,
-                  textSize: 17,
-                ),
-              ),
+              const SizedBox(height: 5),
             ],
           ),
         ),
@@ -331,7 +531,9 @@ class _CartScreenState extends State<CartScreen> {
       double total,
       List<Map<String, dynamic>> productDetailsList,
       String address,
-      DateTime orderDateTime) {
+      DateTime orderDateTime,
+      String? noteMessageForDriver) {
+    String formattedDateTime = DateFormat.yMd().add_jm().format(orderDateTime);
     // final Color color = Utils(context).color;
     showDialog(
       context: context,
@@ -436,6 +638,52 @@ class _CartScreenState extends State<CartScreen> {
                     Row(
                       children: [
                         Text(
+                          'Delivery Date & Time: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          formattedDateTime,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          'Note for Driver: ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            noteMessageForDriver != null
+                                ? noteMessageForDriver
+                                : 'No Note for Driver',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow
+                                .ellipsis, // Add this line to handle overflow
+                            maxLines:
+                                1, // Add this line to limit to a single line
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
                           'Total price: ',
                           style: TextStyle(
                             fontWeight: FontWeight.normal,
@@ -451,7 +699,6 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
                     // Add more widgets as needed
                   ],
                 ),
@@ -459,7 +706,7 @@ class _CartScreenState extends State<CartScreen> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    _sendOrder(context, orderDateTime);
+                    _sendOrder(context, orderDateTime, noteMessageForDriver);
                     Navigator.of(context).pop(true); // Return true for confirm
                   },
                   child: Text('Confirm'),
@@ -478,12 +725,20 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  void _sendOrder(BuildContext ctx, DateTime orderDateTime) {
+  void _sendOrder(
+      BuildContext ctx, DateTime orderDateTime, String? noteMessageForDriver) {
     User? user = authInstance.currentUser;
+    String message = '';
 
     final productProvider = Provider.of<ProductsProvider>(ctx, listen: false);
     final cartProvider = Provider.of<CartProvider>(ctx, listen: false);
     final ordersProvider = Provider.of<OrdersProvider>(ctx, listen: false);
+
+    if (noteMessageForDriver != null) {
+      message = noteMessageForDriver;
+    } else {
+      message = 'No Note for the Driver';
+    }
 
     double total = 0.0;
     cartProvider.getCardItems.forEach(
@@ -543,8 +798,8 @@ class _CartScreenState extends State<CartScreen> {
               'userId': user!.uid,
               'productId': value.productId,
               'price': (getCurrProduct.isOnSale
-                  ? getCurrProduct.salePrice
-                  : getCurrProduct.price) *
+                      ? getCurrProduct.salePrice
+                      : getCurrProduct.price) *
                   value.quantity,
               'totalPrice': total,
               'quantity': value.quantity,
@@ -555,6 +810,7 @@ class _CartScreenState extends State<CartScreen> {
               'shippingAddress': shippingAddress,
               'phoneNumber': phoneNumber,
               'title': getCurrProduct.title,
+              'noteForDriver': message,
             });
 
             await cartProvider.clearOnlineCart();
