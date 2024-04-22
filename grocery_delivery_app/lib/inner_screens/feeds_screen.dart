@@ -25,6 +25,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
   void dispose() {
     _searchTextController.dispose();
     _searchTextFocusNode.dispose();
+    Provider.of<ProductsProvider>(context, listen: false).dispose();
     super.dispose();
   }
 
@@ -34,7 +35,9 @@ class _FeedsScreenState extends State<FeedsScreen> {
     productProvider.fetchProducts();
     super.initState();
   }
+  String? _selectedSortOption = "low_to_high";
   List<ProductModel> listProductSearch = [];
+
   @override
   Widget build(BuildContext context) {
     final Color color = Utils(context).color;
@@ -60,63 +63,159 @@ class _FeedsScreenState extends State<FeedsScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
-                height: kBottomNavigationBarHeight,
-                child: TextField(
-                  focusNode: _searchTextFocusNode,
-                  controller: _searchTextController,
-                  onChanged: (valuee) {
-                    setState(() {
-                      listProductSearch =
-                          productProvider.searchQuery(valuee);
-                    });
-                  },
-                  decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                            color: Colors.greenAccent, width: 1)),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                            color: Colors.greenAccent, width: 1)),
-                    hintText: "Search something...",
-                    prefixIcon: const Icon(Icons.search),
-                    suffix: IconButton(
-                      onPressed: () {
-                        _searchTextController.clear();
-                        _searchTextFocusNode.unfocus();
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    height: kBottomNavigationBarHeight,
+                    child: TextField(
+                      focusNode: _searchTextFocusNode,
+                      controller: _searchTextController,
+                      onChanged: (value) {
+                        setState(() {
+                          listProductSearch = productProvider.searchQuery(value);
+                        });
                       },
-                      icon: Icon(Icons.close,
-                          color: _searchTextFocusNode.hasFocus
-                              ? Colors.red
-                              : color),
+                      decoration: InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: Colors.green,
+                            width: 2,
+                          ),
+                        ),
+                        hintText: "Search something...",
+                        hintStyle: TextStyle(
+                          color: color,
+                        ),
+                        prefixIcon: Icon(Icons.search, color: color,),
+                        suffix: IconButton(
+                          onPressed: () {
+                            _searchTextController.clear();
+                            _searchTextFocusNode.unfocus();
+                          },
+                          icon: Icon(
+                            Icons.close,
+                            color: _searchTextFocusNode.hasFocus ? Colors.red : color,
+                          ),
+                        ),
+                      ),
                     ),
-
                   ),
-                ),
+                  SizedBox(height: 10), // Adjust as needed
+                  Row( // Wrap dropdown and apply button in a row
+                    children: [
+                      Expanded(
+                        child: DropdownButton<String>(
+                          value: _selectedSortOption,
+                          items: [
+                            DropdownMenuItem(
+                              value: "low_to_high",
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 40),
+                                child: Text("Price Low to High", textAlign: TextAlign.center, style: TextStyle(color: color),),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: "high_to_low",
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 40),
+                                child: Text("Price High to Low", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: "name_a_to_z",
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 40),
+                                child: Text("Name A-Z", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: "name_z_to_a",
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 40),
+                                child: Text("Name Z-A", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                              ),
+                            ),
+                            DropdownMenuItem(
+                              value: "most_popular_sold",
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 40),
+                                child: Text("Most Popular Sold", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                              ),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedSortOption = value;
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(width: 10), // Adjust as needed
+                      SizedBox( // Set the width of the button
+                        width: 150, // Adjust the width as needed
+                        child: ElevatedButton(
+                          onPressed: () {
+                            if (_selectedSortOption == "low_to_high") {
+                              setState(() {
+                                allProducts.sort((a, b) => a.price.compareTo(b.price));
+                              });
+                            } else if (_selectedSortOption == "high_to_low") {
+                              setState(() {
+                                allProducts.sort((a, b) => b.price.compareTo(a.price));
+                              });
+                            } else if (_selectedSortOption == "name_a_to_z") {
+                              setState(() {
+                                allProducts.sort((a, b) => a.title.compareTo(b.title));
+                              });
+                            } else if (_selectedSortOption == "name_z_to_a") {
+                              setState(() {
+                                allProducts.sort((a, b) => b.title.compareTo(a.title));
+                              });
+                            } else if (_selectedSortOption == "most_popular_sold") {
+                              setState(() {
+                                allProducts.sort((a, b) => b.productSold.compareTo(a.productSold));
+                              });
+                            }
+                          },
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                            shape: MaterialStateProperty.all<OutlinedBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          child: Text("Apply", style: TextStyle(fontSize: 17),),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            _searchTextController!.text.isNotEmpty &&
-                listProductSearch.isEmpty
-                ? const EmptyProdWidget(
-                text: 'No Product found, please try another keyword')
+            _searchTextController!.text.isNotEmpty && listProductSearch.isEmpty
+                ? const EmptyProdWidget(text: 'No Product found, please try another keyword')
                 : GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               padding: EdgeInsets.zero,
-              // crossAxisSpacing: 10,
               childAspectRatio: size.width / (size.height * 0.45),
               children: List.generate(
-                _searchTextController!.text.isNotEmpty
-                    ? listProductSearch.length
-                    : allProducts.length,
+                _searchTextController!.text.isNotEmpty ? listProductSearch.length : allProducts.length,
                     (index) {
                   return ChangeNotifierProvider.value(
-                    value: _searchTextController!.text.isNotEmpty
-                        ? listProductSearch[index]
-                        : allProducts[index],
+                    value: _searchTextController!.text.isNotEmpty ? listProductSearch[index] : allProducts[index],
                     child: const FeedsWidget(),
                   );
                 },

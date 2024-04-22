@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get_state_manager/src/simple/get_state.dart';
 import 'package:grocery_delivery_app/consts/firebase_consts.dart';
 import 'package:grocery_delivery_app/inner_screens/location_screen.dart';
@@ -96,16 +97,6 @@ class _UserScreenState extends State<UserScreen> {
         _genderController.text = userDoc.get('gender');
         _birth = userDoc.get('birth');
         _birthDateController.text = userDoc.get('birth');
-        // Timestamp birthTimestamp = userDoc.get('birth');
-        //
-        // // Convert the timestamp to a DateTime object
-        // DateTime birthDate = birthTimestamp.toDate();
-        //
-        // // Format the birth date as a string
-        // String formattedBirthDate = DateFormat('yyyy-MM-dd').format(birthDate);
-        //
-        // // Update the _birthDateController with the formatted birth date
-        // _birthDateController.text = formattedBirthDate;
       }
     } catch (error) {
       setState(() {
@@ -258,7 +249,7 @@ class _UserScreenState extends State<UserScreen> {
                       },
                       color: color),
                   _listTiles(
-                      title: 'Forget Password',
+                      title: 'Reset Password',
                       icon: IconlyLight.unlock,
                       onPressed: () {
                         final User? user = authInstance.currentUser;
@@ -425,7 +416,7 @@ class _UserScreenState extends State<UserScreen> {
                           });
                         },
                       ),
-                      const Text('Female'),
+                      const Text('Female', style: TextStyle(color:  Colors.black),),
                       Radio<String>(
                         value: 'male',
                         groupValue: selectedGender,
@@ -435,7 +426,7 @@ class _UserScreenState extends State<UserScreen> {
                           });
                         },
                       ),
-                      const Text('Male'),
+                      const Text('Male',  style: TextStyle(color:  Colors.black),),
                     ],
                   ),
                   TextFormField(
@@ -502,17 +493,21 @@ class _UserScreenState extends State<UserScreen> {
                       'name': _userNameController.text,
                       'gender': selectedGender,
                       'birth' : _birthDateController.text,
-                      // Store the selected gender in the database
-                      // Update other fields as needed
                     });
                     setState(() {
                       phoneNumber = _phoneNumberController.text;
                       _name = _userNameController.text;
                       _birth = _birthDateController.text;
-                      // birth = _birthDateController.text;
-                      // Update other states as needed
                     });
-                    Navigator.pop(context); // Close the dialog after successful update
+                    Fluttertoast.showToast(
+                        msg: "Profile Details Updated",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey.shade600,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    Navigator.pop(context);
                   } catch (err) {
                     await GlobalMethods.errorDialog(
                       subtitle: err.toString(),
@@ -520,7 +515,7 @@ class _UserScreenState extends State<UserScreen> {
                     );
                   } finally {
                     setState(() {
-                      isLoading = false; // Set isLoading to false when update completes
+                      isLoading = false;
                     });
                   }
                 },

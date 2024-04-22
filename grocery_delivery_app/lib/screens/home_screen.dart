@@ -73,23 +73,27 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Row(
               children: [
-                RotatedBox(
-                  quarterTurns: -1,
-                  child: Row(
-                    children: [
-                      TextWidget(
-                          text: 'On Sale'.toUpperCase(),
+                Padding(
+                  padding: const EdgeInsets.only(left: 4),
+                  child: RotatedBox(
+                    quarterTurns: -1,
+                    child: Row(
+                      children: [
+                        TextWidget(
+                          text: 'Hot Sale'.toUpperCase(),
                           color: Colors.red,
                           textSize: 22,
-                          isTitle: true),
-                      const SizedBox(
-                        width: 5,
-                      ),
-                      const Icon(
-                        IconlyLight.discount,
-                        color: Colors.red,
-                      )
-                    ],
+                          isTitle: true,
+                        ),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        const Icon(
+                          IconlyLight.discount,
+                          color: Colors.red,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(

@@ -115,7 +115,16 @@ class _LocationScreenState extends State<LocationScreen> {
                       onPressed: () async {
                         await controller.getCurrentLocation();
                       },
-                      icon: Icon(Icons.map), // Add your desired icon
+                      icon: Icon(Icons.map),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
                       label: const Text('Get your current Location'),
                     ),
                     const SizedBox(height: 20),
@@ -123,7 +132,16 @@ class _LocationScreenState extends State<LocationScreen> {
                       onPressed: () async {
                         _showAddressDialog();
                       },
-                      icon: Icon(Icons.edit), // Add your desired icon
+                      icon: Icon(Icons.edit),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
                       label: const Text('Edit Location'),
                     ),
                     const SizedBox(height: 20),
@@ -132,8 +150,17 @@ class _LocationScreenState extends State<LocationScreen> {
                           ? () {
                         _getCurrentLocation(controller.currentLocation, context);
                       }
-                          : null, // Disable button if controller.currentLocation is empty
-                      icon: Icon(Icons.save), // Add your desired icon
+                          : null,
+                      icon: Icon(Icons.save),
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
                       label: const Text('Save Location'),
                     )
                   ],

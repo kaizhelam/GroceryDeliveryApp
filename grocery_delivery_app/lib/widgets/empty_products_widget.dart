@@ -17,7 +17,7 @@ class EmptyProdWidget extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
                 'assets/images/box.png',
-                width: 250,
+                width: 200,
               ),
             ),
             Text(

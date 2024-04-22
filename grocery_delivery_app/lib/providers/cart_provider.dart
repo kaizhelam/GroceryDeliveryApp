@@ -12,18 +12,6 @@ class CartProvider with ChangeNotifier {
     return _cartItems;
   }
 
-  // void addProductsToCard({required String productId, required int quantity}) {
-  //   _cartItems.putIfAbsent(
-  //     productId,
-  //     () => CartModel(
-  //       id: DateTime.now().toString(),
-  //       productId: productId,
-  //       quantity: quantity,
-  //     ),
-  //   );
-  //   notifyListeners();
-  // }
-
   final userCollection = FirebaseFirestore.instance.collection('users');
   Future<void> fetchCart() async {
     final User? user = authInstance.currentUser;

@@ -128,8 +128,8 @@ class _CartScreenState extends State<CartScreen> {
                 IconButton(
                   onPressed: () {
                     GlobalMethods.warningDialog(
-                      title: 'Empty your cart?',
-                      subtitle: 'Are you sure',
+                      title: 'Empty your cart',
+                      subtitle: 'Are you sure?',
                       fct: () async {
                         await cartProvider.clearOnlineCart();
                         cartProvider.clearLocalCart();
@@ -274,7 +274,7 @@ class _CartScreenState extends State<CartScreen> {
               decoration: InputDecoration(
                 hintText: 'Enter your note here',
                 hintStyle:
-                    TextStyle(color: Colors.black), // Set the hint text color
+                    TextStyle(color: Colors.grey), // Set the hint text color
               ),
             ),
             actions: <Widget>[
@@ -286,12 +286,22 @@ class _CartScreenState extends State<CartScreen> {
               ),
               TextButton(
                 onPressed: () {
-                  // Close the dialog
-                  Navigator.pop(context);
-                  // Update the visibility of the remove circle icon
-                  setState(() {
-                    _noteMessageForDriver = _noteMessage.text;
-                  });
+                  if(_noteMessage.text.isEmpty){
+                    Fluttertoast.showToast(
+                        msg: "Please add a Note for Driver",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.grey.shade600,
+                        textColor: Colors.white,
+                        fontSize: 16.0);
+                    return;
+                  }else{
+                    Navigator.pop(context);
+                    setState(() {
+                      _noteMessageForDriver = _noteMessage.text;
+                    });
+                  }
                 },
                 child: Text('OK'),
               ),
@@ -330,7 +340,7 @@ class _CartScreenState extends State<CartScreen> {
                         child: TextWidget(
                           text: 'Check Out',
                           color: Colors.white,
-                          textSize: 20,
+                          textSize: 18,
                         ),
                       ),
                     ),
@@ -363,7 +373,7 @@ class _CartScreenState extends State<CartScreen> {
                           ),
                           SizedBox(width: 8),
                           Text(
-                            'Schedule Delivery Time and Date *Optional',
+                            'Schedule Delivery Date and Time *Optional',
                             style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.green,
@@ -385,7 +395,7 @@ class _CartScreenState extends State<CartScreen> {
                               Text(
                                 _selectedDateTime != null
                                     ? 'Delivery Date and Time: ${DateFormat.yMd().add_jm().format(_selectedDateTime!)}'
-                                    : '',
+                                    : 'By Default, The order place by Today',
                                 style: TextStyle(
                                   fontSize: 17,
                                   color: color,
@@ -419,7 +429,7 @@ class _CartScreenState extends State<CartScreen> {
                     ],
                   ),
                   Divider(
-                    color: Colors.black,
+                    color: color,
                     thickness: 1,
                   ),
                   SizedBox(height: 8),
@@ -578,7 +588,7 @@ class _CartScreenState extends State<CartScreen> {
                   SizedBox(height: 5),
                   Text(
                     address,
-                    style: TextStyle(color: Colors.black, fontSize: 15),
+                    style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 5),
                   Divider(

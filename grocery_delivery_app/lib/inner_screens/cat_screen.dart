@@ -75,13 +75,16 @@ class _FeedsScreenState extends State<CategoryScreen> {
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                  color: Colors.greenAccent, width: 1)),
+                                  color: Colors.green, width: 2)),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                  color: Colors.greenAccent, width: 1)),
+                                  color: Colors.green, width: 2)),
                           hintText: "Search something...",
-                          prefixIcon: const Icon(Icons.search),
+                          hintStyle: TextStyle(
+                            color: color,
+                          ),
+                          prefixIcon: Icon(Icons.search, color: color,),
                           suffix: IconButton(
                             onPressed: () {
                               _searchTextController.clear();
