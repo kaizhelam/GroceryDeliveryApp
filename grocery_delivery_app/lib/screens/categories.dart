@@ -9,12 +9,13 @@ class CategoriesScreen extends StatelessWidget {
   CategoriesScreen({super.key});
 
   List<Color> gridColors = [
-    const Color(0xff53B175),
-    const Color(0xffF8A44C),
-    const Color(0xffF7A593),
-    const Color(0xffD3B0E0),
-    const Color(0xffFDE598),
-    const Color(0xffB7DFF5),
+    const Color(0xffFF5252), // Red
+    const Color(0xffFFD740), // Amber
+    const Color(0xff69F0AE), // Green
+    const Color(0xff40C4FF), // Blue
+    const Color(0xffFF4081), // Pink
+    const Color(0xff536DFE), // Indigo
+    const Color(0xffFF6E40), // Orange
   ];
 
 
@@ -28,8 +29,8 @@ class CategoriesScreen extends StatelessWidget {
       'catText': 'Vegetables',
     },
     {
-      'imgPath': 'assets/images/cat/Spinach.png',
-      'catText': 'Herbs',
+      'imgPath': 'assets/images/cat/drink.png',
+      'catText': 'Drinks',
     },
     {
       'imgPath': 'assets/images/cat/nuts.png',
@@ -42,6 +43,10 @@ class CategoriesScreen extends StatelessWidget {
     {
       'imgPath': 'assets/images/cat/grains.png',
       'catText': 'Grains',
+    },
+    {
+      'imgPath': 'assets/images/cat/Spinach.png',
+      'catText': 'Herbs',
     },
   ];
 
@@ -67,7 +72,7 @@ class CategoriesScreen extends StatelessWidget {
           childAspectRatio: 240 / 250,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          children: List.generate(6, (index) {
+          children: List.generate(7, (index) {
             return CategoriesWidget(
               catText: catInfo[index]['catText'],
               imgPath: catInfo[index]['imgPath'],
