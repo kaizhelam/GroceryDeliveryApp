@@ -1,9 +1,12 @@
+import 'dart:ui';
+
 import 'package:card_swiper/card_swiper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_delivery_app/screens/btm_bar.dart';
@@ -77,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'id': _uid,
           'name': _fullNameController.text,
           'email': _emailTextController.text.toLowerCase(),
-          'shippingAddress': "Empty",
+          'shippingAddress': "",
           'phoneNumber' :_phoneNumberController.text,
           'userWish': [],
           'userCart': [],
@@ -137,7 +140,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 60.0,
                 ),
                 const SizedBox(
-                  height: 40.0,
+                  height: 25.0,
                 ),
                 TextWidget(
                   text: 'Welcome',
@@ -155,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   isTitle: false,
                 ),
                 const SizedBox(
-                  height: 30.0,
+                  height: 8,
                 ),
                 Form(
                   key: _formKey,
@@ -186,6 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                         ),
+                        cursorColor: Colors.cyan,
                       ),
                       const SizedBox(
                         height: 10,
@@ -216,6 +220,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                         ),
+                        cursorColor: Colors.cyan,
                       ),
                       const SizedBox(
                         height: 10,
@@ -259,6 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                         ),
+                        cursorColor: Colors.cyan,
                       ),
                       const SizedBox(
                         height: 10,
@@ -304,6 +310,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                         ),
+                        cursorColor: Colors.cyan,
                       ),
 
                       const SizedBox(
@@ -341,6 +348,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             borderSide: BorderSide(color: Colors.red),
                           ),
                         ),
+                        cursorColor: Colors.cyan,
                       ),
                       const SizedBox(
                         height: 10,
@@ -388,10 +396,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       'Forget password?',
                       maxLines: 1,
                       style: TextStyle(
-                          color: Colors.lightBlue,
+                          color: Colors.cyan,
                           fontSize: 18,
-                          decoration: TextDecoration.underline,
-                          fontStyle: FontStyle.italic),
+                          fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
@@ -412,7 +420,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         TextSpan(
                             text: ' Sign in',
                             style: const TextStyle(
-                                color: Colors.lightBlue, fontSize: 18),
+                                color: Colors.cyan, fontSize: 18, fontWeight: FontWeight.bold),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
                                 Navigator.pushReplacementNamed(

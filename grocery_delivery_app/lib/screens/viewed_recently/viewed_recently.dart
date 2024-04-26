@@ -35,9 +35,9 @@ class _ViewedRecentlyScreenState extends State<ViewedRecentlyScreen> {
 
     return viewedProdItemsList.isEmpty
         ? const EmptyScreen(
-            title: 'Your history is empty',
-            subtitle: 'No products has been viewed yet!',
-            buttonText: 'Shop now',
+            title: 'Your History is Empty',
+            subtitle: 'No Products has Been Viewed Yet',
+            buttonText: 'Shop Now',
             imagePath: 'assets/images/history.png',
           )
         : Scaffold(

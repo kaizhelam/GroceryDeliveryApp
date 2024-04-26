@@ -13,13 +13,17 @@ class CategoriesScreen extends StatelessWidget {
     const Color(0xffFFD740), // Amber
     const Color(0xff69F0AE), // Green
     const Color(0xff40C4FF), // Blue
-    const Color(0xffFF4081), // Pink
     const Color(0xff536DFE), // Indigo
-    const Color(0xffFF6E40), // Orange
+    const Color(0xffFF4081), // Pink
+    // const Color(0xffFF6E40), // Orange
   ];
 
 
   List<Map<String, dynamic>> catInfo = [
+    {
+      'imgPath': 'assets/images/cat/food.png',
+      'catText': 'Foods',
+    },
     {
       'imgPath': 'assets/images/cat/fruits.png',
       'catText': 'Fruits',
@@ -36,18 +40,18 @@ class CategoriesScreen extends StatelessWidget {
       'imgPath': 'assets/images/cat/nuts.png',
       'catText': 'Nuts',
     },
-    {
-      'imgPath': 'assets/images/cat/spices.png',
-      'catText': 'Spices',
-    },
+    // {
+    //   'imgPath': 'assets/images/cat/spices.png',
+    //   'catText': 'Spices',
+    // },
     {
       'imgPath': 'assets/images/cat/grains.png',
       'catText': 'Grains',
     },
-    {
-      'imgPath': 'assets/images/cat/Spinach.png',
-      'catText': 'Herbs',
-    },
+    // {
+    //   'imgPath': 'assets/images/cat/Spinach.png',
+    //   'catText': 'Herbs',
+    // },
   ];
 
   @override
@@ -69,10 +73,10 @@ class CategoriesScreen extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: GridView.count(
           crossAxisCount: 2,
-          childAspectRatio: 240 / 250,
+          childAspectRatio: 220 / 260,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          children: List.generate(7, (index) {
+          children: List.generate(6, (index) {
             return CategoriesWidget(
               catText: catInfo[index]['catText'],
               imgPath: catInfo[index]['imgPath'],

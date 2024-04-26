@@ -75,11 +75,11 @@ class _FeedsScreenState extends State<CategoryScreen> {
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                  color: Colors.green, width: 2)),
+                                  color: Colors.cyan, width: 2)),
                           enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                  color: Colors.green, width: 2)),
+                                  color: Colors.cyan, width: 2)),
                           hintText: "Search something...",
                           hintStyle: TextStyle(
                             color: color,
@@ -96,6 +96,7 @@ class _FeedsScreenState extends State<CategoryScreen> {
                                     : color),
                           ),
                         ),
+                        cursorColor: Colors.cyan,
                       ),
                     ),
                   ),
@@ -109,7 +110,7 @@ class _FeedsScreenState extends State<CategoryScreen> {
                           crossAxisCount: 2,
                           padding: EdgeInsets.zero,
                           // crossAxisSpacing: 10,
-                          childAspectRatio: size.width / (size.height * 0.45),
+                          childAspectRatio: size.width / (size.height * 0.47),
                           children: List.generate(
                             _searchTextController!.text.isNotEmpty
                                 ? listProductSearch.length

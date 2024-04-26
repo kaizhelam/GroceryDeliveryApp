@@ -89,7 +89,7 @@ class _ViewedRecentlyWidgetState extends State<ViewedRecentlyWidget> {
                       final User? user = authInstance.currentUser;
                       if (user == null) {
                         GlobalMethods.errorDialog(
-                            subtitle: 'No user found, Please login in first',
+                            subtitle: 'No User Found, Please Login In First',
                             context: context);
                         return;
                       }

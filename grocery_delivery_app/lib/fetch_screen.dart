@@ -28,27 +28,28 @@ class _FetchScreenState extends State<FetchScreen> {
       final productsProvider =
       Provider.of<ProductsProvider>(context, listen: false);
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      final wishlistProvider = Provider.of<WishlistProvider>(context, listen: false);
-      final orderProvider = Provider.of<OrdersProvider>(context, listen: false);
+      final wishlistProvider =
+      Provider.of<WishlistProvider>(context, listen: false);
+      // final orderProvider = Provider.of<OrdersProvider>(context, listen: false);
       final User? user = authInstance.currentUser;
-
       if (user == null) {
         await productsProvider.fetchProducts();
         cartProvider.clearLocalCart();
         wishlistProvider.clearLocalWishlist();
-        orderProvider.clearLocalOrders();
       } else {
         await productsProvider.fetchProducts();
         await cartProvider.fetchCart();
         await wishlistProvider.fetchWishlist();
+        // await orderProvider.fetchOrders();
       }
-
+      if (!mounted) return;
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (ctx) => const BottomBarScreen(),
       ));
     });
     super.initState();
   }
+
 
   @override
   Widget build(BuildContext context) {

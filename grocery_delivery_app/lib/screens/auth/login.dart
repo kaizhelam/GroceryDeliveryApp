@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:grocery_delivery_app/screens/auth/register.dart';
 import 'package:grocery_delivery_app/screens/btm_bar.dart';
@@ -147,6 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderSide: BorderSide(color: Colors.white),
                             ),
                           ),
+                          cursorColor: Colors.cyan,
                         ),
                         const SizedBox(
                           height: 12,
@@ -192,6 +194,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               borderSide: BorderSide(color: Colors.white),
                             ),
                           ),
+                          cursorColor: Colors.cyan,
                         ),
                       ],
                     ),
@@ -211,9 +214,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Forget password?',
                           maxLines: 1,
                           style: TextStyle(
-                              color: Colors.lightBlue,
+                              color: Colors.cyan,
                               fontSize: 18,
-                              fontStyle: FontStyle.italic),
+                              fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.bold),
                         ),
                       )),
                   const SizedBox(
@@ -222,10 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   AuthButton(fct: () {
                     _submitFormOnLogin();
                   }, buttonText: 'Sign In'),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  const GoogleButton(),
+                  // const GoogleButton(),
                   const SizedBox(
                     height: 10,
                   ),
@@ -275,9 +276,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: const TextStyle(color: Colors.white, fontSize: 18),
                       children: [
                         TextSpan(
-                          text: '  Sign Up',
+                          text: ' Sign Up',
                           style: const TextStyle(
-                              color: Colors.lightBlue,
+                              color: Colors.cyan,
                               fontSize: 18,
                               fontWeight: FontWeight.w600),
                           recognizer: TapGestureRecognizer()..onTap = () {

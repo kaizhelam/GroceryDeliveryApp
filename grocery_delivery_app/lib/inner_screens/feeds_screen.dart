@@ -80,14 +80,14 @@ class _FeedsScreenState extends State<FeedsScreen> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Colors.green,
+                            color: Colors.cyan,
                             width: 2,
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: const BorderSide(
-                            color: Colors.green,
+                            color: Colors.cyan,
                             width: 2,
                           ),
                         ),
@@ -107,6 +107,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                           ),
                         ),
                       ),
+                      cursorColor: Colors.cyan,
                     ),
                   ),
                   SizedBox(height: 10), // Adjust as needed
@@ -119,35 +120,35 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             DropdownMenuItem(
                               value: "low_to_high",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 40),
+                                padding: EdgeInsets.only(left: 10),
                                 child: Text("Price Low to High", textAlign: TextAlign.center, style: TextStyle(color: color),),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "high_to_low",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 40),
+                                padding: EdgeInsets.only(left: 10),
                                 child: Text("Price High to Low", textAlign: TextAlign.center, style: TextStyle(color: color)),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "name_a_to_z",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 40),
+                                padding: EdgeInsets.only(left: 10),
                                 child: Text("Name A-Z", textAlign: TextAlign.center, style: TextStyle(color: color)),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "name_z_to_a",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 40),
+                                padding: EdgeInsets.only(left: 10),
                                 child: Text("Name Z-A", textAlign: TextAlign.center, style: TextStyle(color: color)),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "most_popular_sold",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 40),
+                                padding: EdgeInsets.only(left: 10),
                                 child: Text("Most Popular Sold", textAlign: TextAlign.center, style: TextStyle(color: color)),
                               ),
                             ),
@@ -187,7 +188,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             }
                           },
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.green),
+                            backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
                             foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
                             shape: MaterialStateProperty.all<OutlinedBorder>(
                               RoundedRectangleBorder(
@@ -210,7 +211,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
               physics: const NeverScrollableScrollPhysics(),
               crossAxisCount: 2,
               padding: EdgeInsets.zero,
-              childAspectRatio: size.width / (size.height * 0.45),
+              childAspectRatio: size.width / (size.height * 0.47),
               children: List.generate(
                 _searchTextController!.text.isNotEmpty ? listProductSearch.length : allProducts.length,
                     (index) {

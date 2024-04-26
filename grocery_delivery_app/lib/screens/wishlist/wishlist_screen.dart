@@ -23,12 +23,13 @@ class WishlistScreen extends StatelessWidget {
     final wishlistProvider = Provider.of<WishlistProvider>(context);
     final wishlistItemsList =
         wishlistProvider.getWishlistItems.values.toList().reversed.toList();
+
     return wishlistItemsList.isEmpty
         ? const EmptyScreen(
             title: 'Your Wishlist Is Empty',
-            subtitle: 'Explore more and shortlist some items',
+            subtitle: 'Explore more & add Products into Wishlist',
             imagePath: 'assets/images/wishlist.png',
-            buttonText: 'Add a wish',
+            buttonText: 'Shop Now',
           )
         : Scaffold(
             appBar: AppBar(

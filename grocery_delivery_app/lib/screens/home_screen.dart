@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: size.height * 0.33,
+              height: size.height * 0.31,
               child: Swiper(
                 itemBuilder: (BuildContext context, int index) {
                   return Image.asset(
@@ -54,9 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 // control: const SwiperControl(color: Colors.black),
               ),
             ),
-            const SizedBox(
-              height: 6,
-            ),
             TextButton(
               onPressed: () {
                 GlobalMethods.navigateTo(
@@ -65,11 +62,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: TextWidget(
                   text: 'View All',
                   maxLines: 1,
-                  color: Colors.blue,
-                  textSize: 20),
-            ),
-            const SizedBox(
-              height: 6,
+                  color: Colors.cyan,
+                  textSize: 20,
+              isTitle: true,),
             ),
             Row(
               children: [
@@ -101,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 Flexible(
                   child: SizedBox(
-                    height: size.height * 0.24,
+                    height: size.height * 0.23,
                     child: ListView.builder(
                       itemCount: productOnSale.length < 10 ? productOnSale.length : 10,
                       scrollDirection: Axis.horizontal,
@@ -114,9 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(
-              height: 10,
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -138,8 +130,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: TextWidget(
                         text: 'Browse all',
                         maxLines: 1,
-                        color: Colors.blue,
-                        textSize: 20),
+                        color: Colors.cyan,
+                        textSize: 20,
+                    isTitle: true,),
                   ),
                 ],
               ),
@@ -150,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisCount: 2,
               padding: EdgeInsets.zero,
               // crossAxisSpacing: 10,r
-              childAspectRatio: size.width / (size.height * 0.45),
+              childAspectRatio: size.width / (size.height * 0.47),
               children: List.generate(
                 allProducts.length < 4 ? allProducts.length : 4,
                 (index) {

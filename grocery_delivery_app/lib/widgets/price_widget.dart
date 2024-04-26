@@ -23,7 +23,7 @@ class PriceWidget extends StatelessWidget {
           children: [
             TextWidget(
               text: 'RM${(userPrice * int.parse(textPrice)).toStringAsFixed(2)}',
-              color: Colors.green,
+              color: Colors.cyan,
               textSize: 18,
             ),
             const SizedBox(

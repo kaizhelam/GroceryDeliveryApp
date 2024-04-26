@@ -21,6 +21,7 @@ import '../../services/utils.dart';
 import '../../widgets/empty.screen.dart';
 import '../../widgets/text_widget.dart';
 import 'cart_widget.dart';
+import 'package:flutter/material.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -33,6 +34,8 @@ class _CartScreenState extends State<CartScreen> {
   DateTime? _selectedDateTime;
   TextEditingController _noteMessage = TextEditingController();
   String? _noteMessageForDriver;
+  double _deliveryFee = 4.90;
+
 
   @override
   void dispose() {
@@ -108,9 +111,9 @@ class _CartScreenState extends State<CartScreen> {
 
     return cartItemList.isEmpty
         ? const EmptyScreen(
-            title: 'Your cart is empty',
-            subtitle: 'Add something and order now',
-            buttonText: 'Shop now',
+            title: 'Your Cart Is Empty',
+            subtitle: 'Add Something And Start Order Now',
+            buttonText: 'Shop Now',
             imagePath: 'assets/images/cart.png',
           )
         : Scaffold(
@@ -128,11 +131,19 @@ class _CartScreenState extends State<CartScreen> {
                 IconButton(
                   onPressed: () {
                     GlobalMethods.warningDialog(
-                      title: 'Empty your cart',
-                      subtitle: 'Are you sure?',
+                      title: 'Empty Your Cart',
+                      subtitle: 'Are You Sure To Empty All Item From The Cart?',
                       fct: () async {
                         await cartProvider.clearOnlineCart();
                         cartProvider.clearLocalCart();
+                        Fluttertoast.showToast(
+                            msg: "All Item Removed From Your Cart",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.grey[200],
+                            textColor: Colors.black,
+                            fontSize: 13);
                       },
                       context: context,
                     );
@@ -204,7 +215,7 @@ class _CartScreenState extends State<CartScreen> {
           return Theme(
             data: ThemeData.dark().copyWith(
               colorScheme: const ColorScheme.dark(
-                primary: Colors.green, // Change text color to green
+                primary: Colors.cyan, // Change text color to green
               ),
             ),
             child: child!,
@@ -220,7 +231,7 @@ class _CartScreenState extends State<CartScreen> {
             return Theme(
               data: ThemeData.dark().copyWith(
                 colorScheme: const ColorScheme.dark(
-                  primary: Colors.green, // Change text color to green
+                  primary: Colors.cyan, // Change text color to green
                 ),
               ),
               child: child!,
@@ -240,10 +251,13 @@ class _CartScreenState extends State<CartScreen> {
             _selectedDateTime = selectedDateTime;
           });
           await Fluttertoast.showToast(
-            msg: "You have scheduled your delivery date & time",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.CENTER,
-          );
+              msg: "You Have Scheduled The Delivery Date & Time",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.cyan,
+              textColor: Colors.white,
+              fontSize: 13);
           print(_selectedDateTime);
         }
       }
@@ -267,43 +281,55 @@ class _CartScreenState extends State<CartScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Add a Note for Driver'),
+            title: Text('Add a Note for Driver', style: TextStyle(fontSize: 19),),
             content: TextField(
               controller: _noteMessage,
               maxLines: 5, // Set maxLines to 5
               decoration: InputDecoration(
                 hintText: 'Enter your note here',
                 hintStyle:
-                    TextStyle(color: Colors.grey), // Set the hint text color
+                    TextStyle(color: Colors.grey),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                ),// Set the hint text color
               ),
+              cursorColor: Colors.cyan,
             ),
             actions: <Widget>[
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the dialog
-                },
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () {
-                  if(_noteMessage.text.isEmpty){
+                  if (_noteMessage.text.isEmpty) {
                     Fluttertoast.showToast(
-                        msg: "Please add a Note for Driver",
+                        msg: "Please Key In Something...",
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.grey.shade600,
+                        backgroundColor: Colors.red,
                         textColor: Colors.white,
-                        fontSize: 16.0);
+                        fontSize: 13);
                     return;
-                  }else{
+                  } else {
+                    Fluttertoast.showToast(
+                        msg: "You have Added a Note To Our Driver",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.cyan,
+                        textColor: Colors.white,
+                        fontSize: 13);
                     Navigator.pop(context);
                     setState(() {
                       _noteMessageForDriver = _noteMessage.text;
                     });
                   }
                 },
-                child: Text('OK'),
+                child: Text('Add', style: TextStyle(color: Colors.cyan),),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the dialog
+                },
+                child: Text('Cancel', style: TextStyle(color: Colors.cyan),),
               ),
             ],
           );
@@ -317,7 +343,7 @@ class _CartScreenState extends State<CartScreen> {
     return SingleChildScrollView(
       child: SizedBox(
         width: double.infinity,
-        height: size.height * 0.31,
+        height: size.height * 0.33,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
@@ -327,7 +353,7 @@ class _CartScreenState extends State<CartScreen> {
               Row(
                 children: [
                   Material(
-                    color: Colors.green,
+                    color: Colors.cyan,
                     borderRadius: BorderRadius.circular(10),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(10),
@@ -370,13 +396,14 @@ class _CartScreenState extends State<CartScreen> {
                           Icon(
                             Icons.edit,
                             color: color,
+                            size: 14,
                           ),
                           SizedBox(width: 8),
                           Text(
                             'Schedule Delivery Date and Time *Optional',
                             style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.green,
+                                fontSize: 14,
+                                color: Colors.cyan,
                                 fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -397,11 +424,11 @@ class _CartScreenState extends State<CartScreen> {
                                     ? 'Delivery Date and Time: ${DateFormat.yMd().add_jm().format(_selectedDateTime!)}'
                                     : 'By Default, The order place by Today',
                                 style: TextStyle(
-                                  fontSize: 17,
+                                  fontSize: 14,
                                   color: color,
                                 ),
                               ),
-                              SizedBox(width: 24),
+                              SizedBox(width: 10),
                               if (_selectedDateTime != null)
                                 Container(
                                   width: 24, // Fixed width for the icon
@@ -442,13 +469,14 @@ class _CartScreenState extends State<CartScreen> {
                           Icon(
                             Icons.edit,
                             color: color,
+                            size: 14,
                           ),
                           SizedBox(width: 8),
                           Text(
                             'Note for Driver *Optional',
                             style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.green,
+                                fontSize: 14,
+                                color: Colors.cyan,
                                 fontWeight: FontWeight.bold),
                           ),
                         ],
@@ -461,12 +489,12 @@ class _CartScreenState extends State<CartScreen> {
                     children: [
                       Expanded(
                         child: Container(
-                          height: 60, // Adjust the height as needed
+                          height: 70, // Adjust the height as needed
                           child: Row(
                             children: [
                               Container(
                                 width:
-                                    357, // Set a specific width for the TextField container
+                                    300, // Set a specific width for the TextField container
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: color, // Set the border color
@@ -495,7 +523,7 @@ class _CartScreenState extends State<CartScreen> {
                                 ),
                               ),
                               // Add SizedBox for spacing between TextField and the remove icon
-                              SizedBox(width: 8),
+                              SizedBox(width: 5),
                               // Use if-else to check if the note message is not empty
                               if (_noteMessageForDriver != null)
                                 Container(
@@ -537,27 +565,28 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _showCardDialog(
-      BuildContext context,
-      double total,
-      List<Map<String, dynamic>> productDetailsList,
-      String address,
-      DateTime orderDateTime,
-      String? noteMessageForDriver) {
+    BuildContext context,
+    double total,
+    List<Map<String, dynamic>> productDetailsList,
+    String address,
+    DateTime orderDateTime,
+    String? noteMessageForDriver,
+  ) {
     String formattedDateTime = DateFormat.yMd().add_jm().format(orderDateTime);
-    // final Color color = Utils(context).color;
+
+    double totalPayment = _deliveryFee + total;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return Center(
           child: Container(
-            width: MediaQuery.of(context).size.width *
-                1.5, // Adjust the width as needed
+            width: MediaQuery.of(context).size.width * 1.5,
             child: AlertDialog(
-              contentPadding: EdgeInsets.symmetric(
-                  horizontal: 24, vertical: 20), // Adjust padding as needed
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(15), // Adjust border radius as needed
+                borderRadius: BorderRadius.circular(15),
               ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -569,9 +598,9 @@ class _CartScreenState extends State<CartScreen> {
                           child: Padding(
                             padding: const EdgeInsets.only(right: 5),
                             child: Icon(
-                              Icons.location_on, // Delivery address icon
+                              Icons.location_on,
                               color: Colors.black,
-                              size: 18, // Adjust the size of the icon as needed
+                              size: 18,
                             ),
                           ),
                         ),
@@ -587,13 +616,17 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    address,
-                    style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold),
+                    address.isEmpty ? 'No Address Found' : address,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   SizedBox(height: 5),
                   Divider(
-                    color: Colors.black, // Set the color of the divider
-                    thickness: 1, // Set the thickness of the divider
+                    color: Colors.black,
+                    thickness: 1,
                   ),
                 ],
               ),
@@ -603,98 +636,97 @@ class _CartScreenState extends State<CartScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     for (var productDetails in productDetailsList)
-                      Row(
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            width: 50,
-                            height: 50,
-                            child: Stack(
-                              children: [
-                                Image.network(
-                                  productDetails['imageUrl'],
-                                  fit: BoxFit.cover,
-                                  loadingBuilder:
-                                      (context, child, loadingProgress) {
-                                    if (loadingProgress == null) {
-                                      return child; // Return the actual image when loading is complete
-                                    }
-                                    return Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: 20),
-                          Column(
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                productDetails['title'],
-                                style: TextStyle(color: Colors.black),
+                              Container(
+                                width: 50,
+                                height: 50,
+                                child: Stack(
+                                  children: [
+                                    Image.network(
+                                      productDetails['imageUrl'],
+                                      fit: BoxFit.cover,
+                                      loadingBuilder:
+                                          (context, child, loadingProgress) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return const Center(
+                                          child: CircularProgressIndicator(
+                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
-                              SizedBox(height: 5),
-                              Text(
-                                'x${productDetails['quantity']}',
-                                style: TextStyle(color: Colors.black),
+                              SizedBox(width: 20),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    productDetails['title'],
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  SizedBox(height: 5),
+                                  Text(
+                                    'x${productDetails['quantity']}',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
+                          SizedBox(height: 10),
                         ],
                       ),
                     SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Text(
-                          'Delivery Date & Time: ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Text(
-                          formattedDateTime,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ],
+                    Text(
+                      'Delivery Date & Time : ',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      formattedDateTime,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Note for Driver : ',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      noteMessageForDriver != null
+                          ? noteMessageForDriver
+                          : 'No Note for Driver',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Divider(
+                      color: Colors.black,
+                      thickness: 1,
                     ),
                     SizedBox(height: 10),
                     Row(
                       children: [
                         Text(
-                          'Note for Driver: ',
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black,
-                          ),
-                        ),
-                        Expanded(
-                          child: Text(
-                            noteMessageForDriver != null
-                                ? noteMessageForDriver
-                                : 'No Note for Driver',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            overflow: TextOverflow
-                                .ellipsis, // Add this line to handle overflow
-                            maxLines:
-                                1, // Add this line to limit to a single line
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Text(
-                          'Total price: ',
+                          'Merchandise Total : ',
                           style: TextStyle(
                             fontWeight: FontWeight.normal,
                             color: Colors.black,
@@ -709,23 +741,84 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                       ],
                     ),
-                    // Add more widgets as needed
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          'Delivery Fee : ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          'RM${_deliveryFee.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          'Total Payment : ',
+                          style: TextStyle(
+                            fontWeight: FontWeight.normal,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          'RM${totalPayment.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    _sendOrder(context, orderDateTime, noteMessageForDriver);
-                    Navigator.of(context).pop(true); // Return true for confirm
+                    String driverMessage = noteMessageForDriver ?? ""; // Check if null, if so, assign an empty string
+
+                    if(address.isEmpty){
+                      Fluttertoast.showToast(
+                          msg: "Please Add Your Address Before Placing Any Order",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 13);
+                    }else{
+                      Navigator.of(context).pop(true);
+                      // print(message);
+                      _addPaymentMethod(context, address, orderDateTime, driverMessage, totalPayment);
+                    }
                   },
-                  child: Text('Confirm'),
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(
+                      color: Colors.cyan,
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).pop(false); // Return false for cancel
+                    Navigator.of(context).pop(false);
                   },
-                  child: Text('Cancel'),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.cyan,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -735,8 +828,214 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  void _addPaymentMethod(BuildContext context, String address, DateTime orderDateTime, String driverMessage, double totalPayment) {
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    String _selectedPaymentMethod = '';
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SingleChildScrollView(
+              child: AlertDialog(
+                title: Text(
+                  'Select Your Payment Method',
+                  style: TextStyle(fontSize: 17),
+                ),
+                content: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Center(
+                        child: Row(
+                          children: [
+                            Column(
+                              children: [
+                                Radio(
+                                  value: 'Cash',
+                                  groupValue: _selectedPaymentMethod,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedPaymentMethod = value as String;
+                                    });
+                                  },
+                                  activeColor: Colors.cyan,
+                                ),
+                                Text(
+                                  'Cash',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
+                            SizedBox(
+                                width:
+                                    20), // Add some space between the two columns
+                            Column(
+                              children: [
+                                Radio(
+                                  value: 'Card',
+                                  groupValue: _selectedPaymentMethod,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedPaymentMethod = value as String;
+                                    });
+                                  },
+                                  activeColor: Colors.cyan,
+                                ),
+                                Text(
+                                  'Card',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (_selectedPaymentMethod == 'Card')
+                        Column(
+                          children: [
+                            TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'Card Number',
+                                hintText: 'XXXX XXXX XXXX XXXX',
+                                prefixIcon:
+                                Icon(Icons.credit_card, color: Colors.black54),
+                                hintStyle: TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                                labelStyle: TextStyle(color: Colors.black),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                                ),
+                              ),
+                              cursorColor: Colors.cyan,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a card number';
+                                }
+                                // Card number format validation (16 digits)
+                                if (!RegExp(r'^[0-9]{16}$').hasMatch(value)) {
+                                  return 'Please enter a valid card number';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                hintText: 'Expiry Date (MM/YY)', // Hint text for the expiry date
+                                labelText: 'Expiry Date',
+                                hintStyle: TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                                labelStyle: TextStyle(color: Colors.black),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                                ),
+                              ),
+                              cursorColor: Colors.cyan,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter an expiry date';
+                                }
+                                // Expiry date format validation (MM/YY)
+                                if (!RegExp(r'^\d{2}\/\d{2}$')
+                                    .hasMatch(value)) {
+                                  return 'Please enter a valid expiry date (MM/YY)';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(
+                                labelText: 'CVV',
+                                hintText: 'CVV',
+                                hintStyle: TextStyle(
+                                    color: Colors.grey, fontSize: 12),
+                                labelStyle: TextStyle(color: Colors.black),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                                ),
+                              ),
+                              cursorColor: Colors.cyan,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter a CVV';
+                                }
+                                // CVV format validation (3 or 4 digits)
+                                if (!RegExp(r'^[0-9]{3,4}$').hasMatch(value)) {
+                                  return 'Please enter a valid CVV';
+                                }
+                                return null;
+                              },
+                            ),
+                            if (_selectedPaymentMethod.isEmpty ?? true) // Check if no radio button is selected
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Text(
+                                  'Please select a payment method',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        if (_selectedPaymentMethod == null || _selectedPaymentMethod.isEmpty) {
+                          Fluttertoast.showToast(
+                              msg: "Please Select Your Payment Method",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              fontSize: 13);
+                        } else {
+                          // Handle selected payment method here if form is valid
+                          // _processPaymentMethod(_selectedPaymentMethod);
+                          _sendOrder(context, orderDateTime, driverMessage, totalPayment);
+                          Navigator.of(context).pop();
+                        }
+                      }
+                    },
+                    child: Text(
+                      'OK',
+                      style: TextStyle(color: Colors.cyan),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.cyan),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+
+  // void _processPaymentMethod(String paymentMethod) {
+  //   // Implement your logic to process the selected payment method here
+  //   print('Selected Payment Method: $paymentMethod');
+  // }
+
   void _sendOrder(
-      BuildContext ctx, DateTime orderDateTime, String? noteMessageForDriver) {
+      BuildContext ctx, DateTime orderDateTime, String noteMessageForDriver, double totalPayment) {
     User? user = authInstance.currentUser;
     String message = '';
 
@@ -744,7 +1043,7 @@ class _CartScreenState extends State<CartScreen> {
     final cartProvider = Provider.of<CartProvider>(ctx, listen: false);
     final ordersProvider = Provider.of<OrdersProvider>(ctx, listen: false);
 
-    if (noteMessageForDriver != null) {
+    if (noteMessageForDriver.isEmpty || noteMessageForDriver == null) {
       message = noteMessageForDriver;
     } else {
       message = 'No Note for the Driver';
@@ -770,29 +1069,22 @@ class _CartScreenState extends State<CartScreen> {
           String shippingAddress = userSnapshot.get('shippingAddress');
           String phoneNumber = userSnapshot.get('phoneNumber');
 
-          if (shippingAddress == 'Empty' || shippingAddress.isEmpty) {
-            Fluttertoast.showToast(
-                msg: "Please add your address before placing the order",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.grey.shade600,
-                textColor: Colors.white,
-                fontSize: 16.0);
-          } else {
             showDialog(
               context: context,
               barrierDismissible: false,
               builder: (BuildContext context) {
                 return const Dialog(
+                  backgroundColor: Colors.black,
                   child: Padding(
                     padding: EdgeInsets.all(20.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(),
+                        CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+                        ),
                         SizedBox(height: 20),
-                        Text('Processing Order...'),
+                        Text('Processing The Order', style: TextStyle(color: Colors.white),),
                       ],
                     ),
                   ),
@@ -821,6 +1113,7 @@ class _CartScreenState extends State<CartScreen> {
               'phoneNumber': phoneNumber,
               'title': getCurrProduct.title,
               'noteForDriver': message,
+              'totalPayment' : totalPayment,
             });
 
             await cartProvider.clearOnlineCart();
@@ -831,7 +1124,6 @@ class _CartScreenState extends State<CartScreen> {
               context,
               MaterialPageRoute(builder: (context) => const OrdersScreen()),
             );
-          }
         } catch (error) {
           GlobalMethods.errorDialog(subtitle: error.toString(), context: ctx);
         } finally {}

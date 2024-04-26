@@ -121,22 +121,21 @@ class _FeedsWidgetState extends State<FeedsWidget> {
                   children: [
                     Flexible(
                       flex: 3,
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          PriceWidget(
-                            salePrice: productModel.salePrice,
-                            price: productModel.price,
-                            textPrice: _quantityTextController.text,
-                            isOnSale: productModel.isOnSale,
+                          Row(
+                            children: [
+                              PriceWidget(
+                                salePrice: productModel.salePrice,
+                                price: productModel.price,
+                                textPrice: _quantityTextController.text,
+                                isOnSale: productModel.isOnSale,
+                              ),
+                              SizedBox(width: 8), // Adjust the width as needed
+                            ],
                           ),
-                          const SizedBox(width: 20), // Adjust the width as needed
-                          Expanded(
-                            child: Text(
-                              '$_productSold Sold', // Use the updated _productSold value
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
+                          TextWidget(text: '$_productSold Sold', color: color, textSize: 14),
                         ],
                       ),
                     ),

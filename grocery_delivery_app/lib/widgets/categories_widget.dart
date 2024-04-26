@@ -32,14 +32,14 @@ class CategoriesWidget extends StatelessWidget {
           child: Column(
             children: [
               Container(
-                height: _screenWidth * 0.3,
+                height: _screenWidth * 0.4,
                 width: _screenWidth * 0.3,
                 decoration: BoxDecoration(
                   image: DecorationImage(
                       image: AssetImage(
                         imgPath,
                       ),
-                      fit: BoxFit.fill),
+                      ),
                 ),
               ),
               TextWidget(

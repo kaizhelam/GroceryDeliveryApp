@@ -30,9 +30,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
         builder: (context, snapshot) {
           return orderList.isEmpty
               ? const EmptyScreen(
-                  title: 'You didnt place any order yet',
-                  subtitle: 'order something and make me happy :)',
-                  buttonText: 'Shop now',
+                  title: 'Your Order is Empty',
+                  subtitle: 'Order now & Enjoy our Delivery Service',
+                  buttonText: 'Shop Now',
                   imagePath: 'assets/images/cart.png',
                 )
               : Scaffold(
@@ -41,7 +41,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     elevation: 0,
                     centerTitle: false,
                     title: TextWidget(
-                      text: 'Your orders (${orderList.length})',
+                      text: 'Your Orders (${orderList.length})',
                       color: color,
                       textSize: 24.0,
                       isTitle: true,

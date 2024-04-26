@@ -20,11 +20,12 @@ class GoogleButton extends StatelessWidget {
       if (googleAuth.accessToken != null && googleAuth.idToken != null) {
         try {
           final authResult = await authInstance.signInWithCredential(
-              GoogleAuthProvider.credential(
-                  idToken: googleAuth.idToken,
-                  accessToken: googleAuth.accessToken));
+            GoogleAuthProvider.credential(
+                idToken: googleAuth.idToken,
+                accessToken: googleAuth.accessToken),
+          );
 
-          if(authResult.additionalUserInfo!.isNewUser){
+          if (authResult.additionalUserInfo!.isNewUser) {
             await FirebaseFirestore.instance
                 .collection('users')
                 .doc(authResult.user!.uid)
@@ -32,29 +33,32 @@ class GoogleButton extends StatelessWidget {
               'id': authResult.user!.uid,
               'name': authResult.user!.displayName,
               'email': authResult.user!.email,
-              'shippingAddress': '',
+              'shipping-address': '',
               'userWish': [],
               'userCart': [],
               'createdAt': Timestamp.now(),
             });
           }
           Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const FetchScreen()));
+            MaterialPageRoute(
+              builder: (context) => const FetchScreen(),
+            ),
+          );
         } on FirebaseException catch (error) {
           GlobalMethods.errorDialog(
               subtitle: '${error.message}', context: context);
         } catch (error) {
-          GlobalMethods.errorDialog(
-              subtitle: '$error.message', context: context);
+          GlobalMethods.errorDialog(subtitle: '$error', context: context);
         } finally {}
       }
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.blue,
+      color: Colors.cyan,
       child: InkWell(
         onTap: () {
           _googleSignIn(context);

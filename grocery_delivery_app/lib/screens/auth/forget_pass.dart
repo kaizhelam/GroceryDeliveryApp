@@ -39,13 +39,13 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
     try{
       await authInstance.sendPasswordResetEmail(email: _emailTextController.text.toLowerCase());
       Fluttertoast.showToast(
-          msg: "An email has been sent to your email address",
+          msg: "Reset password link Sent To Your Email Address",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey.shade600,
+          backgroundColor: Colors.cyan,
           textColor: Colors.white,
-          fontSize: 16.0
+          fontSize: 13
       );
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(

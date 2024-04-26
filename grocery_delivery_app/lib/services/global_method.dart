@@ -36,23 +36,11 @@ class GlobalMethods {
               const SizedBox(
                 width: 8,
               ),
-              Text(title),
+              Text(title, style: TextStyle(fontSize: 21),),
             ],
           ),
           content: Text(subtitle, style: const TextStyle(color: Colors.black),),
           actions: [
-            TextButton(
-              onPressed: () {
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
-              },
-              child: TextWidget(
-                color: Colors.cyan,
-                text: 'Cancel',
-                textSize: 18,
-              ),
-            ),
             TextButton(
               onPressed: () {
                 fct();
@@ -61,11 +49,23 @@ class GlobalMethods {
                 }
               },
               child: TextWidget(
-                color: Colors.red,
+                color: Colors.cyan,
                 text: 'Ok',
                 textSize: 18,
               ),
-            )
+            ),
+            TextButton(
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              },
+              child: TextWidget(
+                color: Colors.red,
+                text: 'Cancel',
+                textSize: 18,
+              ),
+            ),
           ],
         );
       },
@@ -91,7 +91,7 @@ class GlobalMethods {
               const SizedBox(
                 width: 8,
               ),
-              const Text('An Error occurred'),
+              const Text('Noted', style: TextStyle(fontSize: 22),),
             ],
           ),
           content: Text(subtitle, style: TextStyle(color: Colors.black),),
@@ -128,13 +128,13 @@ class GlobalMethods {
         }])
       });
       Fluttertoast.showToast(
-          msg: "Item has been added to your cart",
+          msg: "Item Added To Your Cart",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey.shade600,
+          backgroundColor: Colors.cyan,
           textColor: Colors.white,
-          fontSize: 16.0
+          fontSize: 13
       );
     }catch(error){
       errorDialog(subtitle: error.toString(), context: context);
@@ -154,13 +154,13 @@ class GlobalMethods {
         }])
       });
       Fluttertoast.showToast(
-          msg: "Item has been added to your wishlist",
+          msg: "Item Added To Your Wishlist",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey.shade600,
+          backgroundColor: Colors.cyan,
           textColor: Colors.white,
-          fontSize: 16.0
+          fontSize: 13
       );
     }catch(error){
       errorDialog(subtitle: error.toString(), context: context);

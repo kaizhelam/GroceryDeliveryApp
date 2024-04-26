@@ -28,12 +28,12 @@ class EmptyScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
-                height: 50,
+                height: 100,
               ),
               Image.asset(
                 imagePath,
                 width: double.infinity,
-                height: size.height * 0.4,
+                height: size.height * 0.35,
               ),
               const SizedBox(
                 height: 10,
@@ -42,14 +42,15 @@ class EmptyScreen extends StatelessWidget {
                 'Whoops!',
                 style: TextStyle(
                     color: Colors.red,
-                    fontSize: 40,
+                    fontSize: 33,
                     fontWeight: FontWeight.w700),
               ),
-              TextWidget(text: title, color: Colors.cyan, textSize: 20),
+              SizedBox(height: 15,),
+              TextWidget(text: title, color: color, textSize: 23),
               const SizedBox(
                 height: 20,
               ),
-              TextWidget(text: subtitle, color: Colors.cyan, textSize: 20),
+              TextWidget(text: subtitle, color: color, textSize: 16),
               SizedBox(
                 height: size.height * 0.1,
               ),
@@ -59,10 +60,10 @@ class EmptyScreen extends StatelessWidget {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8.0),
                   ),
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.cyan,
                   // onPrimary: color,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                 ),
                 onPressed: () {
                   GlobalMethods.navigateTo(
@@ -71,7 +72,7 @@ class EmptyScreen extends StatelessWidget {
                 child: TextWidget(
                   text: buttonText,
                   textSize: 20,
-                  color: color,
+                  color: Colors.white,
                   isTitle: true,
                 ),
               )

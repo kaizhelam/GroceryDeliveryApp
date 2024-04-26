@@ -8,8 +8,8 @@ class Constss {
     'assets/images/offres/Offer4.jpg'
   ];
   static List<String> authImagesPaths = [
-    'assets/images/landing/buy-on-laptop.jpg',
-    'assets/images/landing/vergtablebg.jpg',
+    'assets/images/landing/bg1.png',
+    'assets/images/landing/bg2.jpg',
   ];
 
   // static final List<ProductModel> productsList = [

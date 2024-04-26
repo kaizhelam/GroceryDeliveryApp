@@ -2,6 +2,7 @@ import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_delivery_app/providers/products_provider.dart';
 import 'package:grocery_delivery_app/widgets/heart_btn.dart';
 import 'package:grocery_delivery_app/widgets/text_widget.dart';
@@ -152,7 +153,7 @@ class _CartWidgetState extends State<CartWidget> {
                                           .toString();
                                 });
                               },
-                              color: Colors.green,
+                              color: Colors.cyan,
                               icon: CupertinoIcons.plus,
                             )
                           ],
@@ -171,10 +172,18 @@ class _CartWidgetState extends State<CartWidget> {
                                 cartId: cartModel.id,
                                 productId: cartModel.productId,
                                 quantity: cartModel.quantity);
+                            Fluttertoast.showToast(
+                                msg: "Item Removed",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.grey[200],
+                                textColor: Colors.black,
+                                fontSize: 13);
                           },
                           child: const Icon(
                             CupertinoIcons.cart_badge_minus,
-                            color: Colors.red,
+                            // color: Colors.red,
                             size: 20,
                           ),
                         ),

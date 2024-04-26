@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -81,7 +82,6 @@ class _ProductDetailsState extends State<ProductDetails> {
               imageUrl: getCurrProduct.imageUrl,
               boxFit: BoxFit.scaleDown,
               width: size.width,
-              // height: screenHeight * .4,
             ),
           ),
           Flexible(
@@ -126,19 +126,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         TextWidget(
-                          text: 'RM${usedPrice.toStringAsFixed(2)}/',
-                          color: Colors.green,
+                          text: 'RM${usedPrice.toStringAsFixed(2)}',
+                          color: Colors.cyan,
                           textSize: 24,
                           isTitle: true,
                         ),
                         TextWidget(
-                          text: getCurrProduct.isPiece ? 'Piece' : '/Kg',
+                          text: getCurrProduct.isPiece ? ' / Per Item' : '/Kg',
                           color: color,
                           textSize: 18,
                           isTitle: false,
                         ),
                         const SizedBox(
-                          width: 10,
+                          width: 5,
                         ),
                         Visibility(
                           visible: getCurrProduct.isOnSale ? true : false,
@@ -147,7 +147,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                             style: TextStyle(
                                 fontSize: 18,
                                 color: color,
-                                decoration: TextDecoration.lineThrough),
+                                decoration: TextDecoration.lineThrough,
+                              decorationColor: color,),
                           ),
                         ),
                       ],
@@ -189,7 +190,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             border: UnderlineInputBorder(),
                           ),
                           textAlign: TextAlign.center,
-                          cursorColor: Colors.green,
+                          cursorColor: Colors.cyan,
                           enabled: true,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp('[0-9]')),
@@ -215,34 +216,51 @@ class _ProductDetailsState extends State<ProductDetails> {
                           });
                         },
                         icon: CupertinoIcons.plus,
-                        color: Colors.green,
+                        color: Colors.cyan,
                       ),
                     ],
                   ),
-                  SizedBox(height: 10,),
+                  SizedBox(height: 12,),
                   Padding(
                     padding:
                         const EdgeInsets.only(top: 20, left: 30, right: 30),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextWidget(
-                          text:
-                              'Product Description', // Replace 'Title' with your actual title text
-                          color: color,
-                          textSize: 20, // Adjust the textSize for the title
-                          isTitle:
-                              true, // Assuming you want to style the title differently
+                        GestureDetector(
+                          onTap: () {
+                            showDescription(context, getCurrProduct.productDescription);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.description, color: color, size: 18,), // Icon for View Product Description
+                              SizedBox(width: 10), // Add some space between icon and text
+                              TextWidget(
+                                text: 'View Product Description',
+                                color: color,
+                                textSize: 14,
+                                isTitle: true,
+                              ),
+                            ],
+                          ),
                         ),
-                        const SizedBox(
-                            height:
-                                10), // Add some space between title and subtitle
-                        TextWidget(
-                          text: getCurrProduct.productDescription,// Replace 'Subtitle' with your actual subtitle text
-                          color: color,
-                          textSize: 15, // Adjust the textSize for the subtitle
-                          isTitle:
-                              false, // Assuming you want the subtitle to have regular styling
+                        const SizedBox(height: 13),
+                        GestureDetector(
+                          onTap: () {
+                            showRatingReview(context, getCurrProduct.id);
+                          },
+                          child: Row(
+                            children: [
+                              Icon(Icons.star, color: color, size: 18,), // Icon for View All Rating & Review
+                              SizedBox(width: 10), // Add some space between icon and text
+                              TextWidget(
+                                text: 'View All Rating & Review',
+                                color: color,
+                                textSize: 14,
+                                isTitle: true,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -268,7 +286,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                             children: [
                               TextWidget(
                                 text: 'Total',
-                                color: Colors.red.shade300,
+                                color: color,
                                 textSize: 20,
                                 isTitle: true,
                               ),
@@ -279,13 +297,13 @@ class _ProductDetailsState extends State<ProductDetails> {
                                 child: Row(
                                   children: [
                                     TextWidget(
-                                      text: 'RM${sumPrice.toStringAsFixed(2)}/',
+                                      text: 'RM${sumPrice.toStringAsFixed(2)} / ',
                                       color: color,
                                       textSize: 24,
                                       isTitle: true,
                                     ),
                                     TextWidget(
-                                      text: '${_quantityTextController.text}Kg',
+                                      text: '${_quantityTextController.text}${getCurrProduct.isPiece == false ? 'KG' : 'Item'}',
                                       color: color,
                                       textSize: 18,
                                       isTitle: false,
@@ -301,7 +319,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         ),
                         Flexible(
                           child: Material(
-                            color: Colors.green,
+                            color: Colors.cyan,
                             borderRadius: BorderRadius.circular(10),
                             child: InkWell(
                               onTap: _isInCart
@@ -322,20 +340,6 @@ class _ProductDetailsState extends State<ProductDetails> {
                                               _quantityTextController.text),
                                           context: context);
                                       await cartProvider.fetchCart();
-                                      // cartProvider.addProductsToCard(
-                                      //     productId: getCurrProduct.id,
-                                      //     quantity: int.parse(
-                                      //         _quantityTextController.text));
-                                      //
-                                      // ScaffoldMessenger.of(context)
-                                      //     .showSnackBar(
-                                      //   const SnackBar(
-                                      //     content:
-                                      //         Text('Item added to your cart'),
-                                      //     duration: Duration(seconds: 1),
-                                      //     backgroundColor: Colors.blueGrey,
-                                      //   ),
-                                      // );
                                       Navigator.of(context).pop();
                                     },
                               borderRadius: BorderRadius.circular(10),
@@ -359,6 +363,110 @@ class _ProductDetailsState extends State<ProductDetails> {
           )
         ]),
       ),
+    );
+  }
+
+  void showDescription(BuildContext context, String subtitle) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          // backgroundColor: Colors.grey[900],
+          title: const Text("Product Description", style: TextStyle(color: Colors.black, fontSize: 20)), // Title of the dialog
+          content: Text(subtitle, style: TextStyle(color: Colors.black, fontSize: 14),), // Subtitle of the dialog
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Close', style: TextStyle(color: Colors.cyan),),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  void showRatingReview(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          // backgroundColor: Colors.grey[900],
+          title: const Text("Rate & Review", style: TextStyle(color: Colors.black, fontSize: 20)), // Title of the dialog
+          content: FutureBuilder(
+            future: FirebaseFirestore.instance
+                .collection('products')
+                .doc(id)
+                .get(),
+            builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> productSnapshot) {
+              if (productSnapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator()); // Display a loading indicator while fetching data
+              }
+              if (productSnapshot.hasError) {
+                return Center(child: Text('Error: ${productSnapshot.error}'));
+              }
+              if (!productSnapshot.hasData || !productSnapshot.data!.exists) {
+                return const Center(child: Text('Product not found'));
+              }
+
+              // Fetch the ratingReview array from the product document
+              final List<dynamic> ratingReviewArray = productSnapshot.data!['ratingReview'];
+
+              if (ratingReviewArray.isEmpty) {
+                return const Center(child: Text('No rating reviews available'));
+              }
+
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: ratingReviewArray.map((review) {
+                    // Parse the review data
+                    final String name = review['Name'] ?? '';
+                    final int rate = review['Rate'] ?? 0;
+                    final String title = review['Title'] ?? '';
+                    final String dateTime = review['currentDateTime'] ?? '';
+                    final String reviewText = review['Review'] ?? '';
+
+                    // Create a list of star icons based on the rate
+                    List<Widget> starIcons = [];
+                    for (int i = 0; i < 5; i++) {
+                      if (i < rate) {
+                        // Add filled star icon
+                        starIcons.add(const Icon(Icons.star, color: Colors.orange));
+                      } else {
+                        // Add border star icon
+                        starIcons.add(const Icon(Icons.star_border, color: Colors.orange));
+                      }
+                    }
+
+                    return ListTile(
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(children: starIcons),
+                          Text('Review: $reviewText', style: const TextStyle(color: Colors.black)),
+                          Text('Date Posted: $dateTime', style: const TextStyle(color: Colors.black)),
+                          Text('Name: $name', style: const TextStyle(color: Colors.black)),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            },
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Close', style: TextStyle(color: Colors.cyan)),
+            ),
+          ],
+        );
+      },
     );
   }
 

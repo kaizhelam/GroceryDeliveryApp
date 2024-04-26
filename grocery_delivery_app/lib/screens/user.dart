@@ -159,7 +159,7 @@ class _UserScreenState extends State<UserScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 20,
+                    height: 27,
                   ),
                   RichText(
                     text: TextSpan(
@@ -187,7 +187,7 @@ class _UserScreenState extends State<UserScreen> {
                   ),
                   TextWidget(
                     text: _email == null
-                        ? 'Login now and start ordering.'
+                        ? 'Login Now and Start Ordering.'
                         : _email!,
                     color: color,
                     textSize: 18,
@@ -386,144 +386,174 @@ class _UserScreenState extends State<UserScreen> {
     await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Profile'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _userNameController,
-                    decoration: InputDecoration(
-                      labelText: 'Name',
-                    ),
-                  ),
-                  TextField(
-                    controller: _phoneNumberController,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                    ),
-                  ),
-                  Row(
-                    children: [
-                      Radio<String>(
-                        value: 'female',
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGender = value;
-                          });
-                        },
+        return SingleChildScrollView(
+          child: AlertDialog(
+            title: const Text('Edit Profile'),
+            content: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _userNameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Name',
+                        labelStyle: TextStyle(color: Colors.black),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                        ),
                       ),
-                      const Text('Female', style: TextStyle(color:  Colors.black),),
-                      Radio<String>(
-                        value: 'male',
-                        groupValue: selectedGender,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedGender = value;
-                          });
-                        },
+                      cursorColor: Colors.cyan,
+                    ),
+                    TextField(
+                      controller: _phoneNumberController,
+                      decoration: const InputDecoration(
+                        labelText: 'Phone Number',
+                        labelStyle: TextStyle(color: Colors.black),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                        ),
                       ),
-                      const Text('Male',  style: TextStyle(color:  Colors.black),),
-                    ],
-                  ),
-                  TextFormField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'Birth Date',
-                      suffixIcon: IconButton(
-                        icon: Icon(Icons.calendar_today),
-                        onPressed: () async {
-                          final DateTime? pickedDate = await showDatePicker(
-                            context: context,
-                            initialDate: _birthDate ?? DateTime.now(),
-                            firstDate: DateTime(1900),
-                            lastDate: DateTime.now(),
-                          );
-                          if (pickedDate != null) {
+                      cursorColor: Colors.cyan,
+                    ),
+                    Row(
+                      children: [
+                        Radio<String>(
+                          value: 'female',
+                          groupValue: selectedGender,
+                          onChanged: (value) {
                             setState(() {
-                              _birthDate = pickedDate;
-                              // Update the birth date text in the controller
-                              _birthDateController.text =
-                              '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+                              selectedGender = value;
                             });
-                          }
-                        },
-                      ),
+                          },
+                          activeColor: Colors.cyan,
+                        ),
+                        const Text('Female', style: TextStyle(color:  Colors.black),),
+                        Radio<String>(
+                          value: 'male',
+                          groupValue: selectedGender,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedGender = value;
+                            });
+                          },
+                          activeColor: Colors.cyan,
+                        ),
+                        const Text('Male',  style: TextStyle(color:  Colors.black),),
+                      ],
                     ),
-                    controller: _birthDateController,
-                  ),
-                ],
-              );
-            },
-          ),
-          actions: [
-            if (isLoading)
-              CircularProgressIndicator() // Show loading spinner if isLoading is true
-            else
-              TextButton(
-                onPressed: () async {
-                  if (_userNameController.text.isEmpty ||
-                      _phoneNumberController.text.isEmpty) {
-                    await GlobalMethods.errorDialog(
-                      subtitle: 'Please do not empty the personal details',
-                      context: context,
-                    );
-                    return;
-                  } else if (_phoneNumberController.text.length < 10) {
-                    await GlobalMethods.errorDialog(
-                      subtitle: 'Phone Number should be at least 10 digits',
-                      context: context,
-                    );
-                    return;
-                  }
-                  setState(() {
-                    isLoading = true; // Set isLoading to true when update starts
-                  });
+                    TextFormField(
+                      readOnly: true,
+                      decoration: InputDecoration(
+                        labelText: 'Birth Date',
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                        ),
+                        labelStyle: TextStyle(color: Colors.black),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.calendar_today),
+                          onPressed: () async {
+                            final DateTime? pickedDate = await showDatePicker(
+                              context: context,
+                              initialDate: _birthDate ?? DateTime.now(),
+                              firstDate: DateTime(1900),
+                              lastDate: DateTime.now(),
+                              builder: (BuildContext context, Widget? child) {
+                                return Theme(
+                                  data: ThemeData.dark().copyWith( // Define the theme properties
+                                    colorScheme: const ColorScheme.dark(
+                                      primary: Colors.cyan, // Change text color to green
+                                    ),
+                                  ),
+                                  child: child!,
+                                );
+                              },
+                            );
+                            if (pickedDate != null) {
+                              setState(() {
+                                _birthDate = pickedDate;
+                                // Update the birth date text in the controller
+                                _birthDateController.text =
+                                '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      cursorColor: Colors.cyan,
+                      controller: _birthDateController,
+                    ),
+                  ],
+                );
+              },
+            ),
+            actions: [
+              if (isLoading)
+                CircularProgressIndicator() // Show loading spinner if isLoading is true
+              else
+                TextButton(
+                  onPressed: () async {
+                    if (_userNameController.text.isEmpty ||
+                        _phoneNumberController.text.isEmpty) {
+                      await GlobalMethods.errorDialog(
+                        subtitle: 'Please Do Not Empty The Personal Details',
+                        context: context,
+                      );
+                      return;
+                    } else if (_phoneNumberController.text.length < 10) {
+                      await GlobalMethods.errorDialog(
+                        subtitle: 'Phone Number Should Be At Least 10 Digits',
+                        context: context,
+                      );
+                      return;
+                    }
+                    setState(() {
+                      isLoading = true; // Set isLoading to true when update starts
+                    });
 
-                  String _uid = user!.uid;
-                  try {
-                    await FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(_uid)
-                        .update({
-                      'phoneNumber': _phoneNumberController.text,
-                      'name': _userNameController.text,
-                      'gender': selectedGender,
-                      'birth' : _birthDateController.text,
-                    });
-                    setState(() {
-                      phoneNumber = _phoneNumberController.text;
-                      _name = _userNameController.text;
-                      _birth = _birthDateController.text;
-                    });
-                    Fluttertoast.showToast(
-                        msg: "Profile Details Updated",
-                        toastLength: Toast.LENGTH_SHORT,
-                        gravity: ToastGravity.BOTTOM,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.grey.shade600,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
-                    Navigator.pop(context);
-                  } catch (err) {
-                    await GlobalMethods.errorDialog(
-                      subtitle: err.toString(),
-                      context: context,
-                    );
-                  } finally {
-                    setState(() {
-                      isLoading = false;
-                    });
-                  }
-                },
-                child: const Text('Update'),
-              ),
-          ],
+                    String _uid = user!.uid;
+                    try {
+                      await FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(_uid)
+                          .update({
+                        'phoneNumber': _phoneNumberController.text,
+                        'name': _userNameController.text,
+                        'gender': selectedGender,
+                        'birth' : _birthDateController.text,
+                      });
+                      setState(() {
+                        phoneNumber = _phoneNumberController.text;
+                        _name = _userNameController.text;
+                        _birth = _birthDateController.text;
+                      });
+                      Fluttertoast.showToast(
+                          msg: "Profile Details Updated",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.cyan,
+                          textColor: Colors.white,
+                          fontSize: 13);
+                      Navigator.pop(context);
+                    } catch (err) {
+                      await GlobalMethods.errorDialog(
+                        subtitle: err.toString(),
+                        context: context,
+                      );
+                    } finally {
+                      setState(() {
+                        isLoading = false;
+                      });
+                    }
+                  },
+                  child: const Text('Update', style: TextStyle(color: Colors.cyan),),
+                ),
+            ],
+          ),
         );
       },
     );
   }
+
 }
