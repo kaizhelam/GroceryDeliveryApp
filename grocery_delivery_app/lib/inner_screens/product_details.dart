@@ -348,7 +348,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   child: TextWidget(
                                       text: _isInCart
                                           ? 'Item in Cart'
-                                          : 'Add to cart',
+                                          : 'Add to Cart',
                                       color: Colors.white,
                                       textSize: 18)),
                             ),

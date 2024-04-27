@@ -36,7 +36,6 @@ class _CartScreenState extends State<CartScreen> {
   String? _noteMessageForDriver;
   double _deliveryFee = 4.90;
 
-
   @override
   void dispose() {
     _noteMessage.dispose();
@@ -270,7 +269,7 @@ class _CartScreenState extends State<CartScreen> {
 
     // If Timestamp.now() is executed, add the UTC+8 offset and format the date and time
     if (_selectedDateTime == null) {
-      orderDateTime = orderDateTime.add(Duration(hours: 8));
+      orderDateTime = orderDateTime.add(Duration(hours: 0));
     }
     // Format the date and time
     String formattedDateTime =
@@ -281,17 +280,21 @@ class _CartScreenState extends State<CartScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Add a Note for Driver', style: TextStyle(fontSize: 19),),
+            title: Text(
+              'Add a Note for Driver',
+              style: TextStyle(fontSize: 19),
+            ),
             content: TextField(
               controller: _noteMessage,
               maxLines: 5, // Set maxLines to 5
               decoration: InputDecoration(
                 hintText: 'Enter your note here',
-                hintStyle:
-                    TextStyle(color: Colors.grey),
+                hintStyle: TextStyle(color: Colors.grey),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
-                ),// Set the hint text color
+                  borderSide: BorderSide(
+                      color: Colors
+                          .cyan), // Change the underline color when focused
+                ), // Set the hint text color
               ),
               cursorColor: Colors.cyan,
             ),
@@ -323,13 +326,19 @@ class _CartScreenState extends State<CartScreen> {
                     });
                   }
                 },
-                child: Text('Add', style: TextStyle(color: Colors.cyan),),
+                child: Text(
+                  'Add',
+                  style: TextStyle(color: Colors.cyan),
+                ),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pop(context); // Close the dialog
                 },
-                child: Text('Cancel', style: TextStyle(color: Colors.cyan),),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.cyan),
+                ),
               ),
             ],
           );
@@ -657,7 +666,9 @@ class _CartScreenState extends State<CartScreen> {
                                         }
                                         return const Center(
                                           child: CircularProgressIndicator(
-                                            valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.cyan),
                                           ),
                                         );
                                       },
@@ -785,21 +796,24 @@ class _CartScreenState extends State<CartScreen> {
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
-                    String driverMessage = noteMessageForDriver ?? ""; // Check if null, if so, assign an empty string
+                    String driverMessage = noteMessageForDriver ??
+                        ""; // Check if null, if so, assign an empty string
 
-                    if(address.isEmpty){
+                    if (address.isEmpty) {
                       Fluttertoast.showToast(
-                          msg: "Please Add Your Address Before Placing Any Order",
+                          msg:
+                              "Please Add Your Address Before Placing Any Order",
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 1,
                           backgroundColor: Colors.red,
                           textColor: Colors.white,
                           fontSize: 13);
-                    }else{
+                    } else {
                       Navigator.of(context).pop(true);
                       // print(message);
-                      _addPaymentMethod(context, address, orderDateTime, driverMessage, totalPayment);
+                      _addPaymentMethod(context, address, orderDateTime,
+                          driverMessage, totalPayment);
                     }
                   },
                   child: Text(
@@ -828,9 +842,43 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  void _addPaymentMethod(BuildContext context, String address, DateTime orderDateTime, String driverMessage, double totalPayment) {
+  void _addPaymentMethod(BuildContext context, String address,
+      DateTime orderDateTime, String driverMessage, double totalPayment) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
     String _selectedPaymentMethod = '';
+    final User? user = authInstance.currentUser;
+    final _uid = user!.uid;
+    final cartId = const Uuid().v4();
+
+    // Add TextEditingController for card number, expiry date, and CVV
+    TextEditingController _cardNumberController = TextEditingController();
+    TextEditingController _expiryDateController = TextEditingController();
+    TextEditingController _cvvController = TextEditingController();
+
+    // Variable to store user's existing cards
+    List<Map<String, String>> userCards = [];
+
+    // Function to fetch user's existing cards from Firebase
+    void fetchUserCards() {
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_uid)
+          .get()
+          .then((docSnapshot) {
+        if (docSnapshot.exists) {
+          final userCard = docSnapshot.data()?['userCard'];
+          if (userCard != null && userCard is List) {
+            userCards = List<Map<String, String>>.from(
+                userCard.map((card) => Map<String, String>.from(card)));
+          }
+        }
+      });
+    }
+
+    // Fetch user's existing cards when the dialog is built
+    fetchUserCards();
+
+    int? selectedIndex; // Track the index of the selected card
 
     showDialog(
       context: context,
@@ -870,8 +918,8 @@ class _CartScreenState extends State<CartScreen> {
                               ],
                             ),
                             SizedBox(
-                                width:
-                                    20), // Add some space between the two columns
+                              width: 20,
+                            ),
                             Column(
                               children: [
                                 Radio(
@@ -893,85 +941,139 @@ class _CartScreenState extends State<CartScreen> {
                           ],
                         ),
                       ),
+                      SizedBox(
+                        height: 10,
+                      ),
                       if (_selectedPaymentMethod == 'Card')
                         Column(
                           children: [
-                            TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'Card Number',
-                                hintText: 'XXXX XXXX XXXX XXXX',
-                                prefixIcon:
-                                Icon(Icons.credit_card, color: Colors.black54),
-                                hintStyle: TextStyle(
-                                    color: Colors.grey, fontSize: 12),
-                                labelStyle: TextStyle(color: Colors.black),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
-                                ),
+                            // Display existing cards
+                            if (userCards.isNotEmpty)
+                              Column(
+                                children: [
+                                  for (int i = 0; i < userCards.length; i++)
+                                    ListTile(
+                                      title: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Card Number: ${userCards[i]['cardNumber'] ?? ''}',
+                                                  style:
+                                                      TextStyle(fontSize: 14),
+                                                ),
+                                                Text(
+                                                  'Expiry Date: ${userCards[i]['expiryDate'] ?? ''}',
+                                                  style:
+                                                      TextStyle(fontSize: 14),
+                                                ),
+                                                Text(
+                                                  'CVV: ${userCards[i]['CVV'] ?? ''}',
+                                                  style:
+                                                      TextStyle(fontSize: 14),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Radio(
+                                            value: i,
+                                            groupValue: selectedIndex,
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedIndex = value as int?;
+                                              });
+                                            },
+                                            activeColor: Colors.cyan,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
                               ),
-                              cursorColor: Colors.cyan,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a card number';
-                                }
-                                // Card number format validation (16 digits)
-                                if (!RegExp(r'^[0-9]{16}$').hasMatch(value)) {
-                                  return 'Please enter a valid card number';
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                hintText: 'Expiry Date (MM/YY)', // Hint text for the expiry date
-                                labelText: 'Expiry Date',
-                                hintStyle: TextStyle(
-                                    color: Colors.grey, fontSize: 12),
-                                labelStyle: TextStyle(color: Colors.black),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                            // Text fields for card details
+                            if (userCards.isEmpty) ...[
+                              TextFormField(
+                                controller:
+                                    _cardNumberController, // Assign controller
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Card Number',
+                                  hintText: 'XXXX XXXX XXXX XXXX',
+                                  prefixIcon: Icon(Icons.credit_card,
+                                      color: Colors.black54),
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.cyan),
+                                  ),
                                 ),
+                                cursorColor: Colors.cyan,
+                                validator: (value) {
+                                  if (value?.length != 16) {
+                                    return 'Please enter a valid \n16-digit card number';
+                                  }
+                                  return null;
+                                },
                               ),
-                              cursorColor: Colors.cyan,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter an expiry date';
-                                }
-                                // Expiry date format validation (MM/YY)
-                                if (!RegExp(r'^\d{2}\/\d{2}$')
-                                    .hasMatch(value)) {
-                                  return 'Please enter a valid expiry date (MM/YY)';
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(
-                                labelText: 'CVV',
-                                hintText: 'CVV',
-                                hintStyle: TextStyle(
-                                    color: Colors.grey, fontSize: 12),
-                                labelStyle: TextStyle(color: Colors.black),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                              TextFormField(
+                                controller:
+                                    _expiryDateController, // Assign controller
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  hintText: 'Expiry Date (MM/YY)',
+                                  labelText: 'Expiry Date',
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.cyan),
+                                  ),
                                 ),
+                                cursorColor: Colors.cyan,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter an expiry date';
+                                  }
+                                  if (!RegExp(r'^\d{2}\/\d{2}$')
+                                      .hasMatch(value)) {
+                                    return 'Please enter a valid expiry date (MM/YY)';
+                                  }
+                                  return null;
+                                },
                               ),
-                              cursorColor: Colors.cyan,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter a CVV';
-                                }
-                                // CVV format validation (3 or 4 digits)
-                                if (!RegExp(r'^[0-9]{3,4}$').hasMatch(value)) {
-                                  return 'Please enter a valid CVV';
-                                }
-                                return null;
-                              },
-                            ),
-                            if (_selectedPaymentMethod.isEmpty ?? true) // Check if no radio button is selected
+                              TextFormField(
+                                controller: _cvvController, // Assign controller
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'CVV',
+                                  hintText: 'CVV',
+                                  hintStyle: TextStyle(
+                                      color: Colors.grey, fontSize: 12),
+                                  labelStyle: TextStyle(color: Colors.black),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.cyan),
+                                  ),
+                                ),
+                                cursorColor: Colors.cyan,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a CVV';
+                                  }
+                                  if (!RegExp(r'^[0-9]{3,4}$')
+                                      .hasMatch(value)) {
+                                    return 'Please enter a valid CVV';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                            if (_selectedPaymentMethod.isEmpty ?? true)
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10),
                                 child: Text(
@@ -987,26 +1089,80 @@ class _CartScreenState extends State<CartScreen> {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
+                      if (_selectedPaymentMethod == "Cash"){
+                        _sendOrder(
+                            context, orderDateTime, driverMessage, totalPayment);
+                        Navigator.of(context).pop();
+                        return;
+                      }
+
+                      if (_selectedPaymentMethod == null ||
+                          _selectedPaymentMethod.isEmpty) {
+                        Fluttertoast.showToast(
+                            msg: "Please Select Your Payment Method",
+                            toastLength: Toast.LENGTH_SHORT,
+                            gravity: ToastGravity.BOTTOM,
+                            timeInSecForIosWeb: 1,
+                            backgroundColor: Colors.red,
+                            textColor: Colors.white,
+                            fontSize: 13);
+                        return;
+                      }
+
                       if (_formKey.currentState!.validate()) {
-                        if (_selectedPaymentMethod == null || _selectedPaymentMethod.isEmpty) {
+                        if (_cardNumberController.text.isNotEmpty &&
+                            _expiryDateController.text.isNotEmpty &&
+                            _cvvController.text.isNotEmpty &&
+                            userCards.isEmpty) {
+                          try {
+                            FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(_uid)
+                                .update({
+                              'userCard': FieldValue.arrayUnion([
+                                {
+                                  'cardNumber': _cardNumberController.text,
+                                  'expiryDate': _expiryDateController.text,
+                                  'CVV': _cvvController.text,
+                                }
+                              ])
+                            });
+                            _sendOrder(
+                                context, orderDateTime, driverMessage, totalPayment);
+                            Navigator.of(context).pop();
+                          } catch (error) {
+                            Fluttertoast.showToast(
+                                msg:
+                                "Something went wrong, please try again later",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                timeInSecForIosWeb: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 13);
+                          }
+                        }
+                      }
+
+                      if (userCards.isNotEmpty && _selectedPaymentMethod == "Card") {
+                        if (selectedIndex == null) {
                           Fluttertoast.showToast(
-                              msg: "Please Select Your Payment Method",
+                              msg: "Please select your card to make payment",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
                               timeInSecForIosWeb: 1,
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
                               fontSize: 13);
-                        } else {
-                          // Handle selected payment method here if form is valid
-                          // _processPaymentMethod(_selectedPaymentMethod);
-                          _sendOrder(context, orderDateTime, driverMessage, totalPayment);
+                        }else{
+                          _sendOrder(
+                              context, orderDateTime, driverMessage, totalPayment);
                           Navigator.of(context).pop();
                         }
                       }
                     },
                     child: Text(
-                      'OK',
+                      'Ok',
                       style: TextStyle(color: Colors.cyan),
                     ),
                   ),
@@ -1028,14 +1184,8 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-
-  // void _processPaymentMethod(String paymentMethod) {
-  //   // Implement your logic to process the selected payment method here
-  //   print('Selected Payment Method: $paymentMethod');
-  // }
-
-  void _sendOrder(
-      BuildContext ctx, DateTime orderDateTime, String noteMessageForDriver, double totalPayment) {
+  void _sendOrder(BuildContext ctx, DateTime orderDateTime,
+      String noteMessageForDriver, double totalPayment) {
     User? user = authInstance.currentUser;
     String message = '';
 
@@ -1069,61 +1219,64 @@ class _CartScreenState extends State<CartScreen> {
           String shippingAddress = userSnapshot.get('shippingAddress');
           String phoneNumber = userSnapshot.get('phoneNumber');
 
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (BuildContext context) {
-                return const Dialog(
-                  backgroundColor: Colors.black,
-                  child: Padding(
-                    padding: EdgeInsets.all(20.0),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
-                        ),
-                        SizedBox(height: 20),
-                        Text('Processing The Order', style: TextStyle(color: Colors.white),),
-                      ],
-                    ),
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const Dialog(
+                backgroundColor: Colors.black,
+                child: Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+                      ),
+                      SizedBox(height: 20),
+                      Text(
+                        'Processing The Order',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
                   ),
-                );
-              },
-            );
-            triggerNotification();
-            await FirebaseFirestore.instance
-                .collection('orders')
-                .doc(orderId)
-                .set({
-              'orderId': orderId,
-              'userId': user!.uid,
-              'productId': value.productId,
-              'price': (getCurrProduct.isOnSale
-                      ? getCurrProduct.salePrice
-                      : getCurrProduct.price) *
-                  value.quantity,
-              'totalPrice': total,
-              'quantity': value.quantity,
-              'imageUrl': getCurrProduct.imageUrl,
-              'userName': user.displayName,
-              'orderDate': orderDateTime,
-              'orderStatus': 0,
-              'shippingAddress': shippingAddress,
-              'phoneNumber': phoneNumber,
-              'title': getCurrProduct.title,
-              'noteForDriver': message,
-              'totalPayment' : totalPayment,
-            });
+                ),
+              );
+            },
+          );
+          triggerNotification();
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .doc(orderId)
+              .set({
+            'orderId': orderId,
+            'userId': user!.uid,
+            'productId': value.productId,
+            'price': (getCurrProduct.isOnSale
+                    ? getCurrProduct.salePrice
+                    : getCurrProduct.price) *
+                value.quantity,
+            'totalPrice': total,
+            'quantity': value.quantity,
+            'imageUrl': getCurrProduct.imageUrl,
+            'userName': user.displayName,
+            'orderDate': orderDateTime,
+            'orderStatus': 0,
+            'shippingAddress': shippingAddress,
+            'phoneNumber': phoneNumber,
+            'title': getCurrProduct.title,
+            'noteForDriver': message,
+            'totalPayment': totalPayment,
+          });
 
-            await cartProvider.clearOnlineCart();
-            cartProvider.clearLocalCart();
-            ordersProvider.fetchOrders();
+          await cartProvider.clearOnlineCart();
+          cartProvider.clearLocalCart();
+          ordersProvider.fetchOrders();
 
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const OrdersScreen()),
-            );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const OrdersScreen()),
+          );
         } catch (error) {
           GlobalMethods.errorDialog(subtitle: error.toString(), context: ctx);
         } finally {}

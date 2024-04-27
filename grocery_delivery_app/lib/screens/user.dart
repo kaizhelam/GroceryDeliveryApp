@@ -189,13 +189,13 @@ class _UserScreenState extends State<UserScreen> {
                     // isTitle: true,
                   ),
                   const SizedBox(
-                    height: 12,
+                    height: 8,
                   ),
                   const Divider(
                     thickness: 2,
                   ),
                   const SizedBox(
-                    height: 12,
+                    height: 8,
                   ),
                   _listTiles(
                       title: 'Profile Details',
@@ -212,7 +212,7 @@ class _UserScreenState extends State<UserScreen> {
                       },
                       color: color),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
                   ),
                   _listTiles(
                       title: 'My Address',
@@ -233,7 +233,24 @@ class _UserScreenState extends State<UserScreen> {
                       },
                       color: color),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
+                  ),
+                  _listTiles(
+                      title: 'My Bank Card',
+                      icon: Icons.credit_card,
+                      onPressed: () {
+                        final User? user = authInstance.currentUser;
+                        if (user == null) {
+                          GlobalMethods.errorDialog(
+                              subtitle: 'No user found, Please login in first',
+                              context: context);
+                        } else {
+                          _myBankCard(context);
+                        }
+                      },
+                      color: color),
+                  const SizedBox(
+                    height: 7,
                   ),
                   _listTiles(
                       title: 'My Orders',
@@ -251,7 +268,7 @@ class _UserScreenState extends State<UserScreen> {
                       },
                       color: color),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
                   ),
                   _listTiles(
                       title: 'My Wishlist',
@@ -270,7 +287,7 @@ class _UserScreenState extends State<UserScreen> {
                       },
                       color: color),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
                   ),
                   _listTiles(
                       title: 'My Viewed',
@@ -289,7 +306,7 @@ class _UserScreenState extends State<UserScreen> {
                       },
                       color: color),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
                   ),
                   _listTiles(
                       title: 'Change Password',
@@ -301,15 +318,12 @@ class _UserScreenState extends State<UserScreen> {
                               subtitle: 'No user found, Please login in first',
                               context: context);
                         } else {
-                          // Navigator.of(context).push(MaterialPageRoute(
-                          //     builder: (context) =>
-                          //     const ForgetPasswordScreen()));
                           _changePassword(context, _email!);
                         }
                       },
                       color: color),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
                   ),
                   SwitchListTile(
                     title: TextWidget(
@@ -333,7 +347,7 @@ class _UserScreenState extends State<UserScreen> {
                     value: themeState.getDarkTheme,
                   ),
                   const SizedBox(
-                    height: 12,
+                    height: 7,
                   ),
                   _listTiles(
                       title: user == null ? 'Login' : 'Logout',
@@ -368,6 +382,210 @@ class _UserScreenState extends State<UserScreen> {
       ),
     );
   }
+
+  Future<void> _myBankCard(BuildContext context) async {
+    List<Map<String, String>> userCards = [];
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+    final User? user = authInstance.currentUser;
+    final _uid = user!.uid;
+
+    TextEditingController _cardNumberController = TextEditingController();
+    TextEditingController _expiryDateController = TextEditingController();
+    TextEditingController _cvvController = TextEditingController();
+
+    await FirebaseFirestore.instance.collection('users').doc(_uid).get().then((docSnapshot) {
+      if (docSnapshot.exists) {
+        final userCard = docSnapshot.data()?['userCard'];
+        if (userCard != null && userCard is List) {
+          userCards = List<Map<String, String>>.from(userCard.map((card) => Map<String, String>.from(card)));
+        }
+      }
+    });
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'My Bank Cards',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  if (userCards.isNotEmpty)
+                    Column(
+                      children: [
+                        for (int i = 0; i < userCards.length; i++)
+                          ListTile(
+                            title: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Card Number: ${userCards[i]['cardNumber'] ?? ''}'),
+                                      Text('Expiry Date: ${userCards[i]['expiryDate'] ?? ''}'),
+                                      Text('CVV: ${userCards[i]['CVV'] ?? ''}'),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                  GestureDetector(
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text(
+                                      'Add New Card',
+                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                  SizedBox(height: 10),
+                                  TextFormField(
+                                    controller: _cardNumberController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Card Number',
+                                      hintText: 'XXXX XXXX XXXX XXXX',
+                                      prefixIcon: Icon(Icons.credit_card, color: Colors.black54),
+                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.cyan),
+                                      ),
+                                    ),
+                                    cursorColor: Colors.cyan,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty || value.length != 16 || !RegExp(r'^[0-9]{16}$').hasMatch(value)) {
+                                        return 'Please enter a valid 16-digit card number';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  TextFormField(
+                                    controller: _expiryDateController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      hintText: 'Expiry Date (MM/YY)',
+                                      labelText: 'Expiry Date',
+                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.cyan),
+                                      ),
+                                    ),
+                                    cursorColor: Colors.cyan,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter an expiry date';
+                                      }
+                                      if (!RegExp(r'^\d{2}\/\d{2}$').hasMatch(value)) {
+                                        return 'Please enter a valid expiry date (MM/YY)';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  TextFormField(
+                                    controller: _cvvController,
+                                    keyboardType: TextInputType.number,
+                                    decoration: const InputDecoration(
+                                      labelText: 'CVV',
+                                      hintText: 'CVV',
+                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                                      labelStyle: TextStyle(color: Colors.black),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.cyan),
+                                      ),
+                                    ),
+                                    cursorColor: Colors.cyan,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter a CVV';
+                                      }
+                                      if (!RegExp(r'^[0-9]{3,4}$').hasMatch(value)) {
+                                        return 'Please enter a valid CVV';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      if (_formKey.currentState!.validate()) {
+                                        try {
+                                          FirebaseFirestore.instance.collection('users').doc(_uid).update({
+                                            'userCard': FieldValue.arrayUnion([
+                                              {
+                                                'cardNumber': _cardNumberController.text,
+                                                'expiryDate': _expiryDateController.text,
+                                                'CVV': _cvvController.text,
+                                              }
+                                            ])
+                                          });
+                                          Fluttertoast.showToast(
+                                              msg: "New Card Added",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              gravity: ToastGravity.BOTTOM,
+                                              timeInSecForIosWeb: 1,
+                                              backgroundColor: Colors.cyan,
+                                              textColor: Colors.white,
+                                              fontSize: 13);
+                                        } catch (error) {
+                                          Fluttertoast.showToast(
+                                              msg: "Something went wrong, please try again later",
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              gravity: ToastGravity.BOTTOM,
+                                              timeInSecForIosWeb: 1,
+                                              backgroundColor: Colors.red,
+                                              textColor: Colors.white,
+                                              fontSize: 13);
+                                        }
+                                        Navigator.of(context).pop();
+                                      }
+                                    },
+                                    child: Text('Add Card'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: Text(
+                      'Add New Card',
+                      style: TextStyle(color: Colors.blue),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
 
   Future<void> _changePassword(BuildContext context, String email) async {
     final TextEditingController newPasswordController = TextEditingController();

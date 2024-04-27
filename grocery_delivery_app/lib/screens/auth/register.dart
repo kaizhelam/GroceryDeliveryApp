@@ -84,6 +84,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'phoneNumber' :_phoneNumberController.text,
           'userWish': [],
           'userCart': [],
+          'userCard': [],
           'gender' : "null",
           'birth' : "",
           'createdAt': Timestamp.now(),
