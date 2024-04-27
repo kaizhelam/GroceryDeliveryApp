@@ -53,7 +53,15 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         ),
       );
     }  catch (error) {
-      print(error);
+      Fluttertoast.showToast(
+          msg: "Something went wrong, please try again later",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.cyan,
+          textColor: Colors.white,
+          fontSize: 13
+      );
     }
   }
 
@@ -118,6 +126,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                       borderSide: BorderSide(color: Colors.red),
                     ),
                   ),
+                  cursorColor: Colors.cyan,
                 ),
                 const SizedBox(
                   height: 15,

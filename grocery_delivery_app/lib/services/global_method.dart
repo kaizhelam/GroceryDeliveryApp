@@ -50,7 +50,7 @@ class GlobalMethods {
               },
               child: TextWidget(
                 color: Colors.cyan,
-                text: 'Ok',
+                text: 'Yes',
                 textSize: 18,
               ),
             ),

@@ -68,6 +68,7 @@ class CategoriesScreen extends StatelessWidget {
           textSize: 24,
           isTitle: true,
         ),
+        titleSpacing: 10,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

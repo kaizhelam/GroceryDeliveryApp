@@ -107,6 +107,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Utils(context).getTheme;
+    bool containsUppercase(String value) {
+      return value.contains(RegExp(r'[A-Z]'));
+    }
+
+    bool containsLowercase(String value) {
+      return value.contains(RegExp(r'[a-z]'));
+    }
+
+    bool containsSpecialCharacter(String value) {
+      return value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    }
+
 
     return Scaffold(
       body: Stack(
@@ -170,7 +182,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _fullNameController,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "This Field is missing";
+                            return "Name is Empty";
                           } else {
                             return null;
                           }
@@ -200,7 +212,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.emailAddress,
                         controller: _emailTextController,
                         validator: (value) {
-                          if (value!.isEmpty || !value.contains("@")) {
+                          if (value!.isEmpty) {
+                            return "Email is Empty";
+                          }else if (!value.contains("@gmail.com")){
                             return "Please enter a valid Email address";
                           } else {
                             return null;
@@ -231,8 +245,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.visiblePassword,
                         controller: _passTextController,
                         validator: (value) {
-                          if (value!.isEmpty || value.length < 7) {
-                            return "Please enter a valid password";
+                          if (value!.isEmpty) {
+                            return "Password is Empty";
+                          } else if (value.length < 8){
+                            return "Password must be at least 8 characters long";
+                          }
+                          else if (!containsUppercase(value) ||
+                              !containsLowercase(value) ||
+                              !containsSpecialCharacter(value)) {
+                            return "Password must contain at least one uppercase letter,\n one lowercase letter,\n and one special character";
                           } else {
                             return null;
                           }
@@ -275,8 +296,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.visiblePassword,
                         controller: _confirmPassTextController,
                         validator: (value) {
-                          if (value!.isEmpty || value.length < 7) {
-                            return "Please enter a valid password";
+                          if (value!.isEmpty) {
+                            return "Password is Empty";
+                          } else if (value.length < 8){
+                            return "Password must be at least 8 characters long";
                           } else if (value != _passTextController.text) {
                             return "Passwords do not match";
                           } else {
@@ -327,8 +350,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                         keyboardType: TextInputType.phone,
                         validator: (value) {
-                          if (value!.isEmpty || value.length < 10) {
-                            return "Please enter a valid phone number";
+                          if (value!.isEmpty) {
+                            return "Phone Number is missing";
+                          } else if (value.length != 10) {
+                            return "Phone Number should be 10 digits long";
                           } else {
                             return null;
                           }

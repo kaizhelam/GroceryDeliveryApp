@@ -197,6 +197,30 @@ class _LocationScreenState extends State<LocationScreen> {
                               ),
                             ),
                             label: const Text('Save Address'),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await controller.getMapLocation();
+                            },
+                            icon: Icon(Icons.save),
+                            style: ButtonStyle(
+                              backgroundColor: controller.currentLocation !=
+                                  null &&
+                                  controller.currentLocation!.isNotEmpty
+                                  ? MaterialStateProperty.all<Color>(Colors
+                                  .cyan) // Use cyan if condition is true
+                                  : MaterialStateProperty.all<Color>(Colors
+                                  .red), // Use red if condition is false
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              shape: MaterialStateProperty.all<OutlinedBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
+                            label: const Text('Open Map to get Address'),
                           )
                         ],
                       ),

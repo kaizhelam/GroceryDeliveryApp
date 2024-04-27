@@ -97,7 +97,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                                 _isInCart ?
                                 IconlyBold.bag2 : IconlyLight.bag2,
                                 size: 22,
-                                color: _isInCart? Colors.green : color,
+                                color: _isInCart? Colors.cyan : color,
                               ),
                             ),
                             HeartBTN(productId: productModel.id,
@@ -108,6 +108,7 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                     )
                   ],
                 ),
+                SizedBox(height: 3,),
                 PriceWidget(
                   salePrice: productModel.salePrice,
                   price: productModel.price,
@@ -119,11 +120,8 @@ class _OnSaleWidgetState extends State<OnSaleWidget> {
                 TextWidget(
                   text: productModel.title,
                   color: color,
-                  textSize: 16,
+                  textSize: 18,
                   isTitle: true,
-                ),
-                const SizedBox(
-                  height: 5,
                 ),
               ],
             ),

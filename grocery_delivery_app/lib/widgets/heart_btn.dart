@@ -66,7 +66,9 @@ class _HeartBTNState extends State<HeartBTN> {
         // print('user id is ${user.uid}');
         // wishlistProvider.addRemoveProductToWishlist(productId: productId);
       },
-      child: loading ? const SizedBox(height: 15, width: 15, child:CircularProgressIndicator()) : Icon(
+      child: loading ? const SizedBox(height: 15, width: 15, child:CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+      )) : Icon(
         widget.isInWishlist != null && widget.isInWishlist == true
             ? IconlyBold.heart
             : IconlyLight.heart,

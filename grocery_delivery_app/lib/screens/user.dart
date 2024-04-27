@@ -35,13 +35,13 @@ class _UserScreenState extends State<UserScreen> {
   final TextEditingController _addressTextController =
       TextEditingController(text: "");
   final TextEditingController _phoneNumberController =
-  TextEditingController(text: "");
+      TextEditingController(text: "");
   final TextEditingController _userNameController =
-  TextEditingController(text: "");
+      TextEditingController(text: "");
   final TextEditingController _genderController =
-  TextEditingController(text: "");
+      TextEditingController(text: "");
   final TextEditingController _birthDateController =
-  TextEditingController(text: "");
+      TextEditingController(text: "");
 
   @override
   void dispose() {
@@ -125,13 +125,8 @@ class _UserScreenState extends State<UserScreen> {
         title: TextWidget(
           text: title,
           color: color,
-          textSize: 22,
+          textSize: 20,
           isTitle: true,
-        ),
-        subtitle: TextWidget(
-          text: subtitle == null ? "" : subtitle,
-          color: color,
-          textSize: 18,
         ),
         leading: Icon(
           icon,
@@ -159,7 +154,7 @@ class _UserScreenState extends State<UserScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    height: 27,
+                    height: 35,
                   ),
                   RichText(
                     text: TextSpan(
@@ -194,32 +189,18 @@ class _UserScreenState extends State<UserScreen> {
                     // isTitle: true,
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 12,
                   ),
                   const Divider(
                     thickness: 2,
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 12,
                   ),
-                  // GetBuilder<LocationController>(
-                  //   init: LocationController(),
-                  //   builder: (controller) {
-                  //     return _listTiles(
-                  //       title: 'Profile Details',
-                  //       // subtitle: controller.currentLocation,
-                  //       icon: IconlyLight.profile,
-                  //       onPressed: () async {
-                  //         await _showAddressDialog();
-                  //       },
-                  //       color: color,
-                  //     );
-                  //   },
-                  // ),
                   _listTiles(
                       title: 'Profile Details',
                       icon: IconlyLight.profile,
-                      onPressed: () async{
+                      onPressed: () async {
                         final User? user = authInstance.currentUser;
                         if (user == null) {
                           GlobalMethods.errorDialog(
@@ -230,8 +211,11 @@ class _UserScreenState extends State<UserScreen> {
                         }
                       },
                       color: color),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   _listTiles(
-                      title: 'Address',
+                      title: 'My Address',
                       icon: IconlyLight.location,
                       onPressed: () {
                         final User? user = authInstance.currentUser;
@@ -248,24 +232,11 @@ class _UserScreenState extends State<UserScreen> {
                         }
                       },
                       color: color),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   _listTiles(
-                      title: 'Reset Password',
-                      icon: IconlyLight.unlock,
-                      onPressed: () {
-                        final User? user = authInstance.currentUser;
-                        if (user == null) {
-                          GlobalMethods.errorDialog(
-                              subtitle: 'No user found, Please login in first',
-                              context: context);
-                        } else {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) =>
-                              const ForgetPasswordScreen()));
-                        }
-                      },
-                      color: color),
-                  _listTiles(
-                      title: 'Orders',
+                      title: 'My Orders',
                       icon: IconlyLight.bag,
                       onPressed: () {
                         final User? user = authInstance.currentUser;
@@ -279,8 +250,11 @@ class _UserScreenState extends State<UserScreen> {
                         }
                       },
                       color: color),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   _listTiles(
-                      title: 'Wishlist',
+                      title: 'My Wishlist',
                       icon: IconlyLight.heart,
                       onPressed: () {
                         final User? user = authInstance.currentUser;
@@ -290,12 +264,16 @@ class _UserScreenState extends State<UserScreen> {
                               context: context);
                         } else {
                           GlobalMethods.navigateTo(
-                              ctx: context, routeName: WishlistScreen.routeName);
+                              ctx: context,
+                              routeName: WishlistScreen.routeName);
                         }
                       },
                       color: color),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   _listTiles(
-                      title: 'Viewed',
+                      title: 'My Viewed',
                       icon: IconlyLight.show,
                       onPressed: () {
                         final User? user = authInstance.currentUser;
@@ -310,13 +288,36 @@ class _UserScreenState extends State<UserScreen> {
                         }
                       },
                       color: color),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  _listTiles(
+                      title: 'Change Password',
+                      icon: IconlyLight.unlock,
+                      onPressed: () {
+                        final User? user = authInstance.currentUser;
+                        if (user == null) {
+                          GlobalMethods.errorDialog(
+                              subtitle: 'No user found, Please login in first',
+                              context: context);
+                        } else {
+                          // Navigator.of(context).push(MaterialPageRoute(
+                          //     builder: (context) =>
+                          //     const ForgetPasswordScreen()));
+                          _changePassword(context, _email!);
+                        }
+                      },
+                      color: color),
+                  const SizedBox(
+                    height: 12,
+                  ),
                   SwitchListTile(
                     title: TextWidget(
                       text:
                           themeState.getDarkTheme ? 'Dark Mode' : 'Light Mode',
                       color: color,
-                      textSize: 22,
-                      // isTitle: true,
+                      textSize: 20,
+                      isTitle: true,
                     ),
                     secondary: Icon(
                       themeState.getDarkTheme
@@ -330,6 +331,9 @@ class _UserScreenState extends State<UserScreen> {
                       });
                     },
                     value: themeState.getDarkTheme,
+                  ),
+                  const SizedBox(
+                    height: 12,
                   ),
                   _listTiles(
                       title: user == null ? 'Login' : 'Logout',
@@ -365,6 +369,193 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
+  Future<void> _changePassword(BuildContext context, String email) async {
+    final TextEditingController newPasswordController = TextEditingController();
+    final TextEditingController confirmPasswordController = TextEditingController();
+    bool obscureNewPassword = true;
+    bool obscureConfirmPassword = true;
+
+    print(email);
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, setState) {
+            return AlertDialog(
+              title: Text('Change Password',
+                  style: TextStyle(fontSize: 19),),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: newPasswordController,
+                    obscureText: obscureNewPassword,
+                    decoration: InputDecoration(
+                      labelText: 'New Password',
+                      labelStyle: TextStyle(color: Colors.black),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors
+                                .cyan), // Change the underline color when focused
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(obscureNewPassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () {
+                          setState(() {
+                            obscureNewPassword = !obscureNewPassword;
+                          });
+                        },
+                      ),
+                    ),
+                    cursorColor: Colors.cyan,
+                  ),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: confirmPasswordController,
+                    obscureText: obscureConfirmPassword,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm New Password',
+                      labelStyle: TextStyle(color: Colors.black),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors
+                                .cyan), // Change the underline color when focused
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () {
+                          setState(() {
+                            obscureConfirmPassword = !obscureConfirmPassword;
+                          });
+                        },
+                      ),
+                    ),
+                    cursorColor: Colors.cyan,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    String newPassword = newPasswordController.text;
+                    String confirmPassword = confirmPasswordController.text;
+
+                    if(newPassword.isEmpty || confirmPassword.isEmpty){
+                      Fluttertoast.showToast(
+                        msg: "Passwords is Empty",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 13,
+                      );
+                      return;
+                    }
+
+                    // Check if passwords match
+                    if (newPassword != confirmPassword) {
+                      Fluttertoast.showToast(
+                        msg: "Passwords Do Not Match!",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 13,
+                      );
+                      return;
+                    }
+
+                    if(newPassword.length < 8 || confirmPassword.length < 8){
+                      Fluttertoast.showToast(
+                        msg: "Password must be at least 8 characters long",
+                        toastLength: Toast.LENGTH_LONG,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 3,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 13,
+                      );
+                      return;
+                    }
+
+                    // Check if password meets format requirements
+                    RegExp regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+={}\[\]|;:"<>,./?]).{8,}$');
+                    if (!regex.hasMatch(newPassword)) {
+                      Fluttertoast.showToast(
+                        msg: "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character",
+                        toastLength: Toast.LENGTH_LONG,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 3,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 13,
+                      );
+                      return;
+                    }
+
+                    try {
+                      User? user = FirebaseAuth.instance.currentUser;
+                      if (user != null) {
+                        await user.updatePassword(newPassword);
+                        Fluttertoast.showToast(
+                          msg: "Password Updated Successfully",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.cyan,
+                          textColor: Colors.white,
+                          fontSize: 13,
+                        );
+                      } else {
+                        Fluttertoast.showToast(
+                          msg: "User Not Found",
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 13,
+                        );
+                      }
+                      Navigator.of(context).pop();
+                    } catch (error) {
+                      Fluttertoast.showToast(
+                        msg: "Error: $error",
+                        toastLength: Toast.LENGTH_SHORT,
+                        gravity: ToastGravity.BOTTOM,
+                        timeInSecForIosWeb: 1,
+                        backgroundColor: Colors.red,
+                        textColor: Colors.white,
+                        fontSize: 13,
+                      );
+                    }
+                  },
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(color: Colors.cyan),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.cyan),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+
   Future<void> _showAddressDialog() async {
     bool isLoading = false;
     String? selectedGender;
@@ -374,7 +565,8 @@ class _UserScreenState extends State<UserScreen> {
     // Function to retrieve gender from the database
     Future<void> _retrieveGenderFromDatabase() async {
       String _uid = user!.uid;
-      final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(_uid).get();
+      final DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('users').doc(_uid).get();
       setState(() {
         genderFromDatabase = userDoc.get('gender');
         selectedGender = genderFromDatabase;
@@ -388,7 +580,8 @@ class _UserScreenState extends State<UserScreen> {
       builder: (context) {
         return SingleChildScrollView(
           child: AlertDialog(
-            title: const Text('Edit Profile'),
+            title: const Text('Edit Profile',
+                style: TextStyle(fontSize: 19),),
             content: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
                 return Column(
@@ -400,7 +593,9 @@ class _UserScreenState extends State<UserScreen> {
                         labelText: 'Name',
                         labelStyle: TextStyle(color: Colors.black),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .cyan), // Change the underline color when focused
                         ),
                       ),
                       cursorColor: Colors.cyan,
@@ -411,7 +606,9 @@ class _UserScreenState extends State<UserScreen> {
                         labelText: 'Phone Number',
                         labelStyle: TextStyle(color: Colors.black),
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .cyan), // Change the underline color when focused
                         ),
                       ),
                       cursorColor: Colors.cyan,
@@ -428,7 +625,10 @@ class _UserScreenState extends State<UserScreen> {
                           },
                           activeColor: Colors.cyan,
                         ),
-                        const Text('Female', style: TextStyle(color:  Colors.black),),
+                        const Text(
+                          'Female',
+                          style: TextStyle(color: Colors.black),
+                        ),
                         Radio<String>(
                           value: 'male',
                           groupValue: selectedGender,
@@ -439,7 +639,10 @@ class _UserScreenState extends State<UserScreen> {
                           },
                           activeColor: Colors.cyan,
                         ),
-                        const Text('Male',  style: TextStyle(color:  Colors.black),),
+                        const Text(
+                          'Male',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ],
                     ),
                     TextFormField(
@@ -447,7 +650,9 @@ class _UserScreenState extends State<UserScreen> {
                       decoration: InputDecoration(
                         labelText: 'Birth Date',
                         focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.cyan), // Change the underline color when focused
+                          borderSide: BorderSide(
+                              color: Colors
+                                  .cyan), // Change the underline color when focused
                         ),
                         labelStyle: TextStyle(color: Colors.black),
                         suffixIcon: IconButton(
@@ -460,9 +665,11 @@ class _UserScreenState extends State<UserScreen> {
                               lastDate: DateTime.now(),
                               builder: (BuildContext context, Widget? child) {
                                 return Theme(
-                                  data: ThemeData.dark().copyWith( // Define the theme properties
+                                  data: ThemeData.dark().copyWith(
+                                    // Define the theme properties
                                     colorScheme: const ColorScheme.dark(
-                                      primary: Colors.cyan, // Change text color to green
+                                      primary: Colors
+                                          .cyan, // Change text color to green
                                     ),
                                   ),
                                   child: child!,
@@ -474,7 +681,7 @@ class _UserScreenState extends State<UserScreen> {
                                 _birthDate = pickedDate;
                                 // Update the birth date text in the controller
                                 _birthDateController.text =
-                                '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
+                                    '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
                               });
                             }
                           },
@@ -508,7 +715,8 @@ class _UserScreenState extends State<UserScreen> {
                       return;
                     }
                     setState(() {
-                      isLoading = true; // Set isLoading to true when update starts
+                      isLoading =
+                          true; // Set isLoading to true when update starts
                     });
 
                     String _uid = user!.uid;
@@ -520,7 +728,7 @@ class _UserScreenState extends State<UserScreen> {
                         'phoneNumber': _phoneNumberController.text,
                         'name': _userNameController.text,
                         'gender': selectedGender,
-                        'birth' : _birthDateController.text,
+                        'birth': _birthDateController.text,
                       });
                       setState(() {
                         phoneNumber = _phoneNumberController.text;
@@ -528,7 +736,7 @@ class _UserScreenState extends State<UserScreen> {
                         _birth = _birthDateController.text;
                       });
                       Fluttertoast.showToast(
-                          msg: "Profile Details Updated",
+                          msg: "Profile Details Updated Successfully",
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 1,
@@ -547,13 +755,24 @@ class _UserScreenState extends State<UserScreen> {
                       });
                     }
                   },
-                  child: const Text('Update', style: TextStyle(color: Colors.cyan),),
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(color: Colors.cyan),
+                  ),
                 ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.cyan),
+                ),
+              )
             ],
           ),
         );
       },
     );
   }
-
 }

@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:grocery_delivery_app/models/viewed_model.dart';
 
+import '../consts/firebase_consts.dart';
 
 class ViewedProdProvider with ChangeNotifier {
   Map<String, ViewedProdModel> _viewedProdlistItems = {};
@@ -20,16 +23,8 @@ class ViewedProdProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void clearHistory(BuildContext context) {
+  void clearHistory() {
     _viewedProdlistItems.clear();
     notifyListeners();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('All Item removed from your history'),
-        duration: Duration(seconds: 1),
-        backgroundColor: Colors.blueGrey,
-      ),
-    );
   }
 }

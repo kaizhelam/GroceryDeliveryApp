@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../consts/firebase_consts.dart';
 
@@ -32,12 +33,20 @@ class LocationController extends GetxController {
       Placemark place = placemark[0];
 
       currentLocation =
-      "${place.locality}, ${place.street}, ${place.subLocality}, ${place.administrativeArea}, ${place.country}";
+          "${place.locality}, ${place.street}, ${place.subLocality}, ${place.administrativeArea}, ${place.country}";
 
       update();
     } catch (e) {
       print(e);
     }
+  }
+
+  Future<void> openMapToGetLocation(long, lat) async {
+    String googleURL =
+        'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+    await canLaunchUrlString(googleURL)
+        ? await launchUrlString(googleURL)
+        : throw 'Could not launch $googleURL';
   }
 
   Future<void> getCurrentLocation() async {
@@ -46,6 +55,21 @@ class LocationController extends GetxController {
       update();
       currentPosition = await getPosition();
       getAddressFromLatLng(
+          currentPosition!.longitude, currentPosition!.latitude);
+
+      isLoading(false);
+      update();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> getMapLocation() async {
+    try {
+      isLoading(true);
+      update();
+      currentPosition = await getPosition();
+      openMapToGetLocation(
           currentPosition!.longitude, currentPosition!.latitude);
 
       isLoading(false);
