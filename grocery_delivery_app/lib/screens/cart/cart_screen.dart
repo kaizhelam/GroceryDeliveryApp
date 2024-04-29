@@ -963,20 +963,10 @@ class _CartScreenState extends State<CartScreen> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  'Card Number: ${userCards[i]['cardNumber'] ?? ''}',
+                                                  'Card Number: ${userCards[i]['cardNumber'] != null ? '*${userCards[i]['cardNumber']!.substring(userCards[i]['cardNumber']!.length - 4)}' : ''}',
                                                   style:
-                                                      TextStyle(fontSize: 14),
-                                                ),
-                                                Text(
-                                                  'Expiry Date: ${userCards[i]['expiryDate'] ?? ''}',
-                                                  style:
-                                                      TextStyle(fontSize: 14),
-                                                ),
-                                                Text(
-                                                  'CVV: ${userCards[i]['CVV'] ?? ''}',
-                                                  style:
-                                                      TextStyle(fontSize: 14),
-                                                ),
+                                                      TextStyle(fontSize: 15),
+                                                )
                                               ],
                                             ),
                                           ),
@@ -1089,9 +1079,9 @@ class _CartScreenState extends State<CartScreen> {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () {
-                      if (_selectedPaymentMethod == "Cash"){
-                        _sendOrder(
-                            context, orderDateTime, driverMessage, totalPayment);
+                      if (_selectedPaymentMethod == "Cash") {
+                        _sendOrder(context, orderDateTime, driverMessage,
+                            totalPayment, _selectedPaymentMethod);
                         Navigator.of(context).pop();
                         return;
                       }
@@ -1127,13 +1117,13 @@ class _CartScreenState extends State<CartScreen> {
                                 }
                               ])
                             });
-                            _sendOrder(
-                                context, orderDateTime, driverMessage, totalPayment);
+                            _sendOrder(context, orderDateTime, driverMessage,
+                                totalPayment, _selectedPaymentMethod);
                             Navigator.of(context).pop();
                           } catch (error) {
                             Fluttertoast.showToast(
                                 msg:
-                                "Something went wrong, please try again later",
+                                    "Something went wrong, please try again later",
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.BOTTOM,
                                 timeInSecForIosWeb: 1,
@@ -1144,7 +1134,8 @@ class _CartScreenState extends State<CartScreen> {
                         }
                       }
 
-                      if (userCards.isNotEmpty && _selectedPaymentMethod == "Card") {
+                      if (userCards.isNotEmpty &&
+                          _selectedPaymentMethod == "Card") {
                         if (selectedIndex == null) {
                           Fluttertoast.showToast(
                               msg: "Please select your card to make payment",
@@ -1154,9 +1145,9 @@ class _CartScreenState extends State<CartScreen> {
                               backgroundColor: Colors.red,
                               textColor: Colors.white,
                               fontSize: 13);
-                        }else{
-                          _sendOrder(
-                              context, orderDateTime, driverMessage, totalPayment);
+                        } else {
+                          _sendOrder(context, orderDateTime, driverMessage,
+                              totalPayment, _selectedPaymentMethod);
                           Navigator.of(context).pop();
                         }
                       }
@@ -1185,7 +1176,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   void _sendOrder(BuildContext ctx, DateTime orderDateTime,
-      String noteMessageForDriver, double totalPayment) {
+      String noteMessageForDriver, double totalPayment, String _selectedPaymentMethod) {
     User? user = authInstance.currentUser;
     String message = '';
 
@@ -1218,6 +1209,8 @@ class _CartScreenState extends State<CartScreen> {
               .get();
           String shippingAddress = userSnapshot.get('shippingAddress');
           String phoneNumber = userSnapshot.get('phoneNumber');
+          double lat = userSnapshot.get('lat');
+          double long = userSnapshot.get('long');
 
           showDialog(
             context: context,
@@ -1267,6 +1260,10 @@ class _CartScreenState extends State<CartScreen> {
             'title': getCurrProduct.title,
             'noteForDriver': message,
             'totalPayment': totalPayment,
+            'lat': lat,
+            'long': long,
+            'paymentMethod' :_selectedPaymentMethod,
+            'rateStatus' : 0,
           });
 
           await cartProvider.clearOnlineCart();

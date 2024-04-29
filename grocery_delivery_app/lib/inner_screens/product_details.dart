@@ -415,7 +415,15 @@ class _ProductDetailsState extends State<ProductDetails> {
               final List<dynamic> ratingReviewArray = productSnapshot.data!['ratingReview'];
 
               if (ratingReviewArray.isEmpty) {
-                return const Center(child: Text('No rating reviews available'));
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.1, // Set a maximum height for the content
+                  child: Center(
+                    child: Text(
+                      'No rating reviews available',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                );
               }
 
               return SingleChildScrollView(

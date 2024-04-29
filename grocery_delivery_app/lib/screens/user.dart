@@ -43,6 +43,10 @@ class _UserScreenState extends State<UserScreen> {
   final TextEditingController _birthDateController =
       TextEditingController(text: "");
 
+  TextEditingController _cardNumberController = TextEditingController();
+  TextEditingController _expiryDateController = TextEditingController();
+  TextEditingController _cvvController = TextEditingController();
+
   @override
   void dispose() {
     _addressTextController.dispose();
@@ -50,6 +54,9 @@ class _UserScreenState extends State<UserScreen> {
     _userNameController.dispose();
     _genderController.dispose();
     _birthDateController.dispose();
+    _cardNumberController.dispose();
+    _expiryDateController.dispose();
+    _cvvController.dispose();
     super.dispose();
   }
 
@@ -390,15 +397,16 @@ class _UserScreenState extends State<UserScreen> {
     final User? user = authInstance.currentUser;
     final _uid = user!.uid;
 
-    TextEditingController _cardNumberController = TextEditingController();
-    TextEditingController _expiryDateController = TextEditingController();
-    TextEditingController _cvvController = TextEditingController();
-
-    await FirebaseFirestore.instance.collection('users').doc(_uid).get().then((docSnapshot) {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(_uid)
+        .get()
+        .then((docSnapshot) {
       if (docSnapshot.exists) {
         final userCard = docSnapshot.data()?['userCard'];
         if (userCard != null && userCard is List) {
-          userCards = List<Map<String, String>>.from(userCard.map((card) => Map<String, String>.from(card)));
+          userCards = List<Map<String, String>>.from(
+              userCard.map((card) => Map<String, String>.from(card)));
         }
       }
     });
@@ -409,175 +417,279 @@ class _UserScreenState extends State<UserScreen> {
         return Dialog(
           child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      'My Bank Cards',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              return SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'My Bank Cards',
+                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        textAlign: TextAlign.left,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  if (userCards.isNotEmpty)
-                    Column(
-                      children: [
-                        for (int i = 0; i < userCards.length; i++)
-                          ListTile(
-                            title: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                    userCards.isNotEmpty
+                        ? SingleChildScrollView(
+                            child: Column(
                               children: [
-                                Expanded(
+                                for (int i = 0; i < userCards.length; i++)
+                                  ListTile(
+                                    title: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Card Number: ${userCards[i]['cardNumber'] != null ? '*${userCards[i]['cardNumber']!.substring(userCards[i]['cardNumber']!.length - 4)}' : ''}',
+                                                style: TextStyle(fontSize: 15),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            _removeUserCard(i, userCards, _uid);
+                                          },
+                                          child: Icon(Icons.delete_outline),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          )
+                        : Container(
+                            child: Center(
+                            child: TextWidget(
+                              text: "No available Cards",
+                              color: Colors.black,
+                              textSize: 15,
+                            ),
+                          )),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Dialog(
+                              child: Form(
+                                key: _formKey,
+                                child: SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Text('Card Number: ${userCards[i]['cardNumber'] ?? ''}'),
-                                      Text('Expiry Date: ${userCards[i]['expiryDate'] ?? ''}'),
-                                      Text('CVV: ${userCards[i]['CVV'] ?? ''}'),
+                                      SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        child: TextFormField(
+                                          controller: _cardNumberController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Card Number',
+                                            hintText: 'XXXX XXXX XXXX XXXX',
+                                            prefixIcon: Icon(Icons.credit_card,
+                                                color: Colors.black54),
+                                            hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
+                                            labelStyle:
+                                                TextStyle(color: Colors.black),
+                                            focusedBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.cyan),
+                                            ),
+                                          ),
+                                          cursorColor: Colors.cyan,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty ||
+                                                value.length != 16 ||
+                                                !RegExp(r'^[0-9]{16}$')
+                                                    .hasMatch(value)) {
+                                              return 'Please enter a valid 16-digit card number';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        child: TextFormField(
+                                          controller: _expiryDateController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: const InputDecoration(
+                                            hintText: 'Expiry Date (MM/YY)',
+                                            labelText: 'Expiry Date',
+                                            hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
+                                            labelStyle:
+                                                TextStyle(color: Colors.black),
+                                            focusedBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.cyan),
+                                            ),
+                                          ),
+                                          cursorColor: Colors.cyan,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please enter an expiry date';
+                                            }
+                                            if (!RegExp(r'^\d{2}\/\d{2}$')
+                                                .hasMatch(value)) {
+                                              return 'Please enter a valid expiry date (MM/YY)';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 16.0),
+                                        child: TextFormField(
+                                          controller: _cvvController,
+                                          keyboardType: TextInputType.number,
+                                          decoration: const InputDecoration(
+                                            labelText: 'CVV',
+                                            hintText: 'CVV',
+                                            hintStyle: TextStyle(
+                                                color: Colors.grey,
+                                                fontSize: 12),
+                                            labelStyle:
+                                                TextStyle(color: Colors.black),
+                                            focusedBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.cyan),
+                                            ),
+                                          ),
+                                          cursorColor: Colors.cyan,
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Please enter a CVV';
+                                            }
+                                            if (!RegExp(r'^[0-9]{3,4}$')
+                                                .hasMatch(value)) {
+                                              return 'Please enter a valid CVV';
+                                            }
+                                            return null;
+                                          },
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.all(15),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          children: [
+                                            GestureDetector(
+                                              onTap: () {
+                                                if (_formKey.currentState!
+                                                    .validate()) {
+                                                  try {
+                                                    FirebaseFirestore.instance
+                                                        .collection('users')
+                                                        .doc(_uid)
+                                                        .update({
+                                                      'userCard': FieldValue
+                                                          .arrayUnion([
+                                                        {
+                                                          'cardNumber':
+                                                              _cardNumberController
+                                                                  .text,
+                                                          'expiryDate':
+                                                              _expiryDateController
+                                                                  .text,
+                                                          'CVV': _cvvController
+                                                              .text,
+                                                        }
+                                                      ])
+                                                    });
+                                                    Fluttertoast.showToast(
+                                                      msg: "New Card Added",
+                                                      toastLength:
+                                                          Toast.LENGTH_SHORT,
+                                                      gravity:
+                                                          ToastGravity.BOTTOM,
+                                                      timeInSecForIosWeb: 1,
+                                                      backgroundColor:
+                                                          Colors.cyan,
+                                                      textColor: Colors.white,
+                                                      fontSize: 13,
+                                                    );
+                                                    Navigator.of(context).pop();
+                                                  } catch (error) {
+                                                    Fluttertoast.showToast(
+                                                      msg:
+                                                          "Something went wrong, please try again later",
+                                                      toastLength:
+                                                          Toast.LENGTH_SHORT,
+                                                      gravity:
+                                                          ToastGravity.BOTTOM,
+                                                      timeInSecForIosWeb: 1,
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      textColor: Colors.white,
+                                                      fontSize: 13,
+                                                    );
+                                                  }
+                                                  Navigator.of(context).pop();
+                                                }
+                                              },
+                                              child: Text(
+                                                'Add Card',
+                                                style: TextStyle(
+                                                  color: Colors.cyan,
+                                                ),
+                                              ),
+                                            ),
+                                            GestureDetector(
+                                              onTap: () {
+                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                  color: Colors.cyan,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  GestureDetector(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Dialog(
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Text(
-                                      'Add New Card',
-                                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                  SizedBox(height: 10),
-                                  TextFormField(
-                                    controller: _cardNumberController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Card Number',
-                                      hintText: 'XXXX XXXX XXXX XXXX',
-                                      prefixIcon: Icon(Icons.credit_card, color: Colors.black54),
-                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
-                                      labelStyle: TextStyle(color: Colors.black),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.cyan),
-                                      ),
-                                    ),
-                                    cursorColor: Colors.cyan,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty || value.length != 16 || !RegExp(r'^[0-9]{16}$').hasMatch(value)) {
-                                        return 'Please enter a valid 16-digit card number';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  TextFormField(
-                                    controller: _expiryDateController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      hintText: 'Expiry Date (MM/YY)',
-                                      labelText: 'Expiry Date',
-                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
-                                      labelStyle: TextStyle(color: Colors.black),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.cyan),
-                                      ),
-                                    ),
-                                    cursorColor: Colors.cyan,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter an expiry date';
-                                      }
-                                      if (!RegExp(r'^\d{2}\/\d{2}$').hasMatch(value)) {
-                                        return 'Please enter a valid expiry date (MM/YY)';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  TextFormField(
-                                    controller: _cvvController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(
-                                      labelText: 'CVV',
-                                      hintText: 'CVV',
-                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 12),
-                                      labelStyle: TextStyle(color: Colors.black),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderSide: BorderSide(color: Colors.cyan),
-                                      ),
-                                    ),
-                                    cursorColor: Colors.cyan,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter a CVV';
-                                      }
-                                      if (!RegExp(r'^[0-9]{3,4}$').hasMatch(value)) {
-                                        return 'Please enter a valid CVV';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        try {
-                                          FirebaseFirestore.instance.collection('users').doc(_uid).update({
-                                            'userCard': FieldValue.arrayUnion([
-                                              {
-                                                'cardNumber': _cardNumberController.text,
-                                                'expiryDate': _expiryDateController.text,
-                                                'CVV': _cvvController.text,
-                                              }
-                                            ])
-                                          });
-                                          Fluttertoast.showToast(
-                                              msg: "New Card Added",
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.cyan,
-                                              textColor: Colors.white,
-                                              fontSize: 13);
-                                        } catch (error) {
-                                          Fluttertoast.showToast(
-                                              msg: "Something went wrong, please try again later",
-                                              toastLength: Toast.LENGTH_SHORT,
-                                              gravity: ToastGravity.BOTTOM,
-                                              timeInSecForIosWeb: 1,
-                                              backgroundColor: Colors.red,
-                                              textColor: Colors.white,
-                                              fontSize: 13);
-                                        }
-                                        Navigator.of(context).pop();
-                                      }
-                                    },
-                                    child: Text('Add Card'),
-                                  ),
-                                ],
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    child: Text(
-                      'Add New Card',
-                      style: TextStyle(color: Colors.blue),
+                            );
+                          },
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(15),
+                        child: Center(
+                          child: Text(
+                            'Add a New Card',
+                            style: TextStyle(color: Colors.cyan),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
@@ -586,10 +698,46 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
+  void _removeUserCard(
+      int index, List<Map<String, dynamic>> userCards, String uid) async {
+    try {
+      // Remove the item from the database
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'userCard': FieldValue.arrayRemove([userCards[index]])
+      });
+
+      // Update the UI
+      setState(() {
+        userCards.removeAt(index);
+      });
+
+      Fluttertoast.showToast(
+        msg: "Card Removed",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 13,
+      );
+      Navigator.of(context).pop();
+    } catch (error) {
+      Fluttertoast.showToast(
+        msg: "Something went wrong, please try again later",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 13,
+      );
+    }
+  }
 
   Future<void> _changePassword(BuildContext context, String email) async {
     final TextEditingController newPasswordController = TextEditingController();
-    final TextEditingController confirmPasswordController = TextEditingController();
+    final TextEditingController confirmPasswordController =
+        TextEditingController();
     bool obscureNewPassword = true;
     bool obscureConfirmPassword = true;
 
@@ -601,8 +749,10 @@ class _UserScreenState extends State<UserScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, setState) {
             return AlertDialog(
-              title: Text('Change Password',
-                  style: TextStyle(fontSize: 19),),
+              title: Text(
+                'Change Password',
+                style: TextStyle(fontSize: 19),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -618,7 +768,9 @@ class _UserScreenState extends State<UserScreen> {
                                 .cyan), // Change the underline color when focused
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(obscureNewPassword ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(obscureNewPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
                         onPressed: () {
                           setState(() {
                             obscureNewPassword = !obscureNewPassword;
@@ -641,7 +793,9 @@ class _UserScreenState extends State<UserScreen> {
                                 .cyan), // Change the underline color when focused
                       ),
                       suffixIcon: IconButton(
-                        icon: Icon(obscureConfirmPassword ? Icons.visibility_off : Icons.visibility),
+                        icon: Icon(obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility),
                         onPressed: () {
                           setState(() {
                             obscureConfirmPassword = !obscureConfirmPassword;
@@ -659,7 +813,7 @@ class _UserScreenState extends State<UserScreen> {
                     String newPassword = newPasswordController.text;
                     String confirmPassword = confirmPasswordController.text;
 
-                    if(newPassword.isEmpty || confirmPassword.isEmpty){
+                    if (newPassword.isEmpty || confirmPassword.isEmpty) {
                       Fluttertoast.showToast(
                         msg: "Passwords is Empty",
                         toastLength: Toast.LENGTH_SHORT,
@@ -686,7 +840,7 @@ class _UserScreenState extends State<UserScreen> {
                       return;
                     }
 
-                    if(newPassword.length < 8 || confirmPassword.length < 8){
+                    if (newPassword.length < 8 || confirmPassword.length < 8) {
                       Fluttertoast.showToast(
                         msg: "Password must be at least 8 characters long",
                         toastLength: Toast.LENGTH_LONG,
@@ -700,10 +854,12 @@ class _UserScreenState extends State<UserScreen> {
                     }
 
                     // Check if password meets format requirements
-                    RegExp regex = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+={}\[\]|;:"<>,./?]).{8,}$');
+                    RegExp regex = RegExp(
+                        r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+={}\[\]|;:"<>,./?]).{8,}$');
                     if (!regex.hasMatch(newPassword)) {
                       Fluttertoast.showToast(
-                        msg: "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character",
+                        msg:
+                            "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character",
                         toastLength: Toast.LENGTH_LONG,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 3,
@@ -773,7 +929,6 @@ class _UserScreenState extends State<UserScreen> {
     );
   }
 
-
   Future<void> _showAddressDialog() async {
     bool isLoading = false;
     String? selectedGender;
@@ -798,8 +953,10 @@ class _UserScreenState extends State<UserScreen> {
       builder: (context) {
         return SingleChildScrollView(
           child: AlertDialog(
-            title: const Text('Edit Profile',
-                style: TextStyle(fontSize: 19),),
+            title: const Text(
+              'Edit Profile',
+              style: TextStyle(fontSize: 19),
+            ),
             content: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
                 return Column(

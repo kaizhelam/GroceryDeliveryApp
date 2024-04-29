@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 class OrderModel with ChangeNotifier {
   final String orderId, userId, productId, userName, price, imageUrl, quantity, totalPayment;
-  final int orderStatus;
+  final int orderStatus, rateStatus;
   final Timestamp orderDate;
 
   OrderModel({
@@ -17,5 +17,6 @@ class OrderModel with ChangeNotifier {
     required this.orderDate,
     required this.orderStatus,
     required this.totalPayment,
+    required this.rateStatus,
   });
 }

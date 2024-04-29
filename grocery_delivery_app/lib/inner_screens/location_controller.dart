@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -8,54 +9,34 @@ import 'package:url_launcher/url_launcher_string.dart';
 
 import '../consts/firebase_consts.dart';
 
+import 'package:geolocator/geolocator.dart';
+
 class LocationController extends GetxController {
   Position? currentPosition;
   var isLoading = false.obs;
   String? currentLocation;
 
-  Future<Position> getPosition() async {
-    LocationPermission? permission;
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-    return await Geolocator.getCurrentPosition();
-  }
-
-  Future<void> getAddressFromLatLng(long, lat) async {
-    try {
-      List<Placemark> placemark = await placemarkFromCoordinates(lat, long);
-
-      Placemark place = placemark[0];
-
-      currentLocation =
-          "${place.locality}, ${place.street}, ${place.subLocality}, ${place.administrativeArea}, ${place.country}";
-
-      update();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> openMapToGetLocation(long, lat) async {
-    String googleURL =
-        'https://www.google.com/maps/search/?api=1&query=$lat,$long';
-    await canLaunchUrlString(googleURL)
-        ? await launchUrlString(googleURL)
-        : throw 'Could not launch $googleURL';
-  }
-
   Future<void> getCurrentLocation() async {
     try {
       isLoading(true);
       update();
-      currentPosition = await getPosition();
-      getAddressFromLatLng(
-          currentPosition!.longitude, currentPosition!.latitude);
+
+      // Request permission to access the device's location
+      LocationPermission permission = await Geolocator.requestPermission();
+
+      if (permission == LocationPermission.denied) {
+        // Handle the case where the user denied permission
+        throw Exception('Location permissions are denied');
+      }
+
+      // Get the current position
+      currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+
+      // Get the address details from the current position
+      await getAddressFromLatLng(
+          currentPosition!.latitude, currentPosition!.longitude);
 
       isLoading(false);
       update();
@@ -64,18 +45,41 @@ class LocationController extends GetxController {
     }
   }
 
-  Future<void> getMapLocation() async {
+  Future<void> getAddressFromLatLng(double lat, double long) async {
+    print(lat);
+    print(long);
     try {
-      isLoading(true);
-      update();
-      currentPosition = await getPosition();
-      openMapToGetLocation(
-          currentPosition!.longitude, currentPosition!.latitude);
+      List<Placemark> placemarks =
+      await placemarkFromCoordinates(lat, long);
 
-      isLoading(false);
+      Placemark placemark = placemarks[0];
+
+      // Construct the address string from the placemark details
+      currentLocation =
+      "${placemark.street}, ${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
+
       update();
     } catch (e) {
       print(e);
+    }
+
+    final User? user = authInstance.currentUser;
+    String _uid = user!.uid;
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(_uid)
+          .update({'lat': lat, 'long' : long});
+    } catch (err) {
+      Fluttertoast.showToast(
+          msg: "Something went wrong, please try again later",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.cyan,
+          textColor: Colors.white,
+          fontSize: 13);
     }
   }
 }
+

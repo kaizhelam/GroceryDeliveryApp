@@ -29,7 +29,13 @@ class _OrderWidgetState extends State<OrderWidget> {
   final User? user = authInstance.currentUser;
   bool _isLoading = false;
   String? _name;
-  bool rate = false;
+  TextEditingController reviewController = TextEditingController();
+
+  @override
+  void dispose() {
+    reviewController.dispose();
+    super.dispose();
+  }
 
   void initState() {
     getUserData();
@@ -84,6 +90,9 @@ class _OrderWidgetState extends State<OrderWidget> {
 
     int myOrderStatus = ordersModel.orderStatus;
 
+    int myRateStatus = ordersModel.rateStatus;
+    String orderId = ordersModel.orderId;
+
     setState(() {
       myOrderStatus;
     });
@@ -115,12 +124,12 @@ class _OrderWidgetState extends State<OrderWidget> {
             SizedBox(
               height: 8,
             ),
-            if (myOrderStatus != 0)
+            if (myOrderStatus == 2)
               GestureDetector(
                 onTap: () {
-                  if(!rate){
+                  if(myRateStatus != 1){
                     _giveRating(
-                        context, getCurrProduct.title, getCurrProduct.id, _name!);
+                        context, getCurrProduct.title, getCurrProduct.id, _name!, orderId);
                   }else{
                     Fluttertoast.showToast(
                         msg: "You Rated This Product",
@@ -144,7 +153,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                       width: 6,
                     ),
                     Text(
-                      rate ? 'Product Rated' : 'Rate & Review',
+                      myRateStatus == 0 ? 'Rate & Review' : 'Product Rated',
                       style: const TextStyle(
                         fontSize: 14, // Adjust font size as needed
                         color: Colors.cyan, // Change text color as needed
@@ -158,17 +167,25 @@ class _OrderWidgetState extends State<OrderWidget> {
       ),
       trailing: Padding(
         padding: const EdgeInsets.only(
-            left: 13), // Adjust the amount of space as needed
+            left: 13),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              ordersModel.orderStatus == 0 ? 'Pending' : 'Accepted',
+              ordersModel.orderStatus == 0
+                  ? 'Pending'
+                  : ordersModel.orderStatus == 1
+                  ? 'To Deliver'
+                  : 'Delivered',
               style: TextStyle(
-                  fontSize: 14,
-                  color:
-                      ordersModel.orderStatus == 0 ? Colors.red : Colors.green,
-                  fontWeight: FontWeight.bold),
+                fontSize: 13,
+                color: ordersModel.orderStatus == 0
+                    ? Colors.red
+                    : ordersModel.orderStatus == 1
+                    ? Colors.cyan // Change color for 'To Deliver'
+                    : Colors.green, // Change color for 'Delivered'
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
@@ -176,10 +193,9 @@ class _OrderWidgetState extends State<OrderWidget> {
     );
   }
 
-  void _giveRating(BuildContext context, String title, String id, String name) {
+  void _giveRating(BuildContext context, String title, String id, String name, String orderId) {
     final Color color = Utils(context).color;
     int selectedRating = 0; // Default selected rating
-    TextEditingController reviewController = TextEditingController();
 
     DateTime currentDate = DateTime.now();
     String currentDateTime =
@@ -230,7 +246,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                     // Review text field
                     TextFormField(
                       controller: reviewController,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      style: const TextStyle(color: Colors.black, fontSize: 14),
                       decoration: const InputDecoration(
                         labelText: 'Write Your Review',
                         labelStyle:
@@ -266,7 +282,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                           textColor: Colors.white,
                           fontSize: 13);
                     } else {
-                      addRatingReview(context, selectedRating, reviewController.text, title, id, currentDateTime, name);
+                      addRatingReview(context, selectedRating, reviewController.text, title, id, currentDateTime, name, orderId);
                       Navigator.of(context).pop();
                     }
                   },
@@ -292,17 +308,13 @@ class _OrderWidgetState extends State<OrderWidget> {
     );
   }
 
-  void addRatingReview(BuildContext context, int selectedRating, String review, String title, String id, String currentDateTime, String name) async {
+  void addRatingReview(BuildContext context, int selectedRating, String review, String title, String id, String currentDateTime, String name, String orderId) async {
     final User? user = authInstance.currentUser;
     final _uid = user!.uid;
     final cartId = const Uuid().v4();
 
-    print(selectedRating);
-    print(review);
-    print(title);
     print(id);
-    print(currentDateTime);
-    print(name);
+
       try {
         await FirebaseFirestore.instance.collection('products').doc(id).update({
           'ratingReview': FieldValue.arrayUnion([
@@ -315,6 +327,21 @@ class _OrderWidgetState extends State<OrderWidget> {
             }
           ])
         });
+
+        try {
+          await FirebaseFirestore.instance
+              .collection('orders')
+              .doc(orderId)
+              .update({
+            'rateStatus': 1,
+          });
+          setState(() {
+
+          });
+        } catch (error) {
+          print('Error updating document: $error');
+        }
+
         Fluttertoast.showToast(
             msg: "Your Rating Is Added",
             toastLength: Toast.LENGTH_SHORT,
@@ -323,7 +350,6 @@ class _OrderWidgetState extends State<OrderWidget> {
             backgroundColor: Colors.cyan,
             textColor: Colors.white,
             fontSize: 13);
-        rate = true;
       } catch (error) {
         print(error.toString());
       }

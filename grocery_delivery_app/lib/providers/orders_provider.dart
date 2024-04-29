@@ -37,6 +37,7 @@ class OrdersProvider with ChangeNotifier {
             orderDate: element.get('orderDate'),
             orderStatus : element.get('orderStatus'),
             totalPayment: element.get('totalPayment').toString(),
+            rateStatus: element.get('rateStatus'),
             // shippingAddress: element.get('shippingAddress'),
           ),
         );

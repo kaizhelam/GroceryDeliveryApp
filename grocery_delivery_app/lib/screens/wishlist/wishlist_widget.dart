@@ -40,7 +40,7 @@ class WishlistWidget extends StatelessWidget {
               arguments: wishlistModel.productId);
         },
         child: Container(
-          height: size.height * 0.20,
+          height: size.height * 0.18,
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             border: Border.all(color: color, width: 1),
@@ -53,7 +53,7 @@ class WishlistWidget extends StatelessWidget {
                 child: Container(
                   margin: const EdgeInsets.only(left: 8),
                   // width: size.width * 0.2,
-                  height: size.width * 0.25,
+                  height: size.width * 0.20,
                   child: FancyShimmerImage(
                     imageUrl: getCurrProduct.imageUrl,
                     boxFit: BoxFit.fill,
@@ -61,30 +61,22 @@ class WishlistWidget extends StatelessWidget {
                 ),
               ),
               Flexible(
-                flex: 3,
+                flex: 2,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Flexible(
-                      child: Row(
-                        children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              IconlyLight.bag2,
-                              color: color,
-                            ),
-                          ),
-                          HeartBTN(productId: getCurrProduct.id,
-                            isInWishlist: _isInWishlist,),
-                        ],
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: HeartBTN(
+                        productId: getCurrProduct.id,
+                        isInWishlist: _isInWishlist,
                       ),
                     ),
                     TextWidget(
                       text: getCurrProduct.title,
                       color: color,
-                      textSize: 20.0,
+                      textSize: 18,
                       maxLines: 2,
                       isTitle: true,
                     ),
@@ -94,13 +86,14 @@ class WishlistWidget extends StatelessWidget {
                     TextWidget(
                       text: 'RM${usedPrice.toStringAsFixed(2)}',
                       color: color,
-                      textSize: 18.0,
+                      textSize: 16,
                       maxLines: 1,
                       isTitle: true,
                     ),
                   ],
                 ),
               ),
+
             ],
           ),
         ),
