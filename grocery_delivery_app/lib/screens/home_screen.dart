@@ -33,16 +33,46 @@ class _HomeScreenState extends State<HomeScreen> {
     List<ProductModel> productOnSale = productProviders.getOnSaleProducts;
 
     return Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 63,
+          elevation: 5,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextWidget(
+                text: 'GoGrocery',
+                color: color,
+                textSize: 24,
+                isTitle: true,
+              ),
+              SizedBox(height: 5,),
+              TextWidget(
+                text: 'Fresh. Fast. Delivered.',
+                color: color, // Choose the color for your subtitle
+                textSize: 14, // Adjust the size of your subtitle text
+              ),
+            ],
+          ),
+          titleSpacing: 10,
+          automaticallyImplyLeading: false,
+        ),
       body: SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(
-              height: size.height * 0.31,
+              height: size.height * 0.20,
               child: Swiper(
                 itemBuilder: (BuildContext context, int index) {
-                  return Image.asset(
-                    Constss.offerImages[index],
-                    fit: BoxFit.fill,
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10.0),
+                      child: Image.asset(
+                        Constss.offerImages[index],
+                        fit: BoxFit.fill,
+                      ),
+                    ),
                   );
                 },
                 autoplay: true,
@@ -50,8 +80,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 pagination: const SwiperPagination(
                     alignment: Alignment.bottomCenter,
                     builder: DotSwiperPaginationBuilder(
-                        color: Colors.white, activeColor: Colors.red)),
-                // control: const SwiperControl(color: Colors.black),
+                      color: Colors.white,
+                      activeColor: Colors.cyan,
+                    )
+                ),
               ),
             ),
             TextButton(
@@ -60,11 +92,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     ctx: context, routeName: OnSaleScreen.routeName);
               },
               child: TextWidget(
-                  text: 'View All',
-                  maxLines: 1,
-                  color: Colors.cyan,
-                  textSize: 20,
-              isTitle: true,),
+                text: 'Explore All',
+                maxLines: 1,
+                color: Colors.cyan,
+                textSize: 20,
+                isTitle: true,
+              ),
             ),
             Row(
               children: [
@@ -116,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextWidget(
-                    text: 'Our products',
+                    text: 'Top Products',
                     color: color,
                     textSize: 22,
                     isTitle: true,
@@ -128,11 +161,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           ctx: context, routeName: FeedsScreen.routeName);
                     },
                     child: TextWidget(
-                        text: 'Browse all',
-                        maxLines: 1,
-                        color: Colors.cyan,
-                        textSize: 20,
-                    isTitle: true,),
+                      text: 'Explore all',
+                      maxLines: 1,
+                      color: Colors.cyan,
+                      textSize: 22,
+                      isTitle: true,
+                    ),
                   ),
                 ],
               ),
@@ -146,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
               childAspectRatio: size.width / (size.height * 0.47),
               children: List.generate(
                 allProducts.length < 4 ? allProducts.length : 4,
-                (index) {
+                    (index) {
                   return ChangeNotifierProvider.value(
                     value: allProducts[index],
                     child: const FeedsWidget(),

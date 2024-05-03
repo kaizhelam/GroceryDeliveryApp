@@ -393,16 +393,15 @@ class _ProductDetailsState extends State<ProductDetails> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          // backgroundColor: Colors.grey[900],
-          title: const Text("Rate & Review", style: TextStyle(color: Colors.black, fontSize: 20)), // Title of the dialog
+          title: const Text(
+            "Rate & Review",
+            style: TextStyle(color: Colors.black, fontSize: 20),
+          ),
           content: FutureBuilder(
-            future: FirebaseFirestore.instance
-                .collection('products')
-                .doc(id)
-                .get(),
+            future: FirebaseFirestore.instance.collection('products').doc(id).get(),
             builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> productSnapshot) {
               if (productSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator()); // Display a loading indicator while fetching data
+                return const Center(child: CircularProgressIndicator());
               }
               if (productSnapshot.hasError) {
                 return Center(child: Text('Error: ${productSnapshot.error}'));
@@ -416,7 +415,7 @@ class _ProductDetailsState extends State<ProductDetails> {
 
               if (ratingReviewArray.isEmpty) {
                 return SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.1, // Set a maximum height for the content
+                  height: MediaQuery.of(context).size.height * 0.1,
                   child: Center(
                     child: Text(
                       'No rating reviews available',
@@ -430,33 +429,43 @@ class _ProductDetailsState extends State<ProductDetails> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: ratingReviewArray.map((review) {
-                    // Parse the review data
                     final String name = review['Name'] ?? '';
                     final int rate = review['Rate'] ?? 0;
                     final String title = review['Title'] ?? '';
                     final String dateTime = review['currentDateTime'] ?? '';
                     final String reviewText = review['Review'] ?? '';
+                    final String profileImageUrl = review['profileImage'] ?? ''; // Get profile image URL
 
-                    // Create a list of star icons based on the rate
                     List<Widget> starIcons = [];
                     for (int i = 0; i < 5; i++) {
                       if (i < rate) {
-                        // Add filled star icon
-                        starIcons.add(const Icon(Icons.star, color: Colors.orange));
+                        starIcons.add(const Icon(Icons.star, color: Colors.orange, size: 18,));
                       } else {
-                        // Add border star icon
-                        starIcons.add(const Icon(Icons.star_border, color: Colors.orange));
+                        starIcons.add(const Icon(Icons.star_border, color: Colors.orange, size: 18,));
                       }
                     }
 
                     return ListTile(
+                      leading: CircleAvatar(
+                        radius: 20,
+                        backgroundImage: profileImageUrl != null && profileImageUrl.toString().isNotEmpty
+                            ? NetworkImage(profileImageUrl.toString()) as ImageProvider<Object>?
+                            : AssetImage('assets/images/user_icon.png'), // Use user icon if profileImageUrl is empty
+                      ),
+                      title: Row(
+                        children: [
+                          // Display the star icon
+                          Row(
+                            children: starIcons,
+                          ),
+                        ],
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(children: starIcons),
-                          Text('Review: $reviewText', style: const TextStyle(color: Colors.black)),
-                          Text('Date Posted: $dateTime', style: const TextStyle(color: Colors.black)),
-                          Text('Name: $name', style: const TextStyle(color: Colors.black)),
+                          Text(name, style: const TextStyle(color: Colors.black, fontSize: 13)),
+                          Text(reviewText, style: const TextStyle(color: Colors.black, fontSize: 13)),
+                          Text(dateTime, style: const TextStyle(color: Colors.black, fontSize: 13)),
                         ],
                       ),
                     );
@@ -468,7 +477,7 @@ class _ProductDetailsState extends State<ProductDetails> {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text('Close', style: TextStyle(color: Colors.cyan)),
             ),

@@ -59,6 +59,18 @@ dependencies:
   get: ^4.6.6
   text_hover: ^1.0.0+1
   url_launcher: ^6.2.6
+  flutter_launcher_icons: ^0.13.1
+  image_picker: ^1.1.1
+  firebase_storage: ^11.7.4
+
+fonts:
+  - family: MagnoliaScript
+    fonts:
+      - asset: fonts/MagnoliaScript-Regular.ttf
+
+flutter_icons:
+  android: true
+  image_path: "assets/logo.png"
 
 dev_dependencies:
   flutter_test:

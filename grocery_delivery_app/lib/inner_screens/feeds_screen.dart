@@ -31,10 +31,12 @@ class _FeedsScreenState extends State<FeedsScreen> {
 
   @override
   void initState() {
-    final productProvider = Provider.of<ProductsProvider>(context, listen: false);
+    final productProvider =
+        Provider.of<ProductsProvider>(context, listen: false);
     productProvider.fetchProducts();
     super.initState();
   }
+
   String? _selectedSortOption = "low_to_high";
   List<ProductModel> listProductSearch = [];
 
@@ -73,9 +75,11 @@ class _FeedsScreenState extends State<FeedsScreen> {
                       controller: _searchTextController,
                       onChanged: (value) {
                         setState(() {
-                          listProductSearch = productProvider.searchQuery(value);
+                          listProductSearch =
+                              productProvider.searchQuery(value);
                         });
                       },
+                      style: TextStyle(color: color),
                       decoration: InputDecoration(
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -95,7 +99,10 @@ class _FeedsScreenState extends State<FeedsScreen> {
                         hintStyle: TextStyle(
                           color: color,
                         ),
-                        prefixIcon: Icon(Icons.search, color: color,),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: color,
+                        ),
                         suffix: IconButton(
                           onPressed: () {
                             _searchTextController.clear();
@@ -103,7 +110,9 @@ class _FeedsScreenState extends State<FeedsScreen> {
                           },
                           icon: Icon(
                             Icons.close,
-                            color: _searchTextFocusNode.hasFocus ? Colors.red : color,
+                            color: _searchTextFocusNode.hasFocus
+                                ? Colors.red
+                                : color,
                           ),
                         ),
                       ),
@@ -111,7 +120,8 @@ class _FeedsScreenState extends State<FeedsScreen> {
                     ),
                   ),
                   SizedBox(height: 10), // Adjust as needed
-                  Row( // Wrap dropdown and apply button in a row
+                  Row(
+                    // Wrap dropdown and apply button in a row
                     children: [
                       Expanded(
                         child: DropdownButton<String>(
@@ -121,35 +131,47 @@ class _FeedsScreenState extends State<FeedsScreen> {
                               value: "low_to_high",
                               child: Padding(
                                 padding: EdgeInsets.only(left: 10),
-                                child: Text("Price Low to High", textAlign: TextAlign.center, style: TextStyle(color: color),),
+                                child: Text(
+                                  "Price Low to High",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: color),
+                                ),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "high_to_low",
                               child: Padding(
                                 padding: EdgeInsets.only(left: 10),
-                                child: Text("Price High to Low", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                                child: Text("Price High to Low",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: color)),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "name_a_to_z",
                               child: Padding(
                                 padding: EdgeInsets.only(left: 10),
-                                child: Text("Name A-Z", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                                child: Text("Name A-Z",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: color)),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "name_z_to_a",
                               child: Padding(
                                 padding: EdgeInsets.only(left: 10),
-                                child: Text("Name Z-A", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                                child: Text("Name Z-A",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: color)),
                               ),
                             ),
                             DropdownMenuItem(
                               value: "most_popular_sold",
                               child: Padding(
                                 padding: EdgeInsets.only(left: 10),
-                                child: Text("Most Popular Sold", textAlign: TextAlign.center, style: TextStyle(color: color)),
+                                child: Text("Most Popular Sold",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: color)),
                               ),
                             ),
                           ],
@@ -161,42 +183,79 @@ class _FeedsScreenState extends State<FeedsScreen> {
                         ),
                       ),
                       SizedBox(width: 10), // Adjust as needed
-                      SizedBox( // Set the width of the button
+                      SizedBox(
+                        // Set the width of the button
                         width: 150, // Adjust the width as needed
                         child: ElevatedButton(
                           onPressed: () {
                             if (_selectedSortOption == "low_to_high") {
                               setState(() {
-                                allProducts.sort((a, b) => a.price.compareTo(b.price));
+                                allProducts.sort((a, b) {
+                                  if (a.isOnSale && b.isOnSale) {
+                                    return a.salePrice.compareTo(b.salePrice);
+                                  } else if (a.isOnSale) {
+                                    return a.salePrice.compareTo(b
+                                        .price); // Compare sale price to regular price
+                                  } else if (b.isOnSale) {
+                                    return a.price.compareTo(b
+                                        .salePrice); // Compare regular price to sale price
+                                  } else {
+                                    return a.price.compareTo(b.price);
+                                  }
+                                });
                               });
                             } else if (_selectedSortOption == "high_to_low") {
                               setState(() {
-                                allProducts.sort((a, b) => b.price.compareTo(a.price));
+                                allProducts.sort((a, b) {
+                                  if (a.isOnSale && b.isOnSale) {
+                                    // Both products are on sale, compare sale prices
+                                    return b.salePrice.compareTo(a.salePrice);
+                                  } else if (a.isOnSale) {
+                                    // Only product A is on sale, compare sale price of A with regular price of B
+                                    return b.price.compareTo(a.salePrice);
+                                  } else if (b.isOnSale) {
+                                    // Only product B is on sale, compare regular price of B with sale price of A
+                                    return b.salePrice.compareTo(a.price);
+                                  } else {
+                                    // Neither product is on sale, compare regular prices
+                                    return b.price.compareTo(a.price);
+                                  }
+                                });
                               });
-                            } else if (_selectedSortOption == "name_a_to_z") {
+                            }
+                            else if (_selectedSortOption == "name_a_to_z") {
                               setState(() {
-                                allProducts.sort((a, b) => a.title.compareTo(b.title));
+                                allProducts
+                                    .sort((a, b) => a.title.compareTo(b.title));
                               });
                             } else if (_selectedSortOption == "name_z_to_a") {
                               setState(() {
-                                allProducts.sort((a, b) => b.title.compareTo(a.title));
+                                allProducts
+                                    .sort((a, b) => b.title.compareTo(a.title));
                               });
-                            } else if (_selectedSortOption == "most_popular_sold") {
+                            } else if (_selectedSortOption ==
+                                "most_popular_sold") {
                               setState(() {
-                                allProducts.sort((a, b) => b.productSold.compareTo(a.productSold));
+                                allProducts.sort((a, b) =>
+                                    b.productSold.compareTo(a.productSold));
                               });
                             }
                           },
                           style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
-                            foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.cyan),
+                            foregroundColor:
+                                MaterialStateProperty.all<Color>(Colors.white),
                             shape: MaterialStateProperty.all<OutlinedBorder>(
                               RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             ),
                           ),
-                          child: Text("Apply", style: TextStyle(fontSize: 17),),
+                          child: Text(
+                            "Apply",
+                            style: TextStyle(fontSize: 17),
+                          ),
                         ),
                       ),
                     ],
@@ -205,23 +264,28 @@ class _FeedsScreenState extends State<FeedsScreen> {
               ),
             ),
             _searchTextController!.text.isNotEmpty && listProductSearch.isEmpty
-                ? const EmptyProdWidget(text: 'No Product found, please try another keyword')
+                ? const EmptyProdWidget(
+                    text: 'No Product found, please try another keyword')
                 : GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              padding: EdgeInsets.zero,
-              childAspectRatio: size.width / (size.height * 0.47),
-              children: List.generate(
-                _searchTextController!.text.isNotEmpty ? listProductSearch.length : allProducts.length,
-                    (index) {
-                  return ChangeNotifierProvider.value(
-                    value: _searchTextController!.text.isNotEmpty ? listProductSearch[index] : allProducts[index],
-                    child: const FeedsWidget(),
-                  );
-                },
-              ),
-            ),
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    padding: EdgeInsets.zero,
+                    childAspectRatio: size.width / (size.height * 0.47),
+                    children: List.generate(
+                      _searchTextController!.text.isNotEmpty
+                          ? listProductSearch.length
+                          : allProducts.length,
+                      (index) {
+                        return ChangeNotifierProvider.value(
+                          value: _searchTextController!.text.isNotEmpty
+                              ? listProductSearch[index]
+                              : allProducts[index],
+                          child: const FeedsWidget(),
+                        );
+                      },
+                    ),
+                  ),
           ],
         ),
       ),

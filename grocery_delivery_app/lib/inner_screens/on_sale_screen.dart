@@ -25,10 +25,11 @@ class OnSaleScreen extends StatelessWidget {
         leading: const BackWidget(),
         elevation: 0,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        centerTitle: true,
         title: TextWidget(
-          text: 'Products on sale',
+          text: 'Products On Sale',
           color: color,
-          textSize: 24.0,
+          textSize: 20.0,
           isTitle: true,
         ),
       ),

@@ -105,16 +105,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextWidget(
                     text: 'Welcome Back',
                     color: Colors.white,
-                    textSize: 30,
+                    textSize: 35,
                     isTitle: true,
                   ),
                   const SizedBox(
                     height: 8,
                   ),
                   TextWidget(
-                    text: 'Sign in to continue',
+                    text: 'Sign in to your account',
                     color: Colors.white,
-                    textSize: 18,
+                    textSize: 22,
                     isTitle: false,
                   ),
                   const SizedBox(

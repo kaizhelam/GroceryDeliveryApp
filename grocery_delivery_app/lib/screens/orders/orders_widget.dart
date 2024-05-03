@@ -29,6 +29,7 @@ class _OrderWidgetState extends State<OrderWidget> {
   final User? user = authInstance.currentUser;
   bool _isLoading = false;
   String? _name;
+  String? _userprofileImage;
   TextEditingController reviewController = TextEditingController();
 
   @override
@@ -61,6 +62,7 @@ class _OrderWidgetState extends State<OrderWidget> {
         return;
       } else {
         _name = userDoc.get('name');
+        _userprofileImage = userDoc.get('profileImage');
       }
     } catch (error) {
       setState(() {
@@ -129,7 +131,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                 onTap: () {
                   if(myRateStatus != 1){
                     _giveRating(
-                        context, getCurrProduct.title, getCurrProduct.id, _name!, orderId);
+                        context, getCurrProduct.title, getCurrProduct.id, _name!, orderId, _userprofileImage!);
                   }else{
                     Fluttertoast.showToast(
                         msg: "You Rated This Product",
@@ -193,7 +195,7 @@ class _OrderWidgetState extends State<OrderWidget> {
     );
   }
 
-  void _giveRating(BuildContext context, String title, String id, String name, String orderId) {
+  void _giveRating(BuildContext context, String title, String id, String name, String orderId, String userprofileImage) {
     final Color color = Utils(context).color;
     int selectedRating = 0; // Default selected rating
 
@@ -282,7 +284,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                           textColor: Colors.white,
                           fontSize: 13);
                     } else {
-                      addRatingReview(context, selectedRating, reviewController.text, title, id, currentDateTime, name, orderId);
+                      addRatingReview(context, selectedRating, reviewController.text, title, id, currentDateTime, name, orderId, userprofileImage);
                       Navigator.of(context).pop();
                     }
                   },
@@ -308,7 +310,7 @@ class _OrderWidgetState extends State<OrderWidget> {
     );
   }
 
-  void addRatingReview(BuildContext context, int selectedRating, String review, String title, String id, String currentDateTime, String name, String orderId) async {
+  void addRatingReview(BuildContext context, int selectedRating, String review, String title, String id, String currentDateTime, String name, String orderId, String userprofileImage) async {
     final User? user = authInstance.currentUser;
     final _uid = user!.uid;
     final cartId = const Uuid().v4();
@@ -323,7 +325,8 @@ class _OrderWidgetState extends State<OrderWidget> {
               'Title': title,
               'Rate': selectedRating,
               'Review': review,
-              'currentDateTime' : currentDateTime
+              'currentDateTime' : currentDateTime,
+              'profileImage' : userprofileImage
             }
           ])
         });

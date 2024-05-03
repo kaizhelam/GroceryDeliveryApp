@@ -139,7 +139,7 @@ class _CartScreenState extends State<CartScreen> {
                             msg: "All Item Removed From Your Cart",
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
-                            timeInSecForIosWeb: 1,
+                            timeInSecForIosWeb: 2,
                             backgroundColor: Colors.grey[200],
                             textColor: Colors.black,
                             fontSize: 13);

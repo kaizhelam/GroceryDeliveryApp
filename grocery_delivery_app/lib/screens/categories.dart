@@ -18,7 +18,6 @@ class CategoriesScreen extends StatelessWidget {
     // const Color(0xffFF6E40), // Orange
   ];
 
-
   List<Map<String, dynamic>> catInfo = [
     {
       'imgPath': 'assets/images/cat/food.png',
@@ -69,6 +68,7 @@ class CategoriesScreen extends StatelessWidget {
           isTitle: true,
         ),
         titleSpacing: 10,
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),

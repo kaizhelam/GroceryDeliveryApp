@@ -51,7 +51,7 @@ class GlobalMethods {
               child: TextWidget(
                 color: Colors.cyan,
                 text: 'Yes',
-                textSize: 18,
+                textSize: 16,
               ),
             ),
             TextButton(
@@ -63,7 +63,7 @@ class GlobalMethods {
               child: TextWidget(
                 color: Colors.red,
                 text: 'Cancel',
-                textSize: 18,
+                textSize: 16,
               ),
             ),
           ],
@@ -131,7 +131,7 @@ class GlobalMethods {
           msg: "Item Added To Your Cart",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
+          timeInSecForIosWeb: 2,
           backgroundColor: Colors.cyan,
           textColor: Colors.white,
           fontSize: 13

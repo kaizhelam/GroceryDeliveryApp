@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
@@ -15,6 +17,7 @@ import 'package:grocery_delivery_app/screens/viewed_recently/viewed_recently.dar
 import 'package:grocery_delivery_app/screens/wishlist/wishlist_screen.dart';
 import 'package:grocery_delivery_app/screens/wishlist/wishlist_widget.dart';
 import 'package:grocery_delivery_app/services/global_method.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -23,6 +26,7 @@ import '../provider/dark_theme_provider.dart';
 import '../widgets/text_widget.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
@@ -68,11 +72,29 @@ class _UserScreenState extends State<UserScreen> {
   String? _birth;
   bool _isLoading = false;
   final User? user = authInstance.currentUser;
+  String? _profileImageUrl;
 
   @override
   void initState() {
     getUserData();
     super.initState();
+    _fetchProfileImageUrl();
+  }
+
+  Future<void> _fetchProfileImageUrl() async {
+    if (user != null) {
+      String _uid = user!.uid;
+
+      DocumentSnapshot userSnapshot =
+      await FirebaseFirestore.instance.collection('users').doc(_uid).get();
+      setState(() {
+        Map<String, dynamic>? userData =
+        userSnapshot.data() as Map<String, dynamic>?;
+        _profileImageUrl = userData?['profileImage'];
+      });
+    } else {
+      print('User is null');
+    }
   }
 
   Future<void> getUserData() async {
@@ -114,6 +136,254 @@ class _UserScreenState extends State<UserScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    try {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              'Upload Profile Picture',
+              style: TextStyle(fontSize: 18),
+            ),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await _getImageFromSource(ImageSource.camera);
+                    },
+                    child: const Row(
+                      children: <Widget>[
+                        Icon(Icons.camera, color: Colors.black,),
+                        SizedBox(width: 8),
+                        Text(
+                          'Camera',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.pop(context);
+                      await _getImageFromSource(ImageSource.gallery);
+                    },
+                    child: const Row(
+                      children: <Widget>[
+                        Icon(Icons.photo, color: Colors.black,),
+                        SizedBox(width: 8),
+                        Text(
+                          'Photos',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }
+
+  Future<void> _getImageFromSource(ImageSource source) async {
+    try {
+      final picker = ImagePicker();
+      final pickedImage = await picker.pickImage(source: source);
+
+      if (pickedImage != null) {
+        final imageFile = File(pickedImage.path);
+
+        bool uploadConfirmed = await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text(
+                'Confirm Upload',
+                style: TextStyle(fontSize: 19),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Are you sure to upload this image?',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  const SizedBox(height: 15),
+                  // Display small image preview
+                  Image.file(
+                    imageFile,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true);
+                  },
+                  child: const Text(
+                    'Yes',
+                    style: TextStyle(color: Colors.cyan),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: const Text(
+                    'No',
+                    style: TextStyle(color: Colors.cyan),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+
+        if (uploadConfirmed != null && uploadConfirmed) {
+          Fluttertoast.showToast(
+            msg: "Image Uploading...",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.cyan,
+            textColor: Colors.white,
+            fontSize: 13,
+          );
+          String downloadURL = await _uploadImageToStorage(imageFile);
+          await _storeImageUrlInFirestore(downloadURL);
+          setState(() {
+            _profileImageUrl = downloadURL;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+    }
+  }
+
+  Future<String> _uploadImageToStorage(File imageFile) async {
+    String _uid = user!.uid;
+    final storageRef = firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('users')
+        .child(_uid)
+        .child('profileImage');
+    await storageRef.putFile(imageFile);
+    return await storageRef.getDownloadURL();
+
+    Fluttertoast.showToast(
+      msg: "Image Uploaded",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.cyan,
+      textColor: Colors.white,
+      fontSize: 13,
+    );
+  }
+
+  Future<void> _storeImageUrlInFirestore(String downloadURL) async {
+    String _uid = user!.uid;
+    await FirebaseFirestore.instance.collection('users').doc(_uid).update({
+      'profileImage': downloadURL,
+    });
+
+    Fluttertoast.showToast(
+      msg: "Image Uploaded",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.cyan,
+      textColor: Colors.white,
+      fontSize: 13,
+    );
+  }
+
+  Future<void> _removeImage() async {
+    try {
+      String uid = user!.uid;
+
+      bool confirm = await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text(
+              'Remove Image',
+              style: TextStyle(fontSize: 19),
+            ),
+            content: const Text(
+              'Are you sure you want to remove your profile image?',
+              style: TextStyle(color: Colors.black),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+                child: const Text(
+                  'Yes',
+                  style: TextStyle(color: Colors.cyan),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: const Text(
+                  'No',
+                  style: TextStyle(color: Colors.cyan),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (confirm == true) {
+        final storageRef = firebase_storage.FirebaseStorage.instance
+            .ref()
+            .child('users')
+            .child(uid)
+            .child('profileImage');
+        await storageRef.delete();
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(uid)
+            .update({'profileImage': ""});
+
+        setState(() {
+          _profileImageUrl = null;
+        });
+        Fluttertoast.showToast(
+          msg: "Image Removed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 13,
+        );
+        print('Image removed successfully');
+      }
+    } catch (e) {
+      print('Error removing image: $e');
     }
   }
 
@@ -160,40 +430,66 @@ class _UserScreenState extends State<UserScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    height: 35,
-                  ),
-                  RichText(
-                    text: TextSpan(
-                      text: 'Hi, ',
-                      style: const TextStyle(
-                          color: Colors.cyan,
-                          fontSize: 27,
-                          fontWeight: FontWeight.bold),
-                      children: <TextSpan>[
-                        TextSpan(
-                          text: _name == null ? 'Welcome' : _name,
-                          style: TextStyle(
-                              color: color,
-                              fontSize: 23,
-                              fontWeight: FontWeight.w600),
-                          //         recognizer: TapGestureRecognizer()..onTap = (){
-                          //           print('My name');
-                          // }
+                  const SizedBox(height: 35),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap:
+                            _profileImageUrl != null && _profileImageUrl != ""
+                                ? _removeImage
+                                : _uploadImage,
+                        child: CircleAvatar(
+                          radius: 29, // Adjust the size as needed
+                          backgroundImage: _profileImageUrl != null &&
+                                  _profileImageUrl != ""
+                              ? NetworkImage(
+                                  _profileImageUrl!)
+                              : null,
+                          child: _profileImageUrl == null ||
+                                  _profileImageUrl == ""
+                              ? const Icon(
+                                  Icons.account_circle,
+                                  color: Colors.black,
+                                  size: 58,
+                                )
+                              : null,
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  TextWidget(
-                    text: _email == null
-                        ? 'Login Now and Start Ordering.'
-                        : _email!,
-                    color: color,
-                    textSize: 18,
-                    // isTitle: true,
+                      ),
+                      SizedBox(width: 15),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          RichText(
+                            text: TextSpan(
+                              text: 'Hi, ',
+                              style: const TextStyle(
+                                color: Colors.cyan,
+                                fontSize: 25,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: _name == null ? 'Welcome' : _name,
+                                  style: TextStyle(
+                                    color: color,
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          TextWidget(
+                            text: _email == null
+                                ? 'Login Now and Start Ordering.'
+                                : _email!,
+                            color: color,
+                            textSize: 15,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   const SizedBox(
                     height: 8,
@@ -456,7 +752,7 @@ class _UserScreenState extends State<UserScreen> {
                                           onTap: () {
                                             _removeUserCard(i, userCards, _uid);
                                           },
-                                          child: Icon(Icons.delete_outline),
+                                          child: Icon(Icons.delete),
                                         ),
                                       ],
                                     ),
@@ -678,8 +974,8 @@ class _UserScreenState extends State<UserScreen> {
                           },
                         );
                       },
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
+                      child: const Padding(
+                        padding: EdgeInsets.all(15),
                         child: Center(
                           child: Text(
                             'Add a New Card',
@@ -701,12 +997,10 @@ class _UserScreenState extends State<UserScreen> {
   void _removeUserCard(
       int index, List<Map<String, dynamic>> userCards, String uid) async {
     try {
-      // Remove the item from the database
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'userCard': FieldValue.arrayRemove([userCards[index]])
       });
 
-      // Update the UI
       setState(() {
         userCards.removeAt(index);
       });
@@ -765,7 +1059,7 @@ class _UserScreenState extends State<UserScreen> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors
-                                .cyan), // Change the underline color when focused
+                                .cyan),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(obscureNewPassword
@@ -790,7 +1084,7 @@ class _UserScreenState extends State<UserScreen> {
                       focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors
-                                .cyan), // Change the underline color when focused
+                                .cyan),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(obscureConfirmPassword
@@ -853,7 +1147,6 @@ class _UserScreenState extends State<UserScreen> {
                       return;
                     }
 
-                    // Check if password meets format requirements
                     RegExp regex = RegExp(
                         r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#$%^&*()_+={}\[\]|;:"<>,./?]).{8,}$');
                     if (!regex.hasMatch(newPassword)) {
@@ -935,7 +1228,6 @@ class _UserScreenState extends State<UserScreen> {
     String? genderFromDatabase;
     DateTime? _birthDate;
 
-    // Function to retrieve gender from the database
     Future<void> _retrieveGenderFromDatabase() async {
       String _uid = user!.uid;
       final DocumentSnapshot userDoc =
@@ -983,7 +1275,7 @@ class _UserScreenState extends State<UserScreen> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors
-                                  .cyan), // Change the underline color when focused
+                                  .cyan),
                         ),
                       ),
                       cursorColor: Colors.cyan,
@@ -1027,7 +1319,7 @@ class _UserScreenState extends State<UserScreen> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors
-                                  .cyan), // Change the underline color when focused
+                                  .cyan),
                         ),
                         labelStyle: TextStyle(color: Colors.black),
                         suffixIcon: IconButton(
@@ -1044,7 +1336,7 @@ class _UserScreenState extends State<UserScreen> {
                                     // Define the theme properties
                                     colorScheme: const ColorScheme.dark(
                                       primary: Colors
-                                          .cyan, // Change text color to green
+                                          .cyan,
                                     ),
                                   ),
                                   child: child!,
@@ -1054,7 +1346,6 @@ class _UserScreenState extends State<UserScreen> {
                             if (pickedDate != null) {
                               setState(() {
                                 _birthDate = pickedDate;
-                                // Update the birth date text in the controller
                                 _birthDateController.text =
                                     '${pickedDate.day}/${pickedDate.month}/${pickedDate.year}';
                               });
@@ -1071,7 +1362,9 @@ class _UserScreenState extends State<UserScreen> {
             ),
             actions: [
               if (isLoading)
-                CircularProgressIndicator() // Show loading spinner if isLoading is true
+                const CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+                )
               else
                 TextButton(
                   onPressed: () async {
@@ -1091,7 +1384,7 @@ class _UserScreenState extends State<UserScreen> {
                     }
                     setState(() {
                       isLoading =
-                          true; // Set isLoading to true when update starts
+                          true;
                     });
 
                     String _uid = user!.uid;

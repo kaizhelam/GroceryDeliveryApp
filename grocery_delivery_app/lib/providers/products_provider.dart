@@ -14,30 +14,32 @@ class ProductsProvider with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    await FirebaseFirestore.instance
-        .collection('products')
-        .get()
-        .then((QuerySnapshot productSnapshot) {
-          _productsList = [];
-          // _productsList.clear();
+    try {
+      QuerySnapshot productSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .orderBy('productSold', descending: true)
+          .get();
+
+      _productsList = [];
       productSnapshot.docs.forEach((element) {
-        _productsList.insert(
-            0,
-            ProductModel(
-              id: element.get('id'),
-              title: element.get('title'),
-              imageUrl: element.get('imageUrl'),
-              productCategoryName: element.get('productCategoryName'),
-              productDescription: element.get('productDescription'),
-              price: double.parse(element.get('price')),
-              salePrice: element.get('salePrice'),
-              isOnSale: element.get('isOnSale'),
-              isPiece: element.get('isPiece'),
-              productSold : element.get('productSold'),
-            ));
+        _productsList.add(ProductModel(
+          id: element.get('id'),
+          title: element.get('title'),
+          imageUrl: element.get('imageUrl'),
+          productCategoryName: element.get('productCategoryName'),
+          productDescription: element.get('productDescription'),
+          price: double.parse(element.get('price')),
+          salePrice: element.get('salePrice'),
+          isOnSale: element.get('isOnSale'),
+          isPiece: element.get('isPiece'),
+          productSold: element.get('productSold'),
+        ));
       });
-    });
-    notifyListeners();
+
+      notifyListeners();
+    } catch (e) {
+      print('Error fetching products: $e');
+    }
   }
 
   ProductModel findProdById(String productId) {

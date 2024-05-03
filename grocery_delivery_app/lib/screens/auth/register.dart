@@ -88,6 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'gender' : "null",
           'birth' : "",
           'createdAt': Timestamp.now(),
+          'profileImage' : "",
         });
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -156,18 +157,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   height: 25.0,
                 ),
                 TextWidget(
-                  text: 'Welcome',
+                  text: 'Register',
                   color: Colors.white,
-                  textSize: 30,
+                  textSize: 35,
                   isTitle: true,
                 ),
                 const SizedBox(
                   height: 8,
                 ),
                 TextWidget(
-                  text: "Sign up to continue",
+                  text: "Create your new account",
                   color: Colors.white,
-                  textSize: 18,
+                  textSize: 22,
                   isTitle: false,
                 ),
                 const SizedBox(

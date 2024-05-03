@@ -56,8 +56,7 @@ class LocationController extends GetxController {
 
       // Construct the address string from the placemark details
       currentLocation =
-      "${placemark.street}, ${placemark.subLocality}, ${placemark.locality}, ${placemark.administrativeArea}, ${placemark.country}";
-
+      "${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.locality}, ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
       update();
     } catch (e) {
       print(e);

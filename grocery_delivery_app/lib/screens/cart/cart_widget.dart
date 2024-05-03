@@ -176,7 +176,7 @@ class _CartWidgetState extends State<CartWidget> {
                                 msg: "Item Removed",
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.BOTTOM,
-                                timeInSecForIosWeb: 1,
+                                timeInSecForIosWeb: 2,
                                 backgroundColor: Colors.grey[200],
                                 textColor: Colors.black,
                                 fontSize: 13);
