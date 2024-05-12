@@ -58,14 +58,13 @@ class _FeedsWidgetState extends State<FeedsWidget> {
     wishlistProvider.getWishlistItems.containsKey(productModel.id);
     final viewedProdProvider = Provider.of<ViewedProdProvider>(context);
 
-    // Set up a listener to fetch and update productSold from Firestore
     _subscription = FirebaseFirestore.instance
         .collection('products')
-        .doc(productModel.id) // Assuming you have a unique document for each product
+        .doc(productModel.id)
         .snapshots()
         .listen((DocumentSnapshot snapshot) {
       setState(() {
-        _productSold = snapshot['productSold'] ?? 0; // Update productSold value
+        _productSold = snapshot['productSold'] ?? 0;
       });
     });
 

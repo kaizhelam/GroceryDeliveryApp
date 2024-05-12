@@ -90,7 +90,7 @@ class _CartWidgetState extends State<CartWidget> {
                         isTitle: true,
                       ),
                       const SizedBox(
-                        height: 16.0,
+                        height: 1.0,
                       ),
                       SizedBox(
                         width: size.width * 0.3,

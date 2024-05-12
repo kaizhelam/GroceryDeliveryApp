@@ -3,7 +3,7 @@ import 'package:grocery_delivery_app/services/dark_theme_prefs.dart';
 
 class DarkThemeProvider with ChangeNotifier {
   DarkThemePrefs darkThemePrefs = DarkThemePrefs();
-  bool _darkTheme = false;
+  bool _darkTheme = true;
   bool get getDarkTheme => _darkTheme;
 
   set setDarkTheme(bool value) {

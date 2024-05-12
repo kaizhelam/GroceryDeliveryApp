@@ -161,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ctx: context, routeName: FeedsScreen.routeName);
                     },
                     child: TextWidget(
-                      text: 'Explore all',
+                      text: 'Explore All',
                       maxLines: 1,
                       color: Colors.cyan,
                       textSize: 22,

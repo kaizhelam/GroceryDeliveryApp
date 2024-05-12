@@ -34,17 +34,25 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
 
   void _forgetPassFCT() async {
     if(_emailTextController.text.isEmpty || !_emailTextController.text.contains("@")){
-      GlobalMethods.errorDialog(subtitle: 'Please enter a valid email', context: context);
+      Fluttertoast.showToast(
+          msg: "Please enter a valid Email Address",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 13
+      );
     }
     try{
       await authInstance.sendPasswordResetEmail(email: _emailTextController.text.toLowerCase());
       Fluttertoast.showToast(
-          msg: "Reset password link Sent To Your Email Address",
+          msg: "Reset Password Link Sent to Your Email Address",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.cyan,
-          textColor: Colors.white,
+          backgroundColor: Colors.grey[200],
+          textColor: Colors.black,
           fontSize: 13
       );
       Navigator.of(context).pushReplacement(
@@ -53,94 +61,79 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
         ),
       );
     }  catch (error) {
-      Fluttertoast.showToast(
-          msg: "Something went wrong, please try again later",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.cyan,
-          textColor: Colors.white,
-          fontSize: 13
-      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = Utils(context).getScreenSize;
+    final Color color = Utils(context).color;
     return Scaffold(
-      // backgroundColor: Colors.blue,
-      body: Stack(
-        children: [
-          Swiper(
-            itemBuilder: (BuildContext context, int index) {
-              return Image.asset(
-                Constss.authImagesPaths[index],
-                fit: BoxFit.cover,
-              );
-            },
-            autoplay: true,
-            itemCount: Constss.authImagesPaths.length,
-
-            // control: const SwiperControl(),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.7),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: size.height * 0.1,
-                ),
-                const BackWidget(),
-                const SizedBox(
-                  height: 20,
-                ),
-                TextWidget(
-                  text: 'Forget password',
-                  color: Colors.white,
-                  textSize: 30,
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-
-                TextField(
-                  controller: _emailTextController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Email address',
-                    hintStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    errorBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: size.height * 0.1,
+                  ),
+                  const BackWidget(),
+                  Center(
+                    child: Image.asset(
+                      "assets/images/landing/resetpassword.png",
+                      width: 250,
+                      height: 250,
                     ),
                   ),
-                  cursorColor: Colors.cyan,
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                AuthButton(
-                  buttonText: 'Reset now',
-                  fct: () {
-                    _forgetPassFCT();
-                  },
-                ),
-              ],
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  TextWidget(
+                    text: 'Forgot your Password?',
+                    color: color,
+                    textSize: 28,
+                    isTitle: true,
+                  ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  TextField(
+                    controller: _emailTextController,
+                    style: TextStyle(color: color),
+                    decoration: InputDecoration(
+                      hintText: 'Email address',
+                      hintStyle: TextStyle(color: color),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: color),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: color),
+                      ),
+                      errorBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: color),
+                      ),
+                    ),
+                    cursorColor: color,
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  AuthButton(
+                    buttonText: 'Reset now',
+                    fct: () {
+                      _forgetPassFCT();
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

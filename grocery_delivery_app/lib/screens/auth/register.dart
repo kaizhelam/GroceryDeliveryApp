@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_delivery_app/screens/btm_bar.dart';
 import 'package:grocery_delivery_app/services/global_method.dart';
 
@@ -62,53 +63,86 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _submitFormOnRegister() async {
+  void _submitFormOnRegister(BuildContext context) async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
     if (isValid) {
       _formKey.currentState!.save();
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Prevent dialog from being dismissed by tapping outside
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+            ),
+          );
+        },
+      );
+
+
       try {
-        await authInstance.createUserWithEmailAndPassword(
+        // Create user with email and password
+        UserCredential userCredential = await authInstance.createUserWithEmailAndPassword(
           email: _emailTextController.text,
           password: _passTextController.text,
         );
-        final User? user = authInstance.currentUser;
-        final _uid = user!.uid;
-        user.updateDisplayName(_fullNameController.text);
-        user.reload();
+
+        await userCredential.user!.updateDisplayName(_fullNameController.text);
+        await userCredential.user!.sendEmailVerification();
+        await userCredential.user!.reload();
+
+        // Set user data in Firestore
+        final _uid = userCredential.user!.uid;
         await FirebaseFirestore.instance.collection('users').doc(_uid).set({
           'id': _uid,
           'name': _fullNameController.text,
           'email': _emailTextController.text.toLowerCase(),
           'shippingAddress': "",
-          'phoneNumber' :_phoneNumberController.text,
+          'phoneNumber': _phoneNumberController.text,
           'userWish': [],
           'userCart': [],
           'userCard': [],
-          'gender' : "null",
-          'birth' : "",
+          'gender': "null",
+          'birth': "",
           'createdAt': Timestamp.now(),
-          'profileImage' : "",
+          'profileImage': "",
         });
+
+        // Close the loading dialog
+        Navigator.pop(context);
+
+        Fluttertoast.showToast(
+            msg: "Please Check your Email & Verify to Login",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.grey[200],
+            textColor: Colors.black,
+            fontSize: 13
+        );
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const FetchScreen(),
+            builder: (context) => const LoginScreen(),
           ),
         );
       } on FirebaseException catch (error) {
         print(error);
-        GlobalMethods.errorDialog(
-            subtitle: '${error.message}', context: context);
+        Navigator.pop(context); // Close the loading dialog
+        GlobalMethods.errorDialog(subtitle: '${error.message}', context: context);
       } catch (error) {
         print(error);
+        Navigator.pop(context); // Close the loading dialog
         GlobalMethods.errorDialog(subtitle: '$error', context: context);
-      } finally {}
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Utils(context).getTheme;
+    final Color color = Utils(context).color;
     bool containsUppercase(String value) {
       return value.contains(RegExp(r'[A-Z]'));
     }
@@ -125,40 +159,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          Swiper(
-            duration: 800,
-            autoplayDelay: 6000,
-
-            itemBuilder: (BuildContext context, int index) {
-              return Image.asset(
-                Constss.authImagesPaths[index],
-                fit: BoxFit.cover,
-              );
-            },
-            autoplay: true,
-            itemCount: Constss.authImagesPaths.length,
-
-            // control: const SwiperControl(),
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.7),
-          ),
           SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0, top: 15),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                const SizedBox(
-                  height: 60.0,
-                ),
-                const SizedBox(
-                  height: 25.0,
+                Center( // Center the image
+                  child: Image.asset(
+                    "assets/images/landing/signup.png",
+                    width: 150,
+                    height: 150,
+                  ),
                 ),
                 TextWidget(
                   text: 'Register',
-                  color: Colors.white,
+                  color: color,
                   textSize: 35,
                   isTitle: true,
                 ),
@@ -167,8 +184,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 TextWidget(
                   text: "Create your new account",
-                  color: Colors.white,
-                  textSize: 22,
+                  color: color,
+                  textSize: 18,
                   isTitle: false,
                 ),
                 const SizedBox(
@@ -184,26 +201,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _fullNameController,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "Name is Empty";
+                            return 'This field is required';
                           } else {
                             return null;
                           }
                         },
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        style:  TextStyle(color: color),
+                        decoration:  InputDecoration(
                           hintText: 'Full name',
-                          hintStyle: TextStyle(color: Colors.white),
+                          hintStyle: TextStyle(color: color),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: color),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
+                            borderSide: BorderSide(color: color),
                           ),
                         ),
-                        cursorColor: Colors.cyan,
+                        cursorColor: color,
                       ),
                       const SizedBox(
                         height: 10,
@@ -215,28 +229,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _emailTextController,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "Email is Empty";
+                            return 'This field is required';
                           }else if (!value.contains("@gmail.com")){
                             return "Please enter a valid Email address";
                           } else {
                             return null;
                           }
                         },
-                        style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        style:  TextStyle(color: color),
+                        decoration:  InputDecoration(
                           hintText: 'Email',
-                          hintStyle: TextStyle(color: Colors.white),
+                          hintStyle: TextStyle(color: color),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: color),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
+                            borderSide: BorderSide(color: color),
                           ),
                         ),
-                        cursorColor: Colors.cyan,
+                        cursorColor: color,
                       ),
                       const SizedBox(
                         height: 10,
@@ -248,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _passTextController,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "Password is Empty";
+                            return 'This field is required';
                           } else if (value.length < 8){
                             return "Password must be at least 8 characters long";
                           }
@@ -260,7 +271,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           }
                         },
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: color),
                         decoration: InputDecoration(
                           suffixIcon: GestureDetector(
                             onTap: () {
@@ -272,22 +283,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _obscureText
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white,
+                              color: color,
                             ),
                           ),
                           hintText: 'Password',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                          hintStyle:  TextStyle(color: color),
+                          enabledBorder:  UnderlineInputBorder(
+                            borderSide: BorderSide(color: color),
                           ),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
+                          focusedBorder:  UnderlineInputBorder(
+                            borderSide: BorderSide(color: color),
                           ),
                         ),
-                        cursorColor: Colors.cyan,
+                        cursorColor: color,
                       ),
                       const SizedBox(
                         height: 10,
@@ -299,7 +307,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _confirmPassTextController,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "Password is Empty";
+                            return 'This field is required';
                           } else if (value.length < 8){
                             return "Password must be at least 8 characters long";
                           } else if (value != _passTextController.text) {
@@ -308,7 +316,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           }
                         },
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: color),
                         decoration: InputDecoration(
                           suffixIcon: GestureDetector(
                             onTap: () {
@@ -320,22 +328,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _obscureConfirmText
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white,
+                              color: color,
                             ),
                           ),
                           hintText: 'Confirm Password',
-                          hintStyle: const TextStyle(color: Colors.white),
-                          enabledBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                          hintStyle:  TextStyle(color: color),
+                          enabledBorder:  UnderlineInputBorder(
+                            borderSide: BorderSide(color: color),
                           ),
-                          focusedBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorBorder: const UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
+                          focusedBorder:  UnderlineInputBorder(
+                            borderSide: BorderSide(color: color),
                           ),
                         ),
-                        cursorColor: Colors.cyan,
+                        cursorColor: color,
                       ),
 
                       const SizedBox(
@@ -344,7 +349,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       TextFormField(
                         focusNode: _phoneNumberFocusNode,
                         textInputAction: TextInputAction.done,
-                        onEditingComplete: _submitFormOnRegister,
                         controller: _phoneNumberController,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
@@ -353,87 +357,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         keyboardType: TextInputType.phone,
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return "Phone Number is missing";
+                            return 'This field is required';
                           } else if (value.length != 10) {
                             return "Phone Number should be 10 digits long";
                           } else {
                             return null;
                           }
                         },
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: color),
                         textAlign: TextAlign.start,
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Phone Number',
-                          hintStyle: TextStyle(color: Colors.white),
+                          hintStyle: TextStyle(color: color),
                           enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
+                            borderSide: BorderSide(color: color),
                           ),
                           focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.white),
-                          ),
-                          errorBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: Colors.red),
+                            borderSide: BorderSide(color: color),
                           ),
                         ),
-                        cursorColor: Colors.cyan,
+                        cursorColor: color,
                       ),
                       const SizedBox(
                         height: 10,
                       ),
-                      // TextFormField(
-                      //   focusNode: _addressFocusNode,
-                      //   textInputAction: TextInputAction.done,
-                      //   onEditingComplete: _submitFormOnRegister,
-                      //   controller: _addressTextController,
-                      //   validator: (value) {
-                      //     if (value!.isEmpty || value.length < 10) {
-                      //       return "Please enter a valid  address";
-                      //     } else {
-                      //       return null;
-                      //     }
-                      //   },
-                      //   style: const TextStyle(color: Colors.white),
-                      //   maxLines: 2,
-                      //   textAlign: TextAlign.start,
-                      //   decoration: const InputDecoration(
-                      //     hintText: 'Shipping address',
-                      //     hintStyle: TextStyle(color: Colors.white),
-                      //     enabledBorder: UnderlineInputBorder(
-                      //       borderSide: BorderSide(color: Colors.white),
-                      //     ),
-                      //     focusedBorder: UnderlineInputBorder(
-                      //       borderSide: BorderSide(color: Colors.white),
-                      //     ),
-                      //     errorBorder: UnderlineInputBorder(
-                      //       borderSide: BorderSide(color: Colors.red),
-                      //     ),
-                      //   ),
-                      // ),
                     ],
                   ),
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      // GlobalMethods.navigateTo(
-                      //     ctx: context, routeName: FeedsScreen.routeName);
-                    },
-                    child: const Text(
-                      'Forget password?',
-                      maxLines: 1,
-                      style: TextStyle(
-                          color: Colors.cyan,
-                          fontSize: 18,
-                          fontStyle: FontStyle.italic,
-                      fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                const SizedBox(
+                  height: 10,
                 ),
                 AuthButton(
                   buttonText: 'Sign up',
                   fct: () {
-                    _submitFormOnRegister();
+                    _submitFormOnRegister(context);
                   },
                 ),
                 const SizedBox(
@@ -442,7 +399,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 RichText(
                   text: TextSpan(
                       text: 'Already a user?',
-                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(color: color, fontSize: 18),
                       children: <TextSpan>[
                         TextSpan(
                             text: ' Sign in',

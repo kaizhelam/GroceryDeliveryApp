@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_delivery_app/screens/categories.dart';
 import 'package:grocery_delivery_app/screens/home_screen.dart';
+import 'package:grocery_delivery_app/screens/recipes_page.dart';
 import 'package:grocery_delivery_app/screens/user.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +26,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
     {'page': const HomeScreen(), 'title': 'Home Screen'},
     {'page': CategoriesScreen(), 'title': 'Categories Screen'},
     {'page': const CartScreen(), 'title': 'Cart Screen'},
+    {'page': const RecipesScreen(), 'title': 'Recipes Screen'},
     {'page': const UserScreen(), 'title': 'User Screen'},
   ];
 
@@ -57,13 +59,13 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon:
-                Icon(_selectedIndex == 0 ? IconlyBold.home : IconlyLight.home),
+                Icon(_selectedIndex == 0 ? Icons.home : Icons.home),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(_selectedIndex == 1
-                ? IconlyBold.category
-                : IconlyLight.category),
+                ? Icons.category
+                : Icons.category),
             label: "Categories",
           ),
           BottomNavigationBarItem(
@@ -73,13 +75,18 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
                 style: const TextStyle(color: Colors.white),
               ),
               child:
-                  Icon(_selectedIndex == 2 ? IconlyBold.buy : IconlyLight.buy),
+                  Icon(_selectedIndex == 2 ? Icons.card_travel : Icons.card_travel),
             ),
             label: 'Cart', // Set your label here
           ),
           BottomNavigationBarItem(
+            icon:
+            Icon(_selectedIndex == 3 ? Icons.local_dining : Icons.local_dining),
+            label: "Recipes",
+          ),
+          BottomNavigationBarItem(
             icon: Icon(
-                _selectedIndex == 3 ? IconlyBold.user2 : IconlyLight.user2),
+                _selectedIndex == 4 ? Icons.people : Icons.people),
             label: "User",
           ),
         ],

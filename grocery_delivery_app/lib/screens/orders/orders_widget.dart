@@ -18,6 +18,14 @@ import '../../services/utils.dart';
 import '../../widgets/text_widget.dart';
 import 'package:intl/intl.dart';
 
+enum OrderStatus {
+  Pending,
+  InProgress,
+  ToDeliver,
+  Delivered,
+}
+
+
 class OrderWidget extends StatefulWidget {
   const OrderWidget({Key? key}) : super(key: key);
 
@@ -126,7 +134,7 @@ class _OrderWidgetState extends State<OrderWidget> {
             SizedBox(
               height: 8,
             ),
-            if (myOrderStatus == 2)
+            if (myOrderStatus == 3)
               GestureDetector(
                 onTap: () {
                   if(myRateStatus != 1){
@@ -167,33 +175,132 @@ class _OrderWidgetState extends State<OrderWidget> {
           ],
         ),
       ),
-      trailing: Padding(
-        padding: const EdgeInsets.only(
-            left: 13),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              ordersModel.orderStatus == 0
-                  ? 'Pending'
-                  : ordersModel.orderStatus == 1
-                  ? 'To Deliver'
-                  : 'Delivered',
-              style: TextStyle(
-                fontSize: 13,
-                color: ordersModel.orderStatus == 0
-                    ? Colors.red
-                    : ordersModel.orderStatus == 1
-                    ? Colors.cyan // Change color for 'To Deliver'
-                    : Colors.green, // Change color for 'Delivered'
-                fontWeight: FontWeight.bold,
-              ),
+        trailing: Padding(
+          padding: const EdgeInsets.only(left: 13),
+          child: GestureDetector(
+            onTap: () {
+              // Show dialog with timeline based on orderStatus when icon is tapped
+              _showTimelineDialog(context, ordersModel.orderStatus, ordersModel.address);
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.more_horiz,
+                  size: 40,
+                  color: Colors.white,// Adjust icon size as needed
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
     );
   }
+
+
+
+  void _showTimelineDialog(BuildContext context, int orderStatus, String address) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Timeline'),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 270, // Set the height according to your content
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: OrderStatus.values.length,
+              itemBuilder: (context, index) {
+                final currentStatus = OrderStatus.values[index];
+                bool showSubtitle = currentStatus == OrderStatus.Delivered; // Show subtitle for Delivered status
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 2, // Width of the vertical line
+                      height: 60, // Height of the vertical line (adjust as needed)
+                      color: _getStatusColor(currentStatus, orderStatus),
+                    ),
+                    SizedBox(width: 15), // Add spacing between the vertical line and the circle avatar
+                    CircleAvatar(
+                      backgroundColor: _getStatusColor(currentStatus, orderStatus),
+                      radius: 20, // Adjust the radius of the CircleAvatar
+                      child: Text((index + 1).toString(), style: TextStyle(color: Colors.white),),
+                    ),
+                    SizedBox(width: 10), // Add spacing between the circle avatar and the text
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(_getStatusTitle(currentStatus), style: TextStyle(color: Colors.black, fontSize: 17),),
+                          if (showSubtitle) // Conditionally show the subtitle for Delivered status
+                            Text(address, style: TextStyle(color: Colors.black),),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 20), // Add padding at the bottom of the CircleAvatar
+                  ],
+                );
+              },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Close', style: TextStyle(color: Colors.cyan),),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Color _getStatusColor(OrderStatus status, int currentStatus) {
+    if (status.index == currentStatus) {
+      return Colors.cyan;
+    } else if (status.index < currentStatus) {
+      return Colors.cyan;
+    } else {
+      return Colors.black;
+    }
+  }
+
+  String _getStatusTitle(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.Pending:
+        return 'Pending';
+      case OrderStatus.InProgress:
+        return 'In Progress';
+      case OrderStatus.ToDeliver:
+        return 'To Deliver';
+      case OrderStatus.Delivered:
+        return 'Delivered';
+      default:
+        return 'Unknown';
+    }
+  }
+
+  String _getStatusSubtitle(OrderStatus status) {
+    switch (status) {
+      case OrderStatus.Pending:
+        return 'Subtitle for Pending';
+      case OrderStatus.InProgress:
+        return 'Subtitle for In Progress';
+      case OrderStatus.ToDeliver:
+        return 'Subtitle for To Deliver';
+      case OrderStatus.Delivered:
+        return 'Subtitle for Delivered';
+      default:
+        return 'Unknown Subtitle';
+    }
+  }
+
+
 
   void _giveRating(BuildContext context, String title, String id, String name, String orderId, String userprofileImage) {
     final Color color = Utils(context).color;

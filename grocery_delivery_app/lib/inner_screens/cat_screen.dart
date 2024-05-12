@@ -71,6 +71,7 @@ class _FeedsScreenState extends State<CategoryScreen> {
                                 productProvider.searchQuery(valuee);
                           });
                         },
+                        style: TextStyle(color: color),
                         decoration: InputDecoration(
                           focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),

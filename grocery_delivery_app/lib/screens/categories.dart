@@ -9,14 +9,15 @@ class CategoriesScreen extends StatelessWidget {
   CategoriesScreen({super.key});
 
   List<Color> gridColors = [
-    const Color(0xffFF5252), // Red
-    const Color(0xffFFD740), // Amber
-    const Color(0xff69F0AE), // Green
-    const Color(0xff40C4FF), // Blue
-    const Color(0xff536DFE), // Indigo
-    const Color(0xffFF4081), // Pink
-    // const Color(0xffFF6E40), // Orange
+    Colors.white,
+    Colors.white,
+    Colors.white,
+    Colors.white,
+    Colors.white,
+    Colors.white,
   ];
+
+
 
   List<Map<String, dynamic>> catInfo = [
     {
@@ -81,7 +82,7 @@ class CategoriesScreen extends StatelessWidget {
             return CategoriesWidget(
               catText: catInfo[index]['catText'],
               imgPath: catInfo[index]['imgPath'],
-              passedColor: gridColors[index],
+              passedColor: color,
             );
           }),
         ),

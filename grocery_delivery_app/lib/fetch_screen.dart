@@ -62,7 +62,7 @@ class _FetchScreenState extends State<FetchScreen> {
             height: double.infinity,
           ),
           Container(
-            color: Colors.black.withOpacity(0.7),
+            color: Colors.black.withOpacity(0.4),
           ),
           const Center(
             child: SpinKitFadingFour(

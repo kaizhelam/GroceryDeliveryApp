@@ -9,6 +9,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_delivery_app/screens/auth/register.dart';
 import 'package:grocery_delivery_app/screens/btm_bar.dart';
 import 'package:grocery_delivery_app/widgets/text_widget.dart';
@@ -17,6 +18,7 @@ import '../../consts/contss.dart';
 import '../../consts/firebase_consts.dart';
 import '../../fetch_screen.dart';
 import '../../services/global_method.dart';
+import '../../services/utils.dart';
 import '../../widgets/auth_button.dart';
 import '../../widgets/google_button.dart';
 import 'forget_pass.dart';
@@ -50,10 +52,25 @@ class _LoginScreenState extends State<LoginScreen> {
     if (isValid) {
       _formKey.currentState!.save();
       try {
-        await authInstance.signInWithEmailAndPassword(
+        UserCredential userCredential = await authInstance.signInWithEmailAndPassword(
           email: _emailTextController.text,
           password: _passTextController.text,
         );
+
+        if (!userCredential.user!.emailVerified) {
+          Fluttertoast.showToast(
+              msg: "Email is Not Verified Yet",
+              toastLength: Toast.LENGTH_SHORT,
+              gravity: ToastGravity.BOTTOM,
+              timeInSecForIosWeb: 1,
+              backgroundColor: Colors.red,
+              textColor: Colors.white,
+              fontSize: 13
+          );
+          await FirebaseAuth.instance.signOut();
+          return;
+        }
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const FetchScreen(),
@@ -62,49 +79,44 @@ class _LoginScreenState extends State<LoginScreen> {
       } on FirebaseException catch (error) {
         print(error);
         GlobalMethods.errorDialog(
-            subtitle: '${error.message}', context: context);
+          subtitle: '${error.message}',
+          context: context,
+        );
       } catch (error) {
         print(error);
-        GlobalMethods.errorDialog(subtitle: '$error', context: context);
+        GlobalMethods.errorDialog(
+          subtitle: '$error',
+          context: context,
+        );
       } finally {}
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final Color color = Utils(context).color;
     FocusNode passFocusNode = FocusNode();
     return Scaffold(
       body: Stack(
-        children: [
-          Swiper(
-            duration: 800,
-            autoplayDelay: 6000,
-            itemBuilder: (BuildContext context, int index) {
-              return Image.asset(
-                Constss.authImagesPaths[index],
-                fit: BoxFit.cover,
-              );
-            },
-            autoplay: true,
-            itemCount: Constss.authImagesPaths.length,
-          ),
-          Container(
-            color: Colors.black.withOpacity(0.7),
-          ),
+        children: <Widget>[
           SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
-                children: [
-                  const SizedBox(
-                    height: 120.0,
+                children: <Widget>[
+                  Center( // Center the image
+                    child: Image.asset(
+                      "assets/images/landing/signin.png",
+                      width: 250,
+                      height: 250,
+                    ),
                   ),
                   TextWidget(
                     text: 'Welcome Back',
-                    color: Colors.white,
+                    color: color,
                     textSize: 35,
                     isTitle: true,
                   ),
@@ -113,8 +125,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   TextWidget(
                     text: 'Sign in to your account',
-                    color: Colors.white,
-                    textSize: 22,
+                    color: color,
+                    textSize: 18,
                     isTitle: false,
                   ),
                   const SizedBox(
@@ -131,24 +143,26 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _emailTextController,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
-                            if (value!.isEmpty || !value.contains('@')) {
+                            if (value!.isEmpty) {
+                              return 'This field is required';
+                            } else if (!value.contains('@')) {
                               return 'Please enter a valid email address';
                             } else {
                               return null;
                             }
                           },
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
+                          style: TextStyle(color: color),
+                          decoration: InputDecoration(
                             hintText: 'Email',
-                            hintStyle: TextStyle(color: Colors.white),
+                            hintStyle: TextStyle(color: color),
                             enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: BorderSide(color:color),
                             ),
                             focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: BorderSide(color: color),
                             ),
                           ),
-                          cursorColor: Colors.cyan,
+                          cursorColor: color,
                         ),
                         const SizedBox(
                           height: 12,
@@ -164,13 +178,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           obscureText: _obscureText,
                           keyboardType: TextInputType.visiblePassword,
                           validator: (value) {
-                            if (value!.isEmpty || value.length < 6) {
+                            if (value!.isEmpty) {
+                              return 'This field is required';
+                            } else if( value.length < 6){
                               return 'Please enter a password more than 6 digit';
-                            } else {
+                            }else {
                               return null;
                             }
                           },
-                          style: const TextStyle(color: Colors.white),
+                          style: TextStyle(color: color),
                           decoration: InputDecoration(
                             suffixIcon: GestureDetector(
                               onTap: () {
@@ -182,19 +198,19 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _obscureText
                                     ? Icons.visibility_off
                                     : Icons.visibility,
-                                color: Colors.white,
+                                color: color,
                               ),
                             ),
                             hintText: 'Password',
-                            hintStyle: const TextStyle(color: Colors.white),
-                            enabledBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                            hintStyle:  TextStyle(color: color),
+                            enabledBorder:  UnderlineInputBorder(
+                              borderSide: BorderSide(color: color),
                             ),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                            focusedBorder:  UnderlineInputBorder(
+                              borderSide: BorderSide(color: color),
                             ),
                           ),
-                          cursorColor: Colors.cyan,
+                          cursorColor: color,
                         ),
                       ],
                     ),
@@ -211,30 +227,32 @@ class _LoginScreenState extends State<LoginScreen> {
                               routeName: ForgetPasswordScreen.routeName);
                         },
                         child: const Text(
-                          'Forget password?',
+                          'Forgot password?',
                           maxLines: 1,
                           style: TextStyle(
                               color: Colors.cyan,
                               fontSize: 18,
                               fontStyle: FontStyle.italic,
-                          fontWeight: FontWeight.bold),
+                              fontWeight: FontWeight.bold),
                         ),
                       )),
                   const SizedBox(
                     height: 10,
                   ),
-                  AuthButton(fct: () {
-                    _submitFormOnLogin();
-                  }, buttonText: 'Sign In'),
+                  AuthButton(
+                      fct: () {
+                        _submitFormOnLogin();
+                      },
+                      buttonText: 'Sign In'),
                   // const GoogleButton(),
                   const SizedBox(
                     height: 10,
                   ),
                   Row(
                     children: [
-                      const Expanded(
+                       Expanded(
                         child: Divider(
-                          color: Colors.white,
+                          color: color,
                           thickness: 2,
                         ),
                       ),
@@ -243,15 +261,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       TextWidget(
                         text: 'OR',
-                        color: Colors.white,
+                        color: color,
                         textSize: 18,
                       ),
                       const SizedBox(
                         width: 5,
                       ),
-                      const Expanded(
+                       Expanded(
                         child: Divider(
-                          color: Colors.white,
+                          color: color,
                           thickness: 2,
                         ),
                       ),
@@ -260,32 +278,32 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: 10,
                   ),
-                  AuthButton(fct: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const FetchScreen()));
-                  }, buttonText: 'Continue as a guest'),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  AuthButton(
+                      fct: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const FetchScreen()));
+                      },
+                      buttonText: 'Continue as a guest'),
                   const SizedBox(
                     height: 10,
                   ),
                   RichText(
                     text: TextSpan(
                       text: 'Don\'t have an account?',
-                      style: const TextStyle(color: Colors.white, fontSize: 18),
+                      style: TextStyle(color: color, fontSize: 18),
                       children: [
                         TextSpan(
-                          text: ' Sign Up',
+                          text: ' Sign up',
                           style: const TextStyle(
                               color: Colors.cyan,
                               fontSize: 18,
                               fontWeight: FontWeight.w600),
-                          recognizer: TapGestureRecognizer()..onTap = () {
-                            GlobalMethods.navigateTo(
-                                ctx: context,
-                                routeName: RegisterScreen.routeName);
-                          },
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              GlobalMethods.navigateTo(
+                                  ctx: context,
+                                  routeName: RegisterScreen.routeName);
+                            },
                         )
                       ],
                     ),
