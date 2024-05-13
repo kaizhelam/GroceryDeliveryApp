@@ -53,7 +53,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
         // showSelectedLabels: false,
         // showUnselectedLabels: false,
         unselectedItemColor: _isDark ? Colors.white : Colors.black,
-        selectedItemColor: _isDark ? Colors.cyan : Colors.black,
+        selectedItemColor: _isDark ? Colors.cyan : Colors.cyan,
         currentIndex: _selectedIndex,
         onTap: _selectedPage,
         items: <BottomNavigationBarItem>[
