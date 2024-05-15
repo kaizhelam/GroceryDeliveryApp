@@ -1228,7 +1228,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                       SizedBox(height: 20),
                       Text(
-                        'Processing The Order',
+                        'Processing your Order',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],

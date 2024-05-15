@@ -1,12 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:grocery_delivery_app/screens/recipes_page.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
+import '../consts/firebase_consts.dart';
+import '../inner_screens/product_details.dart';
+import '../models/viewed_model.dart';
 import '../provider/dark_theme_provider.dart';
+import '../providers/cart_provider.dart';
+import '../providers/products_provider.dart';
+import '../services/global_method.dart';
+import '../services/utils.dart';
 import '../widgets/text_widget.dart';
+import 'cart/cart_screen.dart';
 
 class RecipeDetailsScreen extends StatefulWidget {
   final QueryDocumentSnapshot recipe;
@@ -21,11 +34,19 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
   bool _isLoading = true;
   late VideoPlayerController _videoPlayerController;
   late ChewieController _chewieController;
+  late String productName = '';
+  late String productPrice = '';
+  late String productImage = '';
+  late int productSold = 0;
+  late String productidd = '';
+  bool loading2 = false;
+  final FirebaseAuth authInstance = FirebaseAuth.instance;
+  Set<String> userCartProductIDs = Set();
 
   @override
   void initState() {
     super.initState();
-    // Initialize the video player controller
+    _fetchUserCart();
     _videoPlayerController = VideoPlayerController.network(
       widget.recipe['videoUrl'],
     );
@@ -50,6 +71,28 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         });
       }
     });
+    _fetchProductDetails();
+  }
+
+  Future<void> _fetchProductDetails() async {
+    try {
+      String productID = widget.recipe['productID'];
+      DocumentSnapshot productSnapshot = await FirebaseFirestore.instance
+          .collection('products')
+          .doc(productID)
+          .get();
+
+      Map<String, dynamic> productData =
+          productSnapshot.data() as Map<String, dynamic>;
+      setState(() {
+        productName = productData['title'];
+        productPrice = productData['price'].toString();
+        productImage = productData['imageUrl'];
+        productSold = productData['productSold'];
+      });
+    } catch (e) {
+      print('Error fetching product data: $e');
+    }
   }
 
   @override
@@ -59,16 +102,117 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
     _chewieController.dispose();
   }
 
+  Future<void> _fetchUserCart() async {
+    try {
+      final User? user = authInstance.currentUser;
+
+      if (user == null) {
+        GlobalMethods.errorDialog(
+            subtitle: 'No user found, Please login first', context: context);
+        return;
+      }
+
+      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        GlobalMethods.errorDialog(
+            subtitle: 'User data not found', context: context);
+        return;
+      }
+
+      List<dynamic> userCart = userDoc['userCart'] ?? [];
+      setState(() {
+        userCartProductIDs =
+            userCart.map((item) => item['productId'] as String).toSet();
+      });
+    } catch (error) {
+      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    }
+  }
+
+  void _addItemToCart(String productID, String productName) async {
+    productidd = productID;
+    setState(() {
+      loading2 = true;
+    });
+    try {
+      final cartId = const Uuid().v4();
+      final User? user = authInstance.currentUser;
+      final _uid = user!.uid;
+
+      if (user == null) {
+        GlobalMethods.errorDialog(
+            subtitle: 'No user found, Please login first', context: context);
+        setState(() {
+          loading2 = false;
+        });
+        return;
+      }
+
+      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      List<dynamic> userCart = userDoc['userCart'] ?? [];
+
+      bool productExistsInCart = false;
+      for (var item in userCart) {
+        if (item['productId'] == productID) {
+          productExistsInCart = true;
+          break;
+        }
+      }
+
+      if (productExistsInCart) {
+        Fluttertoast.showToast(
+            msg: "$productName is already in your Cart.",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 13);
+      }else{
+        Navigator.pushNamed(context, ProductDetails.routeName,
+            arguments: productID);
+      }
+    } catch (error) {
+      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    } finally {
+      setState(() {
+        loading2 = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    bool productInCart =
+        userCartProductIDs.contains(widget.recipe['productID']);
     final themeState = Provider.of<DarkThemeProvider>(context, listen: false);
     final Color color = themeState.getDarkTheme ? Colors.white : Colors.black;
     Map<String, dynamic> recipeData =
         widget.recipe.data() as Map<String, dynamic>;
+    final cartProvider = Provider.of<CartProvider>(context);
 
     Timestamp timestamp = recipeData['timestamp'];
     DateTime dateTime = timestamp.toDate();
     String formattedTime = DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+
+
+    String formatCookingTime(int cookingTime) {
+      if (cookingTime >= 100) {
+        int hours = cookingTime ~/ 100;
+        int minutes = cookingTime % 100;
+        return '$hours hour${hours > 1 ? 's' : ''} ${minutes} mins';
+      } else {
+        return '$cookingTime mins';
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -85,81 +229,256 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
           color: color, // Change the color of the back arrow here
         ),
       ),
-      body: Container(
-        child: _isLoading
-            ? Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
-                ),
-              )
-            : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 300, // Adjust height as needed
-                      width: MediaQuery.of(context)
-                          .size
-                          .width, // Adjust width as needed
-                      child: Padding(
-                        padding: EdgeInsets.all(8), // Adjust padding as needed
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            return Chewie(controller: _chewieController);
-                          },
-                        ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                  bottom: 150.0), // Ensure enough space for the card
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 200, // Adjust height as needed
+                    width: MediaQuery.of(context)
+                        .size
+                        .width, // Adjust width as needed
+                    child: Padding(
+                      padding: EdgeInsets.all(16), // Adjust padding as needed
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Chewie(controller: _chewieController);
+                        },
                       ),
                     ),
-                    Card(
-                      margin: EdgeInsets.all(8),
-                      elevation: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ListTile(
-                            title: Text(
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(
+                        16.0), // Adjust the padding value as needed
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Center(
+                            // Center the text within its container
+                            child: Text(
                               recipeData['text'],
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
-                                color: Colors.black,
+                                color: color,
                               ),
+                              textAlign: TextAlign.center,
                             ),
                           ),
-                          ListTile(
-                            title: Text(
-                              'Difficulty Level: ${recipeData['difficultyLevel']}',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Description: ${recipeData['description']}',
+                                  style: TextStyle(fontSize: 16, color: color),
+                                ),
+                              ),
+                            ],
                           ),
-                          ListTile(
-                            title: Text(
-                              'Shared by: ${recipeData['userName']}',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Instructions: ${recipeData['instructions']}',
+                                  style: TextStyle(fontSize: 16, color: color),
+                                ),
+                              ),
+                            ],
                           ),
-                          ListTile(
-                            title: Text(
-                              'Instructions: ${recipeData['secondTitle']}',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Ingredients: ${recipeData['ingredients']}',
+                            style: TextStyle(fontSize: 16, color: color),
                           ),
-                          ListTile(
-                            title: Text(
-                              'Time Posted: ${formattedTime}',
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Row(
+                            children: [ // Add some spacing between the icon and text
+                              Text(
+                                'Cooking Time: ${formatCookingTime(recipeData['cookingTime'])}',
+                                style: TextStyle(fontSize: 16, color: color),
+                              ),
+                              SizedBox(width: 8),
+                              Icon(
+                                Icons.timer,
+                                size: 20, // Adjust the size of the icon as needed
+                                color: color, // Adjust the color of the icon as needed
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Difficulty Level: ${recipeData['difficultyLevel']}',
+                            style: TextStyle(fontSize: 16, color: color),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8.0),
+                          child: Text(
+                            'Shared by: ${recipeData['userName']}',
+                            style: TextStyle(fontSize: 16, color: color),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        ),
+                        Text(
+                          'Time Posted: ${formattedTime}',
+                          style: TextStyle(fontSize: 16, color: color),
+                        ),
+                        SizedBox(
+                          height: 12,
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Card(
+              margin: EdgeInsets.all(0),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      productInCart
+                          ? "$productName is already in your Cart."
+                          : 'Would you like to add $productName to your cart?',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
                       ),
+                    ),
+                    SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          child: Image.network(
+                            productImage,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (BuildContext context, Widget child,
+                                ImageChunkEvent? loadingProgress) {
+                              if (loadingProgress == null) {
+                                return child; // The image is fully loaded, return the image.
+                              } else {
+                                return Center(
+                                  child: CircularProgressIndicator(
+                                    value: loadingProgress.expectedTotalBytes !=
+                                            null
+                                        ? loadingProgress
+                                                .cumulativeBytesLoaded /
+                                            (loadingProgress
+                                                    .expectedTotalBytes ??
+                                                1)
+                                        : null,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.cyan),
+                                  ),
+                                ); // The image is still loading, return the spinner.
+                              }
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    productName,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Price: RM $productPrice',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Total Sold: ${productSold.toString()}',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              GestureDetector(
+                                onTap: () async {
+                                  _addItemToCart(recipeData['productID'], productName);
+                                  // await cartProvider.fetchCart();
+                                  // Navigator.of(context).pop();
+                                },
+                                child: Icon(
+                                  productInCart ? Icons.check : Icons.open_in_browser,
+                                  color: Colors.black,
+                                  size: 30,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
+            ),
+          ),
+        ],
       ),
     );
   }

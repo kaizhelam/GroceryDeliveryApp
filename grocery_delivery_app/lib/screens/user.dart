@@ -28,6 +28,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
+import 'my_recipes.dart';
+
 class UserScreen extends StatefulWidget {
   const UserScreen({super.key});
 
@@ -605,6 +607,27 @@ class _UserScreenState extends State<UserScreen> {
                           GlobalMethods.navigateTo(
                               ctx: context,
                               routeName: ViewedRecentlyScreen.routeName);
+                        }
+                      },
+                      color: color),
+                  const SizedBox(
+                    height: 7,
+                  ),
+                  _listTiles(
+                      title: 'My Recipes',
+                      icon: IconlyLight.bookmark,
+                      onPressed: () {
+                        final User? user = authInstance.currentUser;
+                        if (user == null) {
+                          GlobalMethods.errorDialog(
+                              subtitle: 'No user found, Please login in first',
+                              context: context);
+                        } else {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const MyRecipesScreen(),
+                            ),
+                          );
                         }
                       },
                       color: color),

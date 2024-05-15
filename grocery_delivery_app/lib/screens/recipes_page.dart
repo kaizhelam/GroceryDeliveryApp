@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:grocery_delivery_app/screens/recipes_details_page.dart';
 import 'package:image_picker/image_picker.dart';
@@ -20,6 +21,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 
 class RecipesScreen extends StatefulWidget {
+  static const routeName = '/RecipesScreen';
   const RecipesScreen({super.key});
 
   @override
@@ -187,20 +189,41 @@ class _RecipesPageState extends State<RecipesScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Row(
-                              children: [
-                                Icon(Icons.thumb_up, color: Colors.green), // Like (thumbs-up) icon
-                                const SizedBox(width: 3),
-                                Text(likes.toString(), style: TextStyle(fontSize: 12),), // Number of likes
-                              ],
+                            GestureDetector(
+                              onTap: () {
+                                // Handle like action
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.thumb_up, color: Colors.green), // Like (thumbs-up) icon
+                                  const SizedBox(width: 3),
+                                  Text(likes.toString(), style: TextStyle(fontSize: 12),), // Number of likes
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 13),
-                            Row(
-                              children: [
-                                Icon(Icons.thumb_down, color: Colors.red), // Dislike (thumbs-down) icon
-                                const SizedBox(width: 3),
-                                Text(dislikes.toString(), style: TextStyle(fontSize: 12),), // Number of dislikes
-                              ],
+                            const SizedBox(width:8),
+                            GestureDetector(
+                              onTap: () {
+                                // Handle dislike action
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(Icons.thumb_down, color: Colors.red), // Dislike (thumbs-down) icon
+                                  const SizedBox(width: 3),
+                                  Text(dislikes.toString(), style: TextStyle(fontSize: 12),), // Number of dislikes
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            GestureDetector(
+                              onTap: () {
+                                _addRecipesToFavourite();
+                              },
+                              child: Row(
+                                children: [
+                                  Icon(IconlyLight.heart),
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -214,6 +237,33 @@ class _RecipesPageState extends State<RecipesScreen> {
         }
       },
     );
+  }
+
+  bool loading2 = false;
+
+  void _addRecipesToFavourite() async{
+    setState(() {
+      loading2 = true;
+    });
+    try {
+      final User? user = authInstance.currentUser;
+
+      if (user == null) {
+        GlobalMethods.errorDialog(
+            subtitle: 'No user found, Please login first',
+            context: context);
+        return;
+      }
+      setState(() {
+        loading2 = false;
+      });
+    } catch (error) {
+      GlobalMethods.errorDialog(subtitle: '$error', context: context);
+    } finally {
+      setState(() {
+        loading2 = false;
+      });
+    }
   }
 
   void _fetchProductCategoryNames(String? uid) async {
@@ -288,10 +338,10 @@ class _RecipesPageState extends State<RecipesScreen> {
         .where('productCategoryName', isEqualTo: category)
         .get();
 
-    // Extract product titles from documents
-    List<String> productTitles = [];
+    // Extract product titles and IDs from documents
+    List<Map<String, String>> products = [];
     querySnapshot.docs.forEach((doc) {
-      productTitles.add(doc['title']);
+      products.add({'id': doc.id, 'title': doc['title']});
     });
 
     // Show dialog with product titles
@@ -302,15 +352,15 @@ class _RecipesPageState extends State<RecipesScreen> {
           title: Text('Products in $category', style: TextStyle(fontSize: 18)),
           content: SingleChildScrollView(
             child: ListBody(
-              children: productTitles.map((title) {
+              children: products.map((product) {
                 return GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
-                    _showPickedProductMessage(title, category, userName);
+                    _showPickedProductMessage(product['id']!, product['title']!, category, userName);
                   },
                   child: Card(
                     child: ListTile(
-                      title: Text(title),
+                      title: Text(product['title']!),
                     ),
                   ),
                 );
@@ -330,11 +380,8 @@ class _RecipesPageState extends State<RecipesScreen> {
     );
   }
 
-  void _showPickedProductMessage(
+  void _showPickedProductMessage(String id,
       String title, String category, String userName) {
-    String text = '';
-    String secondTitle = '';
-    String? difficultyLevel;
     File? imageFile;
     File? videoFile;
     bool isImageChosen = false;
@@ -497,7 +544,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                       } else {
                         Navigator.of(context).pop();
                         _showTextFieldsDialog(
-                            title, imageFile, videoFile, userName);
+                            title, imageFile, videoFile, userName, id);
                       }
                     },
                   ),
@@ -511,9 +558,11 @@ class _RecipesPageState extends State<RecipesScreen> {
   }
 
   void _showTextFieldsDialog(
-      String title, File? imageFile, File? videoFile, String userName) {
-    String text = '';
-    String secondTitle = '';
+      String title, File? imageFile, File? videoFile, String userName, String productID) {
+    String title2 = '';
+    String description = '';
+    String ingredients = '';
+    String instructions = '';
     String? difficultyLevel;
     int? prepHours;
     int? prepMinutes;
@@ -527,7 +576,7 @@ class _RecipesPageState extends State<RecipesScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Share Recipes for $title', style: TextStyle(fontSize: 15)),
+              title: Text('Add Recipe', style: TextStyle(fontSize: 15)),
               content: SingleChildScrollView(
                 child: Form(
                   // Wrap the content with Form widget
@@ -537,13 +586,15 @@ class _RecipesPageState extends State<RecipesScreen> {
                       TextFormField(
                         decoration: InputDecoration(
                           labelText: 'Title',
+                          hintText: 'Give your recipe a name',
                           labelStyle: TextStyle(color: Colors.black),
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,), // Optional: style for the hint text
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
                         ),
                         onChanged: (value) {
-                          text = value;
+                          title2 = value;
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -555,18 +606,62 @@ class _RecipesPageState extends State<RecipesScreen> {
                       ),
                       TextFormField(
                         decoration: InputDecoration(
-                          labelText: 'Instructions',
+                          labelText: 'Description',
+                          hintText: 'Introduce your recipe',
                           labelStyle: TextStyle(color: Colors.black),
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
                         ),
                         onChanged: (value) {
-                          secondTitle = value;
+                          description = value;
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please enter instructions';
+                            return 'Please enter a Description';
+                          }
+                          return null;
+                        },
+                        cursorColor: Colors.cyan,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Ingredients',
+                          hintText: 'Add your ingredients',
+                          labelStyle: TextStyle(color: Colors.black),
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.cyan),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          ingredients = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a Ingredients';
+                          }
+                          return null;
+                        },
+                        cursorColor: Colors.cyan,
+                      ),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Instructions',
+                          hintText: 'Add your cooking steps',
+                          labelStyle: TextStyle(color: Colors.black),
+                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.cyan),
+                          ),
+                        ),
+                        onChanged: (value) {
+                          instructions = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter Instructions';
                           }
                           return null;
                         },
@@ -649,8 +744,8 @@ class _RecipesPageState extends State<RecipesScreen> {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       int totalPrepTime = (prepHours ?? 0) * 60 + (prepMinutes ?? 0);
-                      _processInput(text, secondTitle, difficultyLevel,
-                          imageFile, videoFile, userName, totalPrepTime);
+                      _processInput(title2, instructions,  ingredients, description,difficultyLevel,
+                          imageFile, videoFile, userName, totalPrepTime, productID);
                       Navigator.of(context).pop();
                     }
                   },
@@ -718,17 +813,23 @@ class _RecipesPageState extends State<RecipesScreen> {
 
 
   Future<void> _processInput(
-      String title,
+      String title2,
       String instructions,
+      String ingredients,
+      String description,
       String? difficultyLevel,
       File? imageFile,
       File? videoFile,
       String userName,
       int totalPrepTime,
+      String productID,
       ) async {
     setState(() {
       _isLoading = true; // Set _isLoading to true when upload begins
     });
+
+    final User? user = authInstance.currentUser;
+    final _uid = user!.uid;
 
     DateTime now = DateTime.now();
     String formattedDateTime =
@@ -747,8 +848,10 @@ class _RecipesPageState extends State<RecipesScreen> {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     Map<String, dynamic> data = {
-      'text': title,
-      'secondTitle': instructions,
+      'text': title2,
+      'instructions': instructions,
+      'description' : description,
+      'ingredients' : ingredients,
       'difficultyLevel': difficultyLevel,
       'userName': userName,
       'timestamp': now,
@@ -757,10 +860,34 @@ class _RecipesPageState extends State<RecipesScreen> {
       'liked': 0,
       'disliked': 0,
       'cookingTime': totalPrepTime,
+      'productID' : productID,
+      'userID' : user.uid,
     };
 
     try {
-      await firestore.collection('recipes').add(data);
+      // Add the recipe data to 'recipes' collection
+      DocumentReference recipeRef = await firestore.collection('recipes').add(data);
+
+      // Add the recipe data to 'userRecipes' array in the user's document
+      await firestore.collection('users').doc(user.uid).update({
+        'userRecipes': FieldValue.arrayUnion([{
+          'recipeID': recipeRef.id,
+          'text': title2,
+          'instructions': instructions,
+          'description': description,
+          'ingredients': ingredients,
+          'difficultyLevel': difficultyLevel,
+          'userName': userName,
+          'timestamp': now,
+          'imageUrl': imageUrl,
+          'liked': 0,
+          'disliked': 0,
+          'cookingTime': totalPrepTime,
+          'productID': productID,
+          'userID': user.uid,
+        }]),
+      });
+
       Fluttertoast.showToast(
           msg: "Recipes Shared",
           toastLength: Toast.LENGTH_SHORT,

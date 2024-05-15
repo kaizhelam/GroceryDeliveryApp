@@ -143,7 +143,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         Visibility(
                           visible: getCurrProduct.isOnSale ? true : false,
                           child: Text(
-                            '\$${getCurrProduct.price.toStringAsFixed(2)}',
+                            'RM${getCurrProduct.price.toStringAsFixed(2)}',
                             style: TextStyle(
                                 fontSize: 18,
                                 color: color,

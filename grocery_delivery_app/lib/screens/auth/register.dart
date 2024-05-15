@@ -103,6 +103,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'userWish': [],
           'userCart': [],
           'userCard': [],
+          'userRecipes': [],
+          'userFavouriteRecipes' : [],
           'gender': "null",
           'birth': "",
           'createdAt': Timestamp.now(),

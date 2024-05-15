@@ -15,6 +15,7 @@ import 'package:grocery_delivery_app/screens/auth/login.dart';
 import 'package:grocery_delivery_app/screens/auth/register.dart';
 import 'package:grocery_delivery_app/screens/btm_bar.dart';
 import 'package:grocery_delivery_app/screens/orders/orders_screen.dart';
+import 'package:grocery_delivery_app/screens/recipes_page.dart';
 import 'package:grocery_delivery_app/screens/viewed_recently/viewed_recently.dart';
 import 'package:grocery_delivery_app/screens/wishlist/wishlist_screen.dart';
 import 'package:grocery_delivery_app/screens/wishlist/wishlist_widget.dart';
@@ -128,6 +129,7 @@ class _MyAppState extends State<MyApp> {
                     ForgetPasswordScreen.routeName: (ctx) =>
                         const ForgetPasswordScreen(),
                     CategoryScreen.routeName: (ctx) => const CategoryScreen(),
+                    RecipesScreen.routeName: (ctx) => const RecipesScreen(),
                   });
             }),
           );
