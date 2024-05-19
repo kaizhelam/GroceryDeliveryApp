@@ -59,13 +59,13 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon:
-                Icon(_selectedIndex == 0 ? Icons.home : Icons.home),
+                Icon(_selectedIndex == 0 ? IconlyBold.home : IconlyBold.home),
             label: "Home",
           ),
           BottomNavigationBarItem(
             icon: Icon(_selectedIndex == 1
-                ? Icons.category
-                : Icons.category),
+                ? IconlyBold.category
+                : IconlyBold.category),
             label: "Categories",
           ),
           BottomNavigationBarItem(
@@ -75,7 +75,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
                 style: const TextStyle(color: Colors.white),
               ),
               child:
-                  Icon(_selectedIndex == 2 ? Icons.card_travel : Icons.card_travel),
+                  Icon(_selectedIndex == 2 ? IconlyBold.buy : IconlyBold.buy),
             ),
             label: 'Cart', // Set your label here
           ),
@@ -86,7 +86,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(
-                _selectedIndex == 4 ? Icons.people : Icons.people),
+                _selectedIndex == 4 ? IconlyBold.user2 : IconlyBold.user2),
             label: "User",
           ),
         ],

@@ -401,7 +401,11 @@ class _ProductDetailsState extends State<ProductDetails> {
             future: FirebaseFirestore.instance.collection('products').doc(id).get(),
             builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> productSnapshot) {
               if (productSnapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
+                return const Center(child:  CircularProgressIndicator(
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(
+                      Colors.cyan),
+                ),);
               }
               if (productSnapshot.hasError) {
                 return Center(child: Text('Error: ${productSnapshot.error}'));

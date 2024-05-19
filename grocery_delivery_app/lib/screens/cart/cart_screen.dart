@@ -111,7 +111,7 @@ class _CartScreenState extends State<CartScreen> {
     return cartItemList.isEmpty
         ? const EmptyScreen(
             title: 'Your Cart Is Empty',
-            subtitle: 'Add Something And Start Order Now',
+            subtitle: 'Add Something and Start Order Now',
             buttonText: 'Shop Now',
             imagePath: 'assets/images/cart.png',
           )

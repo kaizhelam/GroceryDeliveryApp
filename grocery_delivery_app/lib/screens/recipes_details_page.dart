@@ -328,7 +328,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                               ),
                               SizedBox(width: 8),
                               Icon(
-                                Icons.timer,
+                                IconlyLight.timeCircle,
                                 size: 20, // Adjust the size of the icon as needed
                                 color: color, // Adjust the color of the icon as needed
                               ),
@@ -463,7 +463,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                                   // Navigator.of(context).pop();
                                 },
                                 child: Icon(
-                                  productInCart ? Icons.check : Icons.open_in_browser,
+                                  productInCart ? Icons.check : IconlyLight.buy,
                                   color: Colors.black,
                                   size: 30,
                                 ),

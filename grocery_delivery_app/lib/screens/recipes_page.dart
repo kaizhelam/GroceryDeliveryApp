@@ -31,6 +31,29 @@ class RecipesScreen extends StatefulWidget {
 class _RecipesPageState extends State<RecipesScreen> {
   bool _isLoading = false;
   List<String> productCategoryNames = [];
+  String? selectedCategory;
+
+  final List<String> categories = [
+    'Easy',
+    'Medium',
+    'Challenging',
+    'Expert',
+  ];
+
+  Future<bool> _isRecipeInFavorites(String productId) async {
+    final User? user = authInstance.currentUser;
+
+    if (user == null) {
+      return false;
+    }
+
+    final userId = user.uid;
+    final userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    final List<dynamic> favoriteRecipes = userDoc['userFavouriteRecipes'];
+
+    return favoriteRecipes.any((recipe) => recipe['productID'] == productId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,15 +89,27 @@ class _RecipesPageState extends State<RecipesScreen> {
       ),
       body: Center(
         // Display either the loading spinner or the normal UI based on the value of _isLoading
-        child: _isLoading ? const CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
-        ) : _buildBody(color),
+        child: _isLoading
+            ? const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
+              )
+            : _buildBody(color),
       ),
     );
   }
 
-
   Widget _buildBody(Color color) {
+    final User? user = authInstance.currentUser;
+    if (user == null) {
+      GlobalMethods.errorDialog(
+        subtitle: 'No user found, Please login first',
+        context: context,
+      );
+      return SizedBox.shrink(); // Return an empty widget if no user is found
+    }
+
+    final userId = user.uid;
+    bool hasRecipesForSelectedCategory = false;
     return StreamBuilder(
       stream: FirebaseFirestore.instance.collection('recipes').snapshots(),
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -100,139 +135,275 @@ class _RecipesPageState extends State<RecipesScreen> {
             ),
           );
         } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              var recipe = snapshot.data!.docs[index];
-              Timestamp timestamp = recipe['timestamp'];
-              DateTime dateTime = timestamp.toDate(); // Convert Timestamp to DateTime
-              String formattedTime = DateFormat('dd MMM yyyy, HH:mm').format(dateTime); // Format DateTime
-
-              // Get number of likes and dislikes
-              int likes = recipe['liked'];
-              int dislikes = recipe['disliked'];
-
-              String formatCookingTime(int cookingTime) {
-                if (cookingTime >= 100) {
-                  int hours = cookingTime ~/ 100;
-                  int minutes = cookingTime % 100;
-                  return '$hours hour${hours > 1 ? 's' : ''} ${minutes} mins';
-                } else {
-                  return '$cookingTime mins';
-                }
-              }
-
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => RecipeDetailsScreen(recipe: recipe as QueryDocumentSnapshot<Map<String, dynamic>>),
+          return Column(
+            children: [
+              // Add a Row with a DropdownButton and a Button
+              Padding(
+                padding: EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 0.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Difficulty Level :',
+                      style: TextStyle(color: color, fontSize: 15),
                     ),
-                  );
-                },
-                child: Card(
-                  color: Colors.white,
-                  elevation: 4,
-                  margin: const EdgeInsets.only(top: 10, bottom: 0, left: 10, right: 10),
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(10),
-                    leading: SizedBox(
-                      height: 100,
-                      width: 100,
-                      child: Stack(
-                        children: [
-                          Image.network(
-                            recipe['imageUrl'],
-                            height: 300,
-                            width: 300,
-                            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                              if (loadingProgress == null) {
-                                return child;
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
-                                  ),
-                                );
-                              }
-                            },
+                    DropdownButton<String>(
+                      value: selectedCategory,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedCategory = newValue!;
+                        });
+                      },
+                      items: categories
+                          .map<DropdownMenuItem<String>>((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(
+                            category,
+                            style: TextStyle(color: color, fontSize: 15),
                           ),
-                        ],
+                        );
+                      }).toList(),
+                    ),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.cyan),
+                        foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
+                      onPressed: () {
+                        setState(() {
+                          selectedCategory = null;
+                        });
+                      },
+                      child: const Text('View All'),
                     ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          recipe['text'],
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          softWrap: true,
-                        ),
-                        const SizedBox(height: 8),
-                        Text('Difficulty Level: ${recipe['difficultyLevel']}', style: TextStyle(
-                          fontSize: 12,
-                        ),),
-                        const SizedBox(height: 4),
-                        Text('Shared by: ${recipe['userName']}', style: TextStyle(
-                          fontSize: 12,
-                        ),),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Cooking Time: ${formatCookingTime(recipe['cookingTime'])}',
-                          style: TextStyle(fontSize: 12),
-                        ),
-                        const SizedBox(height: 10,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                // Handle like action
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(Icons.thumb_up, color: Colors.green), // Like (thumbs-up) icon
-                                  const SizedBox(width: 3),
-                                  Text(likes.toString(), style: TextStyle(fontSize: 12),), // Number of likes
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width:8),
-                            GestureDetector(
-                              onTap: () {
-                                // Handle dislike action
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(Icons.thumb_down, color: Colors.red), // Dislike (thumbs-down) icon
-                                  const SizedBox(width: 3),
-                                  Text(dislikes.toString(), style: TextStyle(fontSize: 12),), // Number of dislikes
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            GestureDetector(
-                              onTap: () {
-                                _addRecipesToFavourite();
-                              },
-                              child: Row(
-                                children: [
-                                  Icon(IconlyLight.heart),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                  ],
                 ),
-              );
-            },
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context, index) {
+                    var recipe = snapshot.data!.docs[index];
+
+                    if (selectedCategory != null &&
+                        recipe['difficultyLevel'] != selectedCategory) {
+                      return SizedBox.shrink();
+                    }
+                    hasRecipesForSelectedCategory = true;
+
+                    Timestamp timestamp = recipe['timestamp'];
+                    DateTime dateTime = timestamp.toDate();
+                    String formattedTime =
+                        DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
+
+                    int likes = recipe['liked'];
+                    int dislikes = recipe['disliked'];
+
+                    String formatCookingTime(int cookingTime) {
+                      if (cookingTime >= 100) {
+                        int hours = cookingTime ~/ 100;
+                        int minutes = cookingTime % 100;
+                        return '$hours hour${hours > 1 ? 's' : ''} $minutes mins';
+                      } else {
+                        return '$cookingTime mins';
+                      }
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RecipeDetailsScreen(
+                                recipe: recipe as QueryDocumentSnapshot<
+                                    Map<String, dynamic>>),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        color: Colors.white,
+                        elevation: 4,
+                        margin: const EdgeInsets.only(
+                            top: 10, bottom: 0, left: 10, right: 10),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(10),
+                          leading: SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: Stack(
+                              children: [
+                                Image.network(
+                                  recipe['imageUrl'],
+                                  height: 300,
+                                  width: 300,
+                                  loadingBuilder: (BuildContext context,
+                                      Widget child,
+                                      ImageChunkEvent? loadingProgress) {
+                                    if (loadingProgress == null) {
+                                      return child;
+                                    } else {
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.cyan),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                recipe['text'],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                softWrap: true,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Difficulty Level: ${recipe['difficultyLevel']}',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Shared by: ${recipe['userName']}',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Cooking Time: ${formatCookingTime(recipe['cookingTime'])}',
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              FutureBuilder(
+                                future:
+                                    _isRecipeInFavorites(recipe['productID']),
+                                builder:
+                                    (context, AsyncSnapshot<bool> snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.cyan),
+                                    );
+                                  }
+
+                                  if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}');
+                                  }
+
+                                  bool isFavorite = snapshot.data!;
+
+                                  return Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          _addOrRemoveRecipeFromFavourite(
+                                              recipe.data()
+                                                  as Map<String, dynamic>,
+                                              isFavorite);
+                                        },
+                                        child: Icon(
+                                          isFavorite
+                                              ? IconlyBold.heart
+                                              : IconlyLight.heart,
+                                          color: isFavorite ? Colors.red : null,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 25),
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (!recipe['likedBy'].contains(userId)) {
+                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
+                                              'liked': FieldValue.increment(1),
+                                              'likedBy': FieldValue.arrayUnion([userId]),
+                                            });
+                                            if (recipe['dislikedBy'].contains(userId)) {
+                                              FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
+                                                'disliked': FieldValue.increment(-1),
+                                                'dislikedBy': FieldValue.arrayRemove([userId]),
+                                              });
+                                            }
+                                          } else {
+                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
+                                              'liked': FieldValue.increment(-1),
+                                              'likedBy': FieldValue.arrayRemove([userId]),
+                                            });
+                                          }
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              recipe['likedBy'].contains(userId) ? Icons.thumb_up : Icons.thumb_up_outlined,
+                                              color: recipe['likedBy'].contains(userId) ? Colors.cyan : Colors.cyan,
+                                            ),
+                                            const SizedBox(width: 3),
+                                            Text('${recipe['liked']}', style: TextStyle(fontSize: 12)),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      GestureDetector(
+                                        onTap: () {
+                                          if (!recipe['dislikedBy'].contains(userId)) {
+                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
+                                              'disliked': FieldValue.increment(1),
+                                              'dislikedBy': FieldValue.arrayUnion([userId]),
+                                            });
+                                            if (recipe['likedBy'].contains(userId)) {
+                                              FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
+                                                'liked': FieldValue.increment(-1),
+                                                'likedBy': FieldValue.arrayRemove([userId]),
+                                              });
+                                            }
+                                          } else {
+                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
+                                              'disliked': FieldValue.increment(-1),
+                                              'dislikedBy': FieldValue.arrayRemove([userId]),
+                                            });
+                                          }
+                                        },
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              recipe['dislikedBy'].contains(userId) ? Icons.thumb_down : Icons.thumb_down_outlined,
+                                              color: recipe['dislikedBy'].contains(userId) ? Colors.red : Colors.red,
+                                            ),
+                                            const SizedBox(width: 3),
+                                            Text('${recipe['disliked']}', style: TextStyle(fontSize: 12)),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           );
         }
       },
@@ -241,24 +412,64 @@ class _RecipesPageState extends State<RecipesScreen> {
 
   bool loading2 = false;
 
-  void _addRecipesToFavourite() async{
+  void _addOrRemoveRecipeFromFavourite(
+      Map<String, dynamic> recipeData, bool isFavorite) async {
     setState(() {
       loading2 = true;
     });
+
     try {
       final User? user = authInstance.currentUser;
 
       if (user == null) {
         GlobalMethods.errorDialog(
-            subtitle: 'No user found, Please login first',
-            context: context);
+          subtitle: 'No user found, Please login first',
+          context: context,
+        );
+        setState(() {
+          loading2 = false;
+        });
         return;
       }
+
+      final userId = user.uid;
+      final userDoc =
+          FirebaseFirestore.instance.collection('users').doc(userId);
+
+      if (isFavorite) {
+        await userDoc.update({
+          'userFavouriteRecipes': FieldValue.arrayRemove([recipeData])
+        });
+        Fluttertoast.showToast(
+            msg: "Remove Recipes Favorites",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 13);
+      } else {
+        await userDoc.update({
+          'userFavouriteRecipes': FieldValue.arrayUnion([recipeData])
+        });
+        Fluttertoast.showToast(
+            msg: "Added Recipes Favorites",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.cyan,
+            textColor: Colors.white,
+            fontSize: 13);
+      }
+
       setState(() {
         loading2 = false;
       });
     } catch (error) {
       GlobalMethods.errorDialog(subtitle: '$error', context: context);
+      setState(() {
+        loading2 = false;
+      });
     } finally {
       setState(() {
         loading2 = false;
@@ -356,7 +567,8 @@ class _RecipesPageState extends State<RecipesScreen> {
                 return GestureDetector(
                   onTap: () {
                     Navigator.of(context).pop();
-                    _showPickedProductMessage(product['id']!, product['title']!, category, userName);
+                    _showPickedProductMessage(
+                        product['id']!, product['title']!, category, userName);
                   },
                   child: Card(
                     child: ListTile(
@@ -380,8 +592,8 @@ class _RecipesPageState extends State<RecipesScreen> {
     );
   }
 
-  void _showPickedProductMessage(String id,
-      String title, String category, String userName) {
+  void _showPickedProductMessage(
+      String id, String title, String category, String userName) {
     File? imageFile;
     File? videoFile;
     bool isImageChosen = false;
@@ -459,7 +671,7 @@ class _RecipesPageState extends State<RecipesScreen> {
               },
               child: AlertDialog(
                 title: Text('Share Image & Video for $title',
-                    style: TextStyle(fontSize: 15)),
+                    style: const TextStyle(fontSize: 15)),
                 content: SingleChildScrollView(
                   child: Column(
                     children: [
@@ -509,7 +721,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    child: Text(
+                    child: const Text(
                       'Next',
                       style: TextStyle(color: Colors.cyan),
                     ),
@@ -557,8 +769,8 @@ class _RecipesPageState extends State<RecipesScreen> {
     );
   }
 
-  void _showTextFieldsDialog(
-      String title, File? imageFile, File? videoFile, String userName, String productID) {
+  void _showTextFieldsDialog(String title, File? imageFile, File? videoFile,
+      String userName, String productID) {
     String title2 = '';
     String description = '';
     String ingredients = '';
@@ -568,7 +780,7 @@ class _RecipesPageState extends State<RecipesScreen> {
     int? prepMinutes;
 
     final GlobalKey<FormState> _formKey =
-    GlobalKey<FormState>(); // Add form key
+        GlobalKey<FormState>(); // Add form key
 
     showDialog(
       context: context,
@@ -584,11 +796,14 @@ class _RecipesPageState extends State<RecipesScreen> {
                   child: Column(
                     children: [
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Title',
                           hintText: 'Give your recipe a name',
                           labelStyle: TextStyle(color: Colors.black),
-                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,), // Optional: style for the hint text
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ), // Optional: style for the hint text
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
@@ -605,11 +820,14 @@ class _RecipesPageState extends State<RecipesScreen> {
                         cursorColor: Colors.cyan,
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Description',
                           hintText: 'Introduce your recipe',
                           labelStyle: TextStyle(color: Colors.black),
-                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,),
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
@@ -630,7 +848,10 @@ class _RecipesPageState extends State<RecipesScreen> {
                           labelText: 'Ingredients',
                           hintText: 'Add your ingredients',
                           labelStyle: TextStyle(color: Colors.black),
-                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,),
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
@@ -651,7 +872,10 @@ class _RecipesPageState extends State<RecipesScreen> {
                           labelText: 'Instructions',
                           hintText: 'Add your cooking steps',
                           labelStyle: TextStyle(color: Colors.black),
-                          hintStyle: TextStyle(color: Colors.grey, fontSize: 12,),
+                          hintStyle: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
@@ -679,7 +903,8 @@ class _RecipesPageState extends State<RecipesScreen> {
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 16),
                           decoration: BoxDecoration(
-                            border: Border(bottom: BorderSide(color: Colors.grey)),
+                            border:
+                                Border(bottom: BorderSide(color: Colors.grey)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -743,9 +968,19 @@ class _RecipesPageState extends State<RecipesScreen> {
                   ),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      int totalPrepTime = (prepHours ?? 0) * 60 + (prepMinutes ?? 0);
-                      _processInput(title2, instructions,  ingredients, description,difficultyLevel,
-                          imageFile, videoFile, userName, totalPrepTime, productID);
+                      int totalPrepTime =
+                          (prepHours ?? 0) * 60 + (prepMinutes ?? 0);
+                      _processInput(
+                          title2,
+                          instructions,
+                          ingredients,
+                          description,
+                          difficultyLevel,
+                          imageFile,
+                          videoFile,
+                          userName,
+                          totalPrepTime,
+                          productID);
                       Navigator.of(context).pop();
                     }
                   },
@@ -758,7 +993,8 @@ class _RecipesPageState extends State<RecipesScreen> {
     );
   }
 
-  void _showTimePickerDialog(BuildContext context, Function(int, int) onTimeSelected) {
+  void _showTimePickerDialog(
+      BuildContext context, Function(int, int) onTimeSelected) {
     int selectedHours = 0;
     int selectedMinutes = 0;
 
@@ -766,14 +1002,18 @@ class _RecipesPageState extends State<RecipesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('How long does it take to cook this recipe?', style: TextStyle(fontSize: 13),),
+          title: Text(
+            'How long does it take to cook this recipe?',
+            style: TextStyle(fontSize: 13),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TimePickerSpinner(
                 is24HourMode: true,
                 normalTextStyle: TextStyle(fontSize: 16, color: Colors.black),
-                highlightedTextStyle: TextStyle(fontSize: 22, color: Colors.cyan),
+                highlightedTextStyle:
+                    TextStyle(fontSize: 22, color: Colors.cyan),
                 spacing: 20,
                 itemHeight: 40,
                 isForce2Digits: true,
@@ -789,14 +1029,20 @@ class _RecipesPageState extends State<RecipesScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel', style: TextStyle(color: Colors.cyan),),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.cyan),
+              ),
             ),
             TextButton(
               onPressed: () {
                 onTimeSelected(selectedHours, selectedMinutes);
                 Navigator.of(context).pop();
               },
-              child: Text('OK', style: TextStyle(color: Colors.cyan),),
+              child: Text(
+                'OK',
+                style: TextStyle(color: Colors.cyan),
+              ),
             ),
           ],
         );
@@ -811,19 +1057,18 @@ class _RecipesPageState extends State<RecipesScreen> {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 
-
   Future<void> _processInput(
-      String title2,
-      String instructions,
-      String ingredients,
-      String description,
-      String? difficultyLevel,
-      File? imageFile,
-      File? videoFile,
-      String userName,
-      int totalPrepTime,
-      String productID,
-      ) async {
+    String title2,
+    String instructions,
+    String ingredients,
+    String description,
+    String? difficultyLevel,
+    File? imageFile,
+    File? videoFile,
+    String userName,
+    int totalPrepTime,
+    String productID,
+  ) async {
     setState(() {
       _isLoading = true; // Set _isLoading to true when upload begins
     });
@@ -850,8 +1095,8 @@ class _RecipesPageState extends State<RecipesScreen> {
     Map<String, dynamic> data = {
       'text': title2,
       'instructions': instructions,
-      'description' : description,
-      'ingredients' : ingredients,
+      'description': description,
+      'ingredients': ingredients,
       'difficultyLevel': difficultyLevel,
       'userName': userName,
       'timestamp': now,
@@ -860,32 +1105,37 @@ class _RecipesPageState extends State<RecipesScreen> {
       'liked': 0,
       'disliked': 0,
       'cookingTime': totalPrepTime,
-      'productID' : productID,
-      'userID' : user.uid,
+      'productID': productID,
+      'userID': user.uid,
+      'likedBy': [],
+      'dislikedBy' : [],
     };
 
     try {
       // Add the recipe data to 'recipes' collection
-      DocumentReference recipeRef = await firestore.collection('recipes').add(data);
+      DocumentReference recipeRef =
+          await firestore.collection('recipes').add(data);
 
       // Add the recipe data to 'userRecipes' array in the user's document
       await firestore.collection('users').doc(user.uid).update({
-        'userRecipes': FieldValue.arrayUnion([{
-          'recipeID': recipeRef.id,
-          'text': title2,
-          'instructions': instructions,
-          'description': description,
-          'ingredients': ingredients,
-          'difficultyLevel': difficultyLevel,
-          'userName': userName,
-          'timestamp': now,
-          'imageUrl': imageUrl,
-          'liked': 0,
-          'disliked': 0,
-          'cookingTime': totalPrepTime,
-          'productID': productID,
-          'userID': user.uid,
-        }]),
+        'userRecipes': FieldValue.arrayUnion([
+          {
+            'recipeID': recipeRef.id,
+            'text': title2,
+            'instructions': instructions,
+            'description': description,
+            'ingredients': ingredients,
+            'difficultyLevel': difficultyLevel,
+            'userName': userName,
+            'timestamp': now,
+            'imageUrl': imageUrl,
+            'liked': 0,
+            'disliked': 0,
+            'cookingTime': totalPrepTime,
+            'productID': productID,
+            'userID': user.uid,
+          }
+        ]),
       });
 
       Fluttertoast.showToast(
@@ -908,7 +1158,8 @@ class _RecipesPageState extends State<RecipesScreen> {
   Future<String?> _uploadFile(File file, String folder) async {
     try {
       FirebaseStorage storage = FirebaseStorage.instance;
-      String fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      String fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
       Reference reference = storage.ref().child('$folder/$fileName');
       UploadTask uploadTask = reference.putFile(file);
       TaskSnapshot taskSnapshot = await uploadTask;
@@ -917,4 +1168,5 @@ class _RecipesPageState extends State<RecipesScreen> {
       print('Error uploading file: $error');
       return null;
     }
-  }}
+  }
+}
