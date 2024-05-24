@@ -403,9 +403,9 @@ class _CartScreenState extends State<CartScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.edit,
+                            IconlyLight.timeCircle,
                             color: color,
-                            size: 14,
+                            size: 16,
                           ),
                           SizedBox(width: 8),
                           Text(
@@ -476,9 +476,9 @@ class _CartScreenState extends State<CartScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.edit,
+                            IconlyLight.message,
                             color: color,
-                            size: 14,
+                            size: 16,
                           ),
                           SizedBox(width: 8),
                           Text(
@@ -581,7 +581,9 @@ class _CartScreenState extends State<CartScreen> {
     DateTime orderDateTime,
     String? noteMessageForDriver,
   ) {
-    String formattedDateTime = DateFormat.yMd().add_jm().format(orderDateTime);
+
+    DateTime newDateTime = orderDateTime.add(Duration(hours: 8));
+    String formattedDateTime = DateFormat.yMd().add_jm().format(newDateTime);
 
     double totalPayment = _deliveryFee + total;
 
@@ -705,7 +707,9 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      formattedDateTime,
+                      _selectedDateTime == null
+                          ? formattedDateTime
+                          : DateFormat.yMd().add_jm().format(_selectedDateTime!),
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
@@ -1184,12 +1188,6 @@ class _CartScreenState extends State<CartScreen> {
     final cartProvider = Provider.of<CartProvider>(ctx, listen: false);
     final ordersProvider = Provider.of<OrdersProvider>(ctx, listen: false);
 
-    if (noteMessageForDriver.isEmpty || noteMessageForDriver == null) {
-      message = noteMessageForDriver;
-    } else {
-      message = 'No Note for the Driver';
-    }
-
     double total = 0.0;
     cartProvider.getCardItems.forEach(
       (key, value) async {
@@ -1258,7 +1256,7 @@ class _CartScreenState extends State<CartScreen> {
             'shippingAddress': shippingAddress,
             'phoneNumber': phoneNumber,
             'title': getCurrProduct.title,
-            'noteForDriver': message,
+            'noteForDriver': noteMessageForDriver,
             'totalPayment': totalPayment,
             'lat': lat,
             'long': long,

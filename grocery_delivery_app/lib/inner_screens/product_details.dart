@@ -180,28 +180,24 @@ class _ProductDetailsState extends State<ProductDetails> {
                       ),
                       Flexible(
                         flex: 1,
-                        child: TextField(
-                          controller: _quantityTextController,
-                          key: const ValueKey('quantity'),
-                          keyboardType: TextInputType.number,
-                          maxLines: 1,
-                          style: TextStyle(color: color),
-                          decoration: const InputDecoration(
-                            border: UnderlineInputBorder(),
+                        child: AbsorbPointer(
+                          absorbing: true,
+                          child: TextField(
+                            controller: _quantityTextController,
+                            key: const ValueKey('quantity'),
+                            keyboardType: TextInputType.number,
+                            maxLines: 1,
+                            style: TextStyle(color: color),
+                            decoration: const InputDecoration(
+                              border: UnderlineInputBorder(),
+                            ),
+                            textAlign: TextAlign.center,
+                            cursorColor: Colors.cyan,
+                            enabled: false,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp('[0-9]')),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
-                          cursorColor: Colors.cyan,
-                          enabled: true,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.allow(RegExp('[0-9]')),
-                          ],
-                          onChanged: (value) {
-                            setState(() {
-                              if (value.isEmpty) {
-                                _quantityTextController.text = '1';
-                              } else {}
-                            });
-                          },
                         ),
                       ),
                       const SizedBox(

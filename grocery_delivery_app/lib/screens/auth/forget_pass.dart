@@ -96,7 +96,7 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
                   TextWidget(
                     text: 'Forgot your Password?',
                     color: color,
-                    textSize: 28,
+                    textSize: 25,
                     isTitle: true,
                   ),
                   const SizedBox(

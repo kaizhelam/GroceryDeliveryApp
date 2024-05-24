@@ -77,9 +77,14 @@ class _RecipesPageState extends State<RecipesScreen> {
             onPressed: () {
               final User? user = authInstance.currentUser;
               if (user == null) {
-                GlobalMethods.errorDialog(
-                    subtitle: 'No user found, Please login in first',
-                    context: context);
+                Fluttertoast.showToast(
+                    msg: "No user found, please login to share recipes",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 13);
               } else {
                 _fetchProductCategoryNames(user.uid);
               }
@@ -105,7 +110,16 @@ class _RecipesPageState extends State<RecipesScreen> {
         subtitle: 'No user found, Please login first',
         context: context,
       );
-      return SizedBox.shrink(); // Return an empty widget if no user is found
+      return Center(
+        child: Text(
+          'Welcome to Recipes Hub, \nHere we share delicious recipes with everyone!',
+          style: TextStyle(
+            fontSize: 17,
+            color: color,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      );
     }
 
     final userId = user.uid;

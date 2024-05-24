@@ -204,7 +204,7 @@ class _OrderWidgetState extends State<OrderWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Timeline'),
+          title: Text('Order Status', style: TextStyle(fontSize: 18),),
           content: SizedBox(
             width: double.maxFinite,
             height: 270, // Set the height according to your content
@@ -214,28 +214,27 @@ class _OrderWidgetState extends State<OrderWidget> {
               itemCount: OrderStatus.values.length,
               itemBuilder: (context, index) {
                 final currentStatus = OrderStatus.values[index];
-                bool showSubtitle = currentStatus == OrderStatus.Delivered; // Show subtitle for Delivered status
-
+                bool showSubtitle = currentStatus == OrderStatus.Delivered;
                 return Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 2, // Width of the vertical line
-                      height: 60, // Height of the vertical line (adjust as needed)
+                      width: 2,
+                      height: 60,
                       color: _getStatusColor(currentStatus, orderStatus),
                     ),
-                    SizedBox(width: 15), // Add spacing between the vertical line and the circle avatar
+                    SizedBox(width: 15),
                     CircleAvatar(
                       backgroundColor: _getStatusColor(currentStatus, orderStatus),
-                      radius: 20, // Adjust the radius of the CircleAvatar
+                      radius: 20,
                       child: Text((index + 1).toString(), style: TextStyle(color: Colors.white),),
                     ),
-                    SizedBox(width: 10), // Add spacing between the circle avatar and the text
+                    SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(_getStatusTitle(currentStatus), style: TextStyle(color: Colors.black, fontSize: 17),),
+                          Text(_getStatusTitle(currentStatus), style: TextStyle(color: Colors.black, fontSize: 15),),
                           if (showSubtitle) // Conditionally show the subtitle for Delivered status
                             Text(address, style: TextStyle(color: Colors.black),),
                         ],

@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../fetch_screen.dart';
 import '../inner_screens/location_controller.dart';
 import '../provider/dark_theme_provider.dart';
 import '../widgets/text_widget.dart';
@@ -676,30 +677,42 @@ class _UserScreenState extends State<UserScreen> {
                     height: 7,
                   ),
                   _listTiles(
-                      title: user == null ? 'Login' : 'Logout',
-                      icon:
-                          user == null ? IconlyLight.login : IconlyLight.logout,
-                      onPressed: () {
-                        if (user == null) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                          );
-                          return;
-                        }
-                        GlobalMethods.warningDialog(
-                          title: 'Sign out',
-                          subtitle: 'Do you wanna sign out?',
-                          fct: () async {
-                            await authInstance.signOut();
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => const LoginScreen()));
-                          },
-                          context: context,
+                    title: user == null ? 'Login' : 'Logout',
+                    icon: user == null ? IconlyLight.login : IconlyLight.logout,
+                    onPressed: () {
+                      if (user == null) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
                         );
-                      },
-                      color: color),
+                        return;
+                      }
+                      GlobalMethods.warningDialog(
+                        title: 'Sign out',
+                        subtitle: 'Do you wanna sign out?',
+                        fct: () async {
+                          try {
+                            await authInstance.signOut();
+                            Navigator.of(context).pushReplacement(
+                              MaterialPageRoute(
+                                builder: (context) => const FetchScreen(),
+                              ),
+                            );
+                          } catch (e) {
+                            print('Error signing out: $e');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Error signing out. Please try again.'),
+                              ),
+                            );
+                          }
+                        },
+                        context: context,
+                      );
+                    },
+                    color: color,
+                  ),
                 ],
               ),
             ),
@@ -775,7 +788,7 @@ class _UserScreenState extends State<UserScreen> {
                                           onTap: () {
                                             _removeUserCard(i, userCards, _uid);
                                           },
-                                          child: Icon(Icons.delete),
+                                          child: Icon(IconlyLight.delete),
                                         ),
                                       ],
                                     ),
