@@ -1,4 +1,5 @@
 import 'package:card_swiper/card_swiper.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:grocery_delivery_app/inner_screens/feeds_screen.dart';
@@ -10,9 +11,11 @@ import 'package:grocery_delivery_app/widgets/text_widget.dart';
 import 'package:provider/provider.dart';
 
 import '../consts/contss.dart';
+import '../consts/firebase_consts.dart';
 import '../models/products_model.dart';
 import '../providers/products_provider.dart';
 import '../services/utils.dart';
+import 'auth/login.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -31,6 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final productProviders = Provider.of<ProductsProvider>(context);
     List<ProductModel> allProducts = productProviders.getProducts;
     List<ProductModel> productOnSale = productProviders.getOnSaleProducts;
+    final User? user = authInstance.currentUser;
 
     return Scaffold(
         appBar: AppBar(
@@ -56,6 +60,20 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           titleSpacing: 10,
           automaticallyImplyLeading: false,
+          actions: [
+            if (user == null) // Display the login icon if user is null
+              IconButton(
+                icon: Icon(IconlyLight.login, color: color),
+                onPressed: () {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                  return;
+                },
+              ),
+          ],
         ),
       body: SingleChildScrollView(
         child: Column(

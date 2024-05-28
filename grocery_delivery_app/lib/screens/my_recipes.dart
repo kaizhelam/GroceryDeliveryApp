@@ -132,7 +132,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.cyan,
+        backgroundColor: Colors.green,
         textColor: Colors.white,
         fontSize: 13
     );
@@ -872,7 +872,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                       Toast.LENGTH_SHORT,
                                                   gravity: ToastGravity.BOTTOM,
                                                   timeInSecForIosWeb: 2,
-                                                  backgroundColor: Colors.red,
+                                                  backgroundColor: Colors.orange,
                                                   textColor: Colors.white,
                                                   fontSize: 13,
                                                 );

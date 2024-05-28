@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../consts/firebase_consts.dart';
 import '../models/wishlist_model.dart';
@@ -61,6 +62,15 @@ class WishlistProvider with ChangeNotifier {
       ])
     });
     _wishlistItems.remove(productId);
+    Fluttertoast.showToast(
+        msg: "Removed from Wishlist.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 2,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: 13
+    );
     await fetchWishlist();
     notifyListeners();
   }

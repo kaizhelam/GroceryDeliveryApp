@@ -140,8 +140,8 @@ class _CartScreenState extends State<CartScreen> {
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             timeInSecForIosWeb: 2,
-                            backgroundColor: Colors.grey[200],
-                            textColor: Colors.black,
+                            backgroundColor: Colors.orange,
+                            textColor: Colors.white,
                             fontSize: 13);
                       },
                       context: context,
@@ -254,7 +254,7 @@ class _CartScreenState extends State<CartScreen> {
               toastLength: Toast.LENGTH_SHORT,
               gravity: ToastGravity.BOTTOM,
               timeInSecForIosWeb: 1,
-              backgroundColor: Colors.cyan,
+              backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 13);
           print(_selectedDateTime);
@@ -317,7 +317,7 @@ class _CartScreenState extends State<CartScreen> {
                         toastLength: Toast.LENGTH_SHORT,
                         gravity: ToastGravity.BOTTOM,
                         timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.cyan,
+                        backgroundColor: Colors.green,
                         textColor: Colors.white,
                         fontSize: 13);
                     Navigator.pop(context);

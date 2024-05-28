@@ -177,8 +177,8 @@ class _CartWidgetState extends State<CartWidget> {
                                 toastLength: Toast.LENGTH_SHORT,
                                 gravity: ToastGravity.BOTTOM,
                                 timeInSecForIosWeb: 2,
-                                backgroundColor: Colors.grey[200],
-                                textColor: Colors.black,
+                                backgroundColor: Colors.orange,
+                                textColor: Colors.white,
                                 fontSize: 13);
                           },
                           child: const Icon(

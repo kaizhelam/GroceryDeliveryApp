@@ -78,7 +78,7 @@ class _RecipesPageState extends State<RecipesScreen> {
               final User? user = authInstance.currentUser;
               if (user == null) {
                 Fluttertoast.showToast(
-                    msg: "No user found, please login to share recipes",
+                    msg: "No user found, please login first.",
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                     timeInSecForIosWeb: 1,
@@ -105,24 +105,7 @@ class _RecipesPageState extends State<RecipesScreen> {
 
   Widget _buildBody(Color color) {
     final User? user = authInstance.currentUser;
-    if (user == null) {
-      GlobalMethods.errorDialog(
-        subtitle: 'No user found, Please login first',
-        context: context,
-      );
-      return Center(
-        child: Text(
-          'Welcome to Recipes Hub, \nHere we share delicious recipes with everyone!',
-          style: TextStyle(
-            fontSize: 17,
-            color: color,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      );
-    }
-
-    final userId = user.uid;
+    final userId = user?.uid;
     bool hasRecipesForSelectedCategory = false;
     return StreamBuilder(
       stream: FirebaseFirestore.instance.collection('recipes').snapshots(),
@@ -153,7 +136,8 @@ class _RecipesPageState extends State<RecipesScreen> {
             children: [
               // Add a Row with a DropdownButton and a Button
               Padding(
-                padding: EdgeInsets.only(left: 10.0, top: 10.0, right: 10.0, bottom: 0.0),
+                padding: EdgeInsets.only(
+                    left: 10.0, top: 10.0, right: 10.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -328,80 +312,174 @@ class _RecipesPageState extends State<RecipesScreen> {
                                   return Row(
                                     children: [
                                       GestureDetector(
-                                        onTap: () {
-                                          _addOrRemoveRecipeFromFavourite(
-                                              recipe.data()
-                                                  as Map<String, dynamic>,
-                                              isFavorite);
-                                        },
-                                        child: Icon(
-                                          isFavorite
-                                              ? IconlyBold.heart
-                                              : IconlyLight.heart,
-                                          color: isFavorite ? Colors.red : null,
-                                        ),
+                                      onTap: () {
+                                    _addOrRemoveRecipeFromFavourite(
+                                      recipe.data() as Map<String, dynamic>,
+                                      isFavorite,
+                                    );
+                                  },
+                                      child: Icon(
+                                      isFavorite ? IconlyBold.heart : IconlyLight.heart,
+                                      color: isFavorite ? Colors.red : null,
+                                      ),
                                       ),
                                       const SizedBox(width: 25),
                                       GestureDetector(
                                         onTap: () {
-                                          if (!recipe['likedBy'].contains(userId)) {
-                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
-                                              'liked': FieldValue.increment(1),
-                                              'likedBy': FieldValue.arrayUnion([userId]),
-                                            });
-                                            if (recipe['dislikedBy'].contains(userId)) {
-                                              FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
-                                                'disliked': FieldValue.increment(-1),
-                                                'dislikedBy': FieldValue.arrayRemove([userId]),
+                                          if (userId == null) {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    "No user found, please login first.",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                                fontSize: 13);
+                                          } else {
+                                            if (!recipe['likedBy']
+                                                .contains(userId)) {
+                                              FirebaseFirestore.instance
+                                                  .collection('recipes')
+                                                  .doc(recipe.id)
+                                                  .update({
+                                                'liked':
+                                                    FieldValue.increment(1),
+                                                'likedBy':
+                                                    FieldValue.arrayUnion(
+                                                        [userId]),
+                                              });
+                                              if (recipe['dislikedBy']
+                                                  .contains(userId)) {
+                                                FirebaseFirestore.instance
+                                                    .collection('recipes')
+                                                    .doc(recipe.id)
+                                                    .update({
+                                                  'disliked':
+                                                      FieldValue.increment(-1),
+                                                  'dislikedBy':
+                                                      FieldValue.arrayRemove(
+                                                          [userId]),
+                                                });
+                                              }
+                                              Fluttertoast.showToast(
+                                                  msg: "Liked Recipes!",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  timeInSecForIosWeb: 2,
+                                                  backgroundColor: Colors.green,
+                                                  textColor: Colors.white,
+                                                  fontSize: 13);
+                                            } else {
+                                              FirebaseFirestore.instance
+                                                  .collection('recipes')
+                                                  .doc(recipe.id)
+                                                  .update({
+                                                'liked':
+                                                    FieldValue.increment(-1),
+                                                'likedBy':
+                                                    FieldValue.arrayRemove(
+                                                        [userId]),
                                               });
                                             }
-                                          } else {
-                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
-                                              'liked': FieldValue.increment(-1),
-                                              'likedBy': FieldValue.arrayRemove([userId]),
-                                            });
                                           }
                                         },
                                         child: Row(
                                           children: [
                                             Icon(
-                                              recipe['likedBy'].contains(userId) ? Icons.thumb_up : Icons.thumb_up_outlined,
-                                              color: recipe['likedBy'].contains(userId) ? Colors.cyan : Colors.cyan,
+                                              recipe['likedBy'].contains(userId)
+                                                  ? Icons.thumb_up
+                                                  : Icons.thumb_up_outlined,
+                                              color: recipe['likedBy']
+                                                      .contains(userId)
+                                                  ? Colors.cyan
+                                                  : Colors.cyan,
                                             ),
                                             const SizedBox(width: 3),
-                                            Text('${recipe['liked']}', style: TextStyle(fontSize: 12)),
+                                            Text('${recipe['liked']}',
+                                                style: TextStyle(fontSize: 12)),
                                           ],
                                         ),
                                       ),
                                       const SizedBox(width: 8),
                                       GestureDetector(
                                         onTap: () {
-                                          if (!recipe['dislikedBy'].contains(userId)) {
-                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
-                                              'disliked': FieldValue.increment(1),
-                                              'dislikedBy': FieldValue.arrayUnion([userId]),
-                                            });
-                                            if (recipe['likedBy'].contains(userId)) {
-                                              FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
-                                                'liked': FieldValue.increment(-1),
-                                                'likedBy': FieldValue.arrayRemove([userId]),
+                                          if (userId == null) {
+                                            Fluttertoast.showToast(
+                                                msg:
+                                                    "No user found, please login first.",
+                                                toastLength: Toast.LENGTH_SHORT,
+                                                gravity: ToastGravity.BOTTOM,
+                                                timeInSecForIosWeb: 1,
+                                                backgroundColor: Colors.red,
+                                                textColor: Colors.white,
+                                                fontSize: 13);
+                                          } else {
+                                            if (!recipe['dislikedBy']
+                                                .contains(userId)) {
+                                              FirebaseFirestore.instance
+                                                  .collection('recipes')
+                                                  .doc(recipe.id)
+                                                  .update({
+                                                'disliked':
+                                                    FieldValue.increment(1),
+                                                'dislikedBy':
+                                                    FieldValue.arrayUnion(
+                                                        [userId]),
+                                              });
+                                              if (recipe['likedBy']
+                                                  .contains(userId)) {
+                                                FirebaseFirestore.instance
+                                                    .collection('recipes')
+                                                    .doc(recipe.id)
+                                                    .update({
+                                                  'liked':
+                                                      FieldValue.increment(-1),
+                                                  'likedBy':
+                                                      FieldValue.arrayRemove(
+                                                          [userId]),
+                                                });
+                                              }
+                                              Fluttertoast.showToast(
+                                                  msg: "Disliked Recipes!",
+                                                  toastLength:
+                                                      Toast.LENGTH_SHORT,
+                                                  gravity: ToastGravity.BOTTOM,
+                                                  timeInSecForIosWeb: 2,
+                                                  backgroundColor:
+                                                      Colors.orange,
+                                                  textColor: Colors.white,
+                                                  fontSize: 13);
+                                            } else {
+                                              FirebaseFirestore.instance
+                                                  .collection('recipes')
+                                                  .doc(recipe.id)
+                                                  .update({
+                                                'disliked':
+                                                    FieldValue.increment(-1),
+                                                'dislikedBy':
+                                                    FieldValue.arrayRemove(
+                                                        [userId]),
                                               });
                                             }
-                                          } else {
-                                            FirebaseFirestore.instance.collection('recipes').doc(recipe.id).update({
-                                              'disliked': FieldValue.increment(-1),
-                                              'dislikedBy': FieldValue.arrayRemove([userId]),
-                                            });
                                           }
                                         },
                                         child: Row(
                                           children: [
                                             Icon(
-                                              recipe['dislikedBy'].contains(userId) ? Icons.thumb_down : Icons.thumb_down_outlined,
-                                              color: recipe['dislikedBy'].contains(userId) ? Colors.red : Colors.red,
+                                              recipe['dislikedBy']
+                                                      .contains(userId)
+                                                  ? Icons.thumb_down
+                                                  : Icons.thumb_down_outlined,
+                                              color: recipe['dislikedBy']
+                                                      .contains(userId)
+                                                  ? Colors.red
+                                                  : Colors.red,
                                             ),
                                             const SizedBox(width: 3),
-                                            Text('${recipe['disliked']}', style: TextStyle(fontSize: 12)),
+                                            Text('${recipe['disliked']}',
+                                                style: TextStyle(fontSize: 12)),
                                           ],
                                         ),
                                       ),
@@ -426,8 +504,7 @@ class _RecipesPageState extends State<RecipesScreen> {
 
   bool loading2 = false;
 
-  void _addOrRemoveRecipeFromFavourite(
-      Map<String, dynamic> recipeData, bool isFavorite) async {
+  void _addOrRemoveRecipeFromFavourite(Map<String, dynamic> recipeData, bool isFavorite) async {
     setState(() {
       loading2 = true;
     });
@@ -436,9 +513,14 @@ class _RecipesPageState extends State<RecipesScreen> {
       final User? user = authInstance.currentUser;
 
       if (user == null) {
-        GlobalMethods.errorDialog(
-          subtitle: 'No user found, Please login first',
-          context: context,
+        Fluttertoast.showToast(
+          msg: "No user found, please login first.",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 13,
         );
         setState(() {
           loading2 = false;
@@ -447,49 +529,60 @@ class _RecipesPageState extends State<RecipesScreen> {
       }
 
       final userId = user.uid;
-      final userDoc =
-          FirebaseFirestore.instance.collection('users').doc(userId);
+      final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
+
+      // Ensure recipeData contains a unique identifier
+      final recipeId = recipeData['id'];
+
+      // Retrieve current favorite recipes
+      final userSnapshot = await userDoc.get();
+      List<dynamic> favoriteRecipes = userSnapshot.data()?['userFavouriteRecipes'] ?? [];
 
       if (isFavorite) {
-        await userDoc.update({
-          'userFavouriteRecipes': FieldValue.arrayRemove([recipeData])
-        });
-        Fluttertoast.showToast(
-            msg: "Remove Recipes Favorites",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 13);
-      } else {
-        await userDoc.update({
-          'userFavouriteRecipes': FieldValue.arrayUnion([recipeData])
-        });
-        Fluttertoast.showToast(
-            msg: "Added Recipes Favorites",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.cyan,
-            textColor: Colors.white,
-            fontSize: 13);
-      }
+        // Remove the recipe by its unique identifier
+        favoriteRecipes.removeWhere((recipe) => recipe['id'] == recipeId);
 
-      setState(() {
-        loading2 = false;
-      });
+        await userDoc.update({
+          'userFavouriteRecipes': favoriteRecipes,
+        });
+
+        Fluttertoast.showToast(
+          msg: "Removed recipe from favorites",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.orange,
+          textColor: Colors.white,
+          fontSize: 13,
+        );
+      } else {
+        // Add the recipe
+        favoriteRecipes.add(recipeData);
+
+        await userDoc.update({
+          'userFavouriteRecipes': favoriteRecipes,
+        });
+
+        Fluttertoast.showToast(
+          msg: "Added recipe to favorites",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.green,
+          textColor: Colors.white,
+          fontSize: 13,
+        );
+      }
     } catch (error) {
       GlobalMethods.errorDialog(subtitle: '$error', context: context);
-      setState(() {
-        loading2 = false;
-      });
     } finally {
       setState(() {
         loading2 = false;
       });
     }
   }
+
+
 
   void _fetchProductCategoryNames(String? uid) async {
     print(uid);
@@ -633,7 +726,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                     toastLength: Toast.LENGTH_SHORT,
                     gravity: ToastGravity.BOTTOM,
                     timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.cyan,
+                    backgroundColor: Colors.green,
                     textColor: Colors.white,
                     fontSize: 13);
               }
@@ -666,7 +759,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                       toastLength: Toast.LENGTH_SHORT,
                       gravity: ToastGravity.BOTTOM,
                       timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.cyan,
+                      backgroundColor: Colors.green,
                       textColor: Colors.white,
                       fontSize: 13);
                 }
@@ -742,7 +835,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                     onPressed: () {
                       if (imageFile == null && videoThumbnail == null) {
                         Fluttertoast.showToast(
-                            msg: "Please upload Image & Video chosen",
+                            msg: "Please upload Image & Video",
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             timeInSecForIosWeb: 1,
@@ -984,7 +1077,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                     if (_formKey.currentState!.validate()) {
                       int totalPrepTime =
                           (prepHours ?? 0) * 60 + (prepMinutes ?? 0);
-                      _processInput(
+                      _addRecipes(
                           title2,
                           instructions,
                           ingredients,
@@ -1016,7 +1109,7 @@ class _RecipesPageState extends State<RecipesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'How long does it take to cook this recipe?',
             style: TextStyle(fontSize: 13),
           ),
@@ -1071,7 +1164,7 @@ class _RecipesPageState extends State<RecipesScreen> {
     return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 
-  Future<void> _processInput(
+  Future<void> _addRecipes(
     String title2,
     String instructions,
     String ingredients,
@@ -1084,7 +1177,7 @@ class _RecipesPageState extends State<RecipesScreen> {
     String productID,
   ) async {
     setState(() {
-      _isLoading = true; // Set _isLoading to true when upload begins
+      _isLoading = true;
     });
 
     final User? user = authInstance.currentUser;
@@ -1122,7 +1215,7 @@ class _RecipesPageState extends State<RecipesScreen> {
       'productID': productID,
       'userID': user.uid,
       'likedBy': [],
-      'dislikedBy' : [],
+      'dislikedBy': [],
     };
 
     try {
@@ -1157,7 +1250,7 @@ class _RecipesPageState extends State<RecipesScreen> {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 13);
     } catch (error) {

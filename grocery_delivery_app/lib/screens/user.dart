@@ -264,7 +264,7 @@ class _UserScreenState extends State<UserScreen> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.cyan,
+            backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 13,
           );
@@ -295,7 +295,7 @@ class _UserScreenState extends State<UserScreen> {
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
-      backgroundColor: Colors.cyan,
+      backgroundColor: Colors.green,
       textColor: Colors.white,
       fontSize: 13,
     );
@@ -312,7 +312,7 @@ class _UserScreenState extends State<UserScreen> {
       toastLength: Toast.LENGTH_SHORT,
       gravity: ToastGravity.BOTTOM,
       timeInSecForIosWeb: 1,
-      backgroundColor: Colors.cyan,
+      backgroundColor: Colors.green,
       textColor: Colors.white,
       fontSize: 13,
     );
@@ -957,7 +957,7 @@ class _UserScreenState extends State<UserScreen> {
                                                           ToastGravity.BOTTOM,
                                                       timeInSecForIosWeb: 1,
                                                       backgroundColor:
-                                                          Colors.cyan,
+                                                          Colors.green,
                                                       textColor: Colors.white,
                                                       fontSize: 13,
                                                     );
@@ -1046,7 +1046,7 @@ class _UserScreenState extends State<UserScreen> {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,
         timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.orange,
         textColor: Colors.white,
         fontSize: 13,
       );
@@ -1208,7 +1208,7 @@ class _UserScreenState extends State<UserScreen> {
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.cyan,
+                          backgroundColor: Colors.green,
                           textColor: Colors.white,
                           fontSize: 13,
                         );
@@ -1444,7 +1444,7 @@ class _UserScreenState extends State<UserScreen> {
                           toastLength: Toast.LENGTH_SHORT,
                           gravity: ToastGravity.BOTTOM,
                           timeInSecForIosWeb: 1,
-                          backgroundColor: Colors.cyan,
+                          backgroundColor: Colors.green,
                           textColor: Colors.white,
                           fontSize: 13);
                       Navigator.pop(context);

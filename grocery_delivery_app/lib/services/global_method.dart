@@ -128,11 +128,11 @@ class GlobalMethods {
         }])
       });
       Fluttertoast.showToast(
-          msg: "Item Added To Your Cart",
+          msg: "Added to Cart",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 2,
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 13
       );
@@ -154,11 +154,11 @@ class GlobalMethods {
         }])
       });
       Fluttertoast.showToast(
-          msg: "Item Added To Your Wishlist",
+          msg: "Added to Wishlist",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 13
       );

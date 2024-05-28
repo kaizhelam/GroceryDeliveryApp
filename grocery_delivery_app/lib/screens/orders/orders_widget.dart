@@ -47,8 +47,24 @@ class _OrderWidgetState extends State<OrderWidget> {
   }
 
   void initState() {
+    AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+      if (!isAllowed) {
+        AwesomeNotifications().requestPermissionToSendNotifications();
+      }
+    });
     getUserData();
     super.initState();
+  }
+
+  void triggerNotification() {
+    AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: 10,
+        channelKey: 'basic_channel',
+        title: 'Your Order has Arrived',
+        body: 'Thank you for using GoGrocery App. Have a great day!',
+      ),
+    );
   }
 
   Future<void> getUserData() async {
@@ -204,46 +220,60 @@ class _OrderWidgetState extends State<OrderWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Order Status', style: TextStyle(fontSize: 18),),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 270, // Set the height according to your content
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: OrderStatus.values.length,
-              itemBuilder: (context, index) {
-                final currentStatus = OrderStatus.values[index];
-                bool showSubtitle = currentStatus == OrderStatus.Delivered;
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 2,
-                      height: 60,
-                      color: _getStatusColor(currentStatus, orderStatus),
-                    ),
-                    SizedBox(width: 15),
-                    CircleAvatar(
-                      backgroundColor: _getStatusColor(currentStatus, orderStatus),
-                      radius: 20,
-                      child: Text((index + 1).toString(), style: TextStyle(color: Colors.white),),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(_getStatusTitle(currentStatus), style: TextStyle(color: Colors.black, fontSize: 15),),
-                          if (showSubtitle) // Conditionally show the subtitle for Delivered status
-                            Text(address, style: TextStyle(color: Colors.black),),
-                        ],
+          title: Text(
+            'Order Status',
+            style: TextStyle(fontSize: 18),
+          ),
+          content: SingleChildScrollView(
+            child: SizedBox(
+              width: double.maxFinite,
+              height: 270, // Set the height according to your content
+              child: ListView.builder(
+                shrinkWrap: true,
+                // physics: NeverScrollableScrollPhysics(),
+                itemCount: OrderStatus.values.length,
+                itemBuilder: (context, index) {
+                  final currentStatus = OrderStatus.values[index];
+                  bool showSubtitle = currentStatus == OrderStatus.Delivered;
+                  if (currentStatus == OrderStatus.Delivered && currentStatus.index == orderStatus) {
+                    triggerNotification();
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 2,
+                        height: 60,
+                        color: _getStatusColor(currentStatus, orderStatus),
                       ),
-                    ),
-                    SizedBox(height: 20), // Add padding at the bottom of the CircleAvatar
-                  ],
-                );
-              },
+                      SizedBox(width: 15),
+                      CircleAvatar(
+                        backgroundColor: _getStatusColor(currentStatus, orderStatus),
+                        radius: 20,
+                        child: Text(
+                          (index + 1).toString(),
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              _getStatusTitle(currentStatus),
+                              style: TextStyle(color: Colors.black, fontSize: 15),
+                            ),
+                            if (showSubtitle) // Conditionally show the subtitle for Delivered status
+                              Text(address, style: TextStyle(color: Colors.black),),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 20), // Add padding at the bottom of the CircleAvatar
+                    ],
+                  );
+                },
+              ),
             ),
           ),
           actions: [
@@ -251,7 +281,10 @@ class _OrderWidgetState extends State<OrderWidget> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Close', style: TextStyle(color: Colors.cyan),),
+              child: Text(
+                'Close',
+                style: TextStyle(color: Colors.cyan),
+              ),
             ),
           ],
         );
@@ -261,9 +294,9 @@ class _OrderWidgetState extends State<OrderWidget> {
 
   Color _getStatusColor(OrderStatus status, int currentStatus) {
     if (status.index == currentStatus) {
-      return Colors.cyan;
+      return Colors.green;
     } else if (status.index < currentStatus) {
-      return Colors.cyan;
+      return Colors.green;
     } else {
       return Colors.black;
     }
@@ -303,20 +336,16 @@ class _OrderWidgetState extends State<OrderWidget> {
 
   void _giveRating(BuildContext context, String title, String id, String name, String orderId, String userprofileImage) {
     final Color color = Utils(context).color;
-    int selectedRating = 0; // Default selected rating
-
+    int selectedRating = 0;
     DateTime currentDate = DateTime.now();
-    String currentDateTime =
-        '${currentDate.year}-${currentDate.month}-${currentDate.day}';
-
+    String currentDateTime = '${currentDate.year}-${currentDate.month}-${currentDate.day}';
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              // backgroundColor: Colors.grey[900],
-              title: Text(
+              title: const Text(
                 'Rate & Review',
                 style: TextStyle(color: Colors.black, fontSize: 20),
               ),
@@ -324,7 +353,6 @@ class _OrderWidgetState extends State<OrderWidget> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    // Star rating selector
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(
@@ -359,14 +387,11 @@ class _OrderWidgetState extends State<OrderWidget> {
                         labelText: 'Write Your Review',
                         labelStyle:
                             TextStyle(color: Colors.black, fontSize: 14),
-                        // Color of the label text
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.black),
-                          // Border color when enabled
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.black),
-                          // Border color when focused
                         ),
                       ),
                       cursorColor: Colors.black,
@@ -380,7 +405,6 @@ class _OrderWidgetState extends State<OrderWidget> {
                 TextButton(
                   onPressed: () {
                     if (selectedRating == 0 || reviewController.text.isEmpty) {
-                      // Show error message if rating or review is not provided
                       Fluttertoast.showToast(
                           msg: "Please Don\'t Not Empty The Rating Or Review",
                           toastLength: Toast.LENGTH_SHORT,
@@ -420,9 +444,7 @@ class _OrderWidgetState extends State<OrderWidget> {
     final User? user = authInstance.currentUser;
     final _uid = user!.uid;
     final cartId = const Uuid().v4();
-
     print(id);
-
       try {
         await FirebaseFirestore.instance.collection('products').doc(id).update({
           'ratingReview': FieldValue.arrayUnion([
@@ -436,7 +458,6 @@ class _OrderWidgetState extends State<OrderWidget> {
             }
           ])
         });
-
         try {
           await FirebaseFirestore.instance
               .collection('orders')
@@ -445,18 +466,16 @@ class _OrderWidgetState extends State<OrderWidget> {
             'rateStatus': 1,
           });
           setState(() {
-
           });
         } catch (error) {
           print('Error updating document: $error');
         }
-
         Fluttertoast.showToast(
             msg: "Your Rating Is Added",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.cyan,
+            backgroundColor: Colors.green,
             textColor: Colors.white,
             fontSize: 13);
       } catch (error) {

@@ -70,7 +70,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       _formKey.currentState!.save();
       showDialog(
         context: context,
-        barrierDismissible: false, // Prevent dialog from being dismissed by tapping outside
+        barrierDismissible: false,
         builder: (BuildContext context) {
           return const Center(
             child: CircularProgressIndicator(
@@ -79,20 +79,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
           );
         },
       );
-
-
       try {
-        // Create user with email and password
         UserCredential userCredential = await authInstance.createUserWithEmailAndPassword(
           email: _emailTextController.text,
           password: _passTextController.text,
         );
-
         await userCredential.user!.updateDisplayName(_fullNameController.text);
         await userCredential.user!.sendEmailVerification();
         await userCredential.user!.reload();
-
-        // Set user data in Firestore
         final _uid = userCredential.user!.uid;
         await FirebaseFirestore.instance.collection('users').doc(_uid).set({
           'id': _uid,
@@ -110,20 +104,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           'createdAt': Timestamp.now(),
           'profileImage': "",
         });
-
-        // Close the loading dialog
         Navigator.pop(context);
-
         Fluttertoast.showToast(
             msg: "Please Check your Email & Verify to Login",
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.grey[200],
-            textColor: Colors.black,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
             fontSize: 13
         );
-
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const LoginScreen(),
@@ -131,11 +121,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       } on FirebaseException catch (error) {
         print(error);
-        Navigator.pop(context); // Close the loading dialog
+        Navigator.pop(context);
         GlobalMethods.errorDialog(subtitle: '${error.message}', context: context);
       } catch (error) {
         print(error);
-        Navigator.pop(context); // Close the loading dialog
+        Navigator.pop(context);
         GlobalMethods.errorDialog(subtitle: '$error', context: context);
       }
     }
@@ -268,7 +258,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           else if (!containsUppercase(value) ||
                               !containsLowercase(value) ||
                               !containsSpecialCharacter(value)) {
-                            return "Password must contain at least one uppercase letter,\n one lowercase letter,\n and one special character";
+                            return "Password must contain at least one uppercase letter,\none lowercase letter,\nand one special character";
                           } else {
                             return null;
                           }

@@ -20,43 +20,28 @@ class LocationController extends GetxController {
     try {
       isLoading(true);
       update();
-
-      // Request permission to access the device's location
       LocationPermission permission = await Geolocator.requestPermission();
-
       if (permission == LocationPermission.denied) {
-        // Handle the case where the user denied permission
         throw Exception('Location permissions are denied');
       }
-
-      // Get the current position
       currentPosition = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
       );
-
-      // Get the address details from the current position
-      await getAddressFromLatLng(
-          currentPosition!.latitude, currentPosition!.longitude);
-
+      await getAddressFromLatLng(currentPosition!.latitude, currentPosition!.longitude);
       isLoading(false);
       update();
     } catch (e) {
       print(e);
     }
   }
-
   Future<void> getAddressFromLatLng(double lat, double long) async {
     print(lat);
     print(long);
     try {
       List<Placemark> placemarks =
       await placemarkFromCoordinates(lat, long);
-
       Placemark placemark = placemarks[0];
-
-      // Construct the address string from the placemark details
-      currentLocation =
-      "${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.locality}, ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
+      currentLocation = "${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.locality}, ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
       update();
     } catch (e) {
       print(e);
@@ -75,7 +60,7 @@ class LocationController extends GetxController {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.red,
           textColor: Colors.white,
           fontSize: 13);
     }

@@ -216,7 +216,7 @@ class _LocationScreenState extends State<LocationScreen> {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           timeInSecForIosWeb: 1,
-          backgroundColor: Colors.cyan,
+          backgroundColor: Colors.green,
           textColor: Colors.white,
           fontSize: 13);
       Navigator.pop(context);
@@ -293,7 +293,7 @@ class _LocationScreenState extends State<LocationScreen> {
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             timeInSecForIosWeb: 1,
-                            backgroundColor: Colors.cyan,
+                            backgroundColor: Colors.green,
                             textColor: Colors.white,
                             fontSize: 13);
                         Navigator.pop(context); // Close dialog
