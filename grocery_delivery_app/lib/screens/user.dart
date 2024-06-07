@@ -50,9 +50,9 @@ class _UserScreenState extends State<UserScreen> {
   final TextEditingController _birthDateController =
       TextEditingController(text: "");
 
-  TextEditingController _cardNumberController = TextEditingController();
-  TextEditingController _expiryDateController = TextEditingController();
-  TextEditingController _cvvController = TextEditingController();
+  final TextEditingController _cardNumberController = TextEditingController();
+  final TextEditingController _expiryDateController = TextEditingController();
+  final TextEditingController _cvvController = TextEditingController();
 
   @override
   void dispose() {
@@ -458,7 +458,7 @@ class _UserScreenState extends State<UserScreen> {
                               : null,
                         ),
                       ),
-                      SizedBox(width: 15),
+                      const SizedBox(width: 15),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -702,7 +702,7 @@ class _UserScreenState extends State<UserScreen> {
                           } catch (e) {
                             print('Error signing out: $e');
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
+                              const SnackBar(
                                 content: Text('Error signing out. Please try again.'),
                               ),
                             );
@@ -754,8 +754,8 @@ class _UserScreenState extends State<UserScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20),
+                    const Padding(
+                      padding: EdgeInsets.all(20),
                       child: Text(
                         'My Bank Cards',
                         style: TextStyle(fontSize: 18, color: Colors.black),
@@ -779,7 +779,7 @@ class _UserScreenState extends State<UserScreen> {
                                             children: [
                                               Text(
                                                 'Card Number: ${userCards[i]['cardNumber'] != null ? '*${userCards[i]['cardNumber']!.substring(userCards[i]['cardNumber']!.length - 4)}' : ''}',
-                                                style: TextStyle(fontSize: 15),
+                                                style: const TextStyle(fontSize: 15),
                                               ),
                                             ],
                                           ),
@@ -788,7 +788,7 @@ class _UserScreenState extends State<UserScreen> {
                                           onTap: () {
                                             _removeUserCard(i, userCards, _uid);
                                           },
-                                          child: Icon(IconlyLight.delete),
+                                          child: const Icon(IconlyLight.delete),
                                         ),
                                       ],
                                     ),
@@ -816,7 +816,7 @@ class _UserScreenState extends State<UserScreen> {
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 16.0),
@@ -851,7 +851,7 @@ class _UserScreenState extends State<UserScreen> {
                                           },
                                         ),
                                       ),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 16.0),
@@ -885,7 +885,7 @@ class _UserScreenState extends State<UserScreen> {
                                           },
                                         ),
                                       ),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Padding(
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 16.0),
@@ -919,7 +919,7 @@ class _UserScreenState extends State<UserScreen> {
                                           },
                                         ),
                                       ),
-                                      SizedBox(height: 10),
+                                      const SizedBox(height: 10),
                                       Padding(
                                         padding: const EdgeInsets.all(15),
                                         child: Row(
@@ -980,7 +980,7 @@ class _UserScreenState extends State<UserScreen> {
                                                   Navigator.of(context).pop();
                                                 }
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 'Add Card',
                                                 style: TextStyle(
                                                   color: Colors.cyan,
@@ -992,7 +992,7 @@ class _UserScreenState extends State<UserScreen> {
                                                 Navigator.of(context).pop();
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 'Cancel',
                                                 style: TextStyle(
                                                   color: Colors.cyan,
@@ -1079,7 +1079,7 @@ class _UserScreenState extends State<UserScreen> {
         return StatefulBuilder(
           builder: (BuildContext context, setState) {
             return AlertDialog(
-              title: Text(
+              title: const Text(
                 'Change Password',
                 style: TextStyle(fontSize: 19),
               ),
@@ -1091,8 +1091,8 @@ class _UserScreenState extends State<UserScreen> {
                     obscureText: obscureNewPassword,
                     decoration: InputDecoration(
                       labelText: 'New Password',
-                      labelStyle: TextStyle(color: Colors.black),
-                      focusedBorder: UnderlineInputBorder(
+                      labelStyle: const TextStyle(color: Colors.black),
+                      focusedBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors
                                 .cyan),
@@ -1110,14 +1110,14 @@ class _UserScreenState extends State<UserScreen> {
                     ),
                     cursorColor: Colors.cyan,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   TextFormField(
                     controller: confirmPasswordController,
                     obscureText: obscureConfirmPassword,
                     decoration: InputDecoration(
                       labelText: 'Confirm New Password',
-                      labelStyle: TextStyle(color: Colors.black),
-                      focusedBorder: UnderlineInputBorder(
+                      labelStyle: const TextStyle(color: Colors.black),
+                      focusedBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Colors
                                 .cyan),
@@ -1156,7 +1156,6 @@ class _UserScreenState extends State<UserScreen> {
                       return;
                     }
 
-                    // Check if passwords match
                     if (newPassword != confirmPassword) {
                       Fluttertoast.showToast(
                         msg: "Passwords Do Not Match!",
@@ -1245,7 +1244,7 @@ class _UserScreenState extends State<UserScreen> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text(
+                  child: const Text(
                     'Cancel',
                     style: TextStyle(color: Colors.cyan),
                   ),
@@ -1298,7 +1297,7 @@ class _UserScreenState extends State<UserScreen> {
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors
-                                  .cyan), // Change the underline color when focused
+                                  .cyan),
                         ),
                       ),
                       cursorColor: Colors.cyan,
@@ -1352,14 +1351,14 @@ class _UserScreenState extends State<UserScreen> {
                       readOnly: true,
                       decoration: InputDecoration(
                         labelText: 'Birth Date',
-                        focusedBorder: UnderlineInputBorder(
+                        focusedBorder: const UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Colors
                                   .cyan),
                         ),
-                        labelStyle: TextStyle(color: Colors.black),
+                        labelStyle: const TextStyle(color: Colors.black),
                         suffixIcon: IconButton(
-                          icon: Icon(Icons.calendar_today),
+                          icon: const Icon(Icons.calendar_today),
                           onPressed: () async {
                             final DateTime? pickedDate = await showDatePicker(
                               context: context,
@@ -1369,7 +1368,6 @@ class _UserScreenState extends State<UserScreen> {
                               builder: (BuildContext context, Widget? child) {
                                 return Theme(
                                   data: ThemeData.dark().copyWith(
-                                    // Define the theme properties
                                     colorScheme: const ColorScheme.dark(
                                       primary: Colors
                                           .cyan,

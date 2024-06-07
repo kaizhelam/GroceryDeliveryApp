@@ -33,7 +33,7 @@ class WishlistScreen extends StatelessWidget {
           )
         : Scaffold(
             appBar: AppBar(
-                centerTitle: true,
+                centerTitle: false,
                 leading: const BackWidget(),
                 automaticallyImplyLeading: false,
                 elevation: 0,
@@ -41,8 +41,8 @@ class WishlistScreen extends StatelessWidget {
                 title: TextWidget(
                   text: 'Wishlist (${wishlistItemsList.length})',
                   color: color,
-                  isTitle: true,
                   textSize: 22,
+                  isTitle: true,
                 ),
                 actions: [
                   IconButton(

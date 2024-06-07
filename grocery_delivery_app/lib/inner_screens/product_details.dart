@@ -59,7 +59,6 @@ class _ProductDetailsState extends State<ProductDetails> {
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) {
-        // viewedProdProvider.addProductToHistory(productId: productId);
       },
       child: Scaffold(
         appBar: AppBar(
@@ -216,7 +215,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 12,),
+                  const SizedBox(height: 12,),
                   Padding(
                     padding:
                         const EdgeInsets.only(top: 20, left: 30, right: 30),
@@ -229,8 +228,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           },
                           child: Row(
                             children: [
-                              Icon(Icons.description, color: color, size: 18,), // Icon for View Product Description
-                              SizedBox(width: 10), // Add some space between icon and text
+                              Icon(Icons.description, color: color, size: 18,),
+                              const SizedBox(width: 10),
                               TextWidget(
                                 text: 'View Product Description',
                                 color: color,
@@ -247,8 +246,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           },
                           child: Row(
                             children: [
-                              Icon(Icons.star, color: color, size: 18,), // Icon for View All Rating & Review
-                              SizedBox(width: 10), // Add some space between icon and text
+                              Icon(Icons.star, color: color, size: 18,),
+                              const SizedBox(width: 10),
                               TextWidget(
                                 text: 'View All Rating & Review',
                                 color: color,
@@ -367,13 +366,12 @@ class _ProductDetailsState extends State<ProductDetails> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          // backgroundColor: Colors.grey[900],
-          title: const Text("Product Description", style: TextStyle(color: Colors.black, fontSize: 20)), // Title of the dialog
-          content: Text(subtitle, style: TextStyle(color: Colors.black, fontSize: 14),), // Subtitle of the dialog
+          title: const Text("Product Description", style: TextStyle(color: Colors.black, fontSize: 20)),
+          content: Text(subtitle, style: const TextStyle(color: Colors.black, fontSize: 14),),
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
               },
               child: const Text('Close', style: TextStyle(color: Colors.cyan),),
             ),
@@ -410,13 +408,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                 return const Center(child: Text('Product not found'));
               }
 
-              // Fetch the ratingReview array from the product document
               final List<dynamic> ratingReviewArray = productSnapshot.data!['ratingReview'];
 
               if (ratingReviewArray.isEmpty) {
                 return SizedBox(
                   height: MediaQuery.of(context).size.height * 0.1,
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'No rating reviews available',
                       style: TextStyle(color: Colors.black),
@@ -434,7 +431,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                     final String title = review['Title'] ?? '';
                     final String dateTime = review['currentDateTime'] ?? '';
                     final String reviewText = review['Review'] ?? '';
-                    final String profileImageUrl = review['profileImage'] ?? ''; // Get profile image URL
+                    final String profileImageUrl = review['profileImage'] ?? '';
 
                     List<Widget> starIcons = [];
                     for (int i = 0; i < 5; i++) {
@@ -450,7 +447,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                         radius: 20,
                         backgroundImage: profileImageUrl != null && profileImageUrl.toString().isNotEmpty
                             ? NetworkImage(profileImageUrl.toString()) as ImageProvider<Object>?
-                            : AssetImage('assets/images/user_icon.png'), // Use user icon if profileImageUrl is empty
+                            : const AssetImage('assets/images/user_icon.png'),
                       ),
                       title: Row(
                         children: [

@@ -62,11 +62,12 @@ class _ViewedRecentlyScreenState extends State<ViewedRecentlyScreen> {
               leading: const BackWidget(),
               automaticallyImplyLeading: false,
               elevation: 0,
-              centerTitle: true,
+              centerTitle: false,
               title: TextWidget(
                 text: 'History',
                 color: color,
-                textSize: 24.0,
+                textSize: 22,
+                isTitle: true,
               ),
               backgroundColor:
                   Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),

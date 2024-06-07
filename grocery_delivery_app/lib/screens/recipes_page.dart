@@ -93,7 +93,6 @@ class _RecipesPageState extends State<RecipesScreen> {
         ],
       ),
       body: Center(
-        // Display either the loading spinner or the normal UI based on the value of _isLoading
         child: _isLoading
             ? const CircularProgressIndicator(
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
@@ -117,7 +116,7 @@ class _RecipesPageState extends State<RecipesScreen> {
             ),
           );
         } else if (snapshot.hasError) {
-          return Center(
+          return const Center(
             child: Text('Error fetching data'),
           );
         } else if (snapshot.data == null || snapshot.data!.docs.isEmpty) {
@@ -134,9 +133,8 @@ class _RecipesPageState extends State<RecipesScreen> {
         } else {
           return Column(
             children: [
-              // Add a Row with a DropdownButton and a Button
               Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                     left: 10.0, top: 10.0, right: 10.0, bottom: 0.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,7 +191,7 @@ class _RecipesPageState extends State<RecipesScreen> {
 
                     if (selectedCategory != null &&
                         recipe['difficultyLevel'] != selectedCategory) {
-                      return SizedBox.shrink();
+                      return const SizedBox.shrink();
                     }
                     hasRecipesForSelectedCategory = true;
 
@@ -248,7 +246,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                                     if (loadingProgress == null) {
                                       return child;
                                     } else {
-                                      return Center(
+                                      return const Center(
                                         child: CircularProgressIndicator(
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
@@ -266,7 +264,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                             children: [
                               Text(
                                 recipe['text'],
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
@@ -275,17 +273,17 @@ class _RecipesPageState extends State<RecipesScreen> {
                               const SizedBox(height: 8),
                               Text(
                                 'Difficulty Level: ${recipe['difficultyLevel']}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Shared by: ${recipe['userName']}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Cooking Time: ${formatCookingTime(recipe['cookingTime'])}',
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
                               const SizedBox(
                                 height: 10,
@@ -297,7 +295,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                                     (context, AsyncSnapshot<bool> snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
-                                    return CircularProgressIndicator(
+                                    return const CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                           Colors.cyan),
                                     );
@@ -398,7 +396,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                                             ),
                                             const SizedBox(width: 3),
                                             Text('${recipe['liked']}',
-                                                style: TextStyle(fontSize: 12)),
+                                                style: const TextStyle(fontSize: 12)),
                                           ],
                                         ),
                                       ),
@@ -479,7 +477,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                                             ),
                                             const SizedBox(width: 3),
                                             Text('${recipe['disliked']}',
-                                                style: TextStyle(fontSize: 12)),
+                                                style: const TextStyle(fontSize: 12)),
                                           ],
                                         ),
                                       ),
@@ -530,18 +528,12 @@ class _RecipesPageState extends State<RecipesScreen> {
 
       final userId = user.uid;
       final userDoc = FirebaseFirestore.instance.collection('users').doc(userId);
-
-      // Ensure recipeData contains a unique identifier
       final recipeId = recipeData['id'];
-
-      // Retrieve current favorite recipes
       final userSnapshot = await userDoc.get();
       List<dynamic> favoriteRecipes = userSnapshot.data()?['userFavouriteRecipes'] ?? [];
 
       if (isFavorite) {
-        // Remove the recipe by its unique identifier
         favoriteRecipes.removeWhere((recipe) => recipe['id'] == recipeId);
-
         await userDoc.update({
           'userFavouriteRecipes': favoriteRecipes,
         });
@@ -556,13 +548,10 @@ class _RecipesPageState extends State<RecipesScreen> {
           fontSize: 13,
         );
       } else {
-        // Add the recipe
         favoriteRecipes.add(recipeData);
-
         await userDoc.update({
           'userFavouriteRecipes': favoriteRecipes,
         });
-
         Fluttertoast.showToast(
           msg: "Added recipe to favorites",
           toastLength: Toast.LENGTH_SHORT,
@@ -585,24 +574,17 @@ class _RecipesPageState extends State<RecipesScreen> {
 
 
   void _fetchProductCategoryNames(String? uid) async {
-    print(uid);
-
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    DocumentSnapshot userSnapshot =
-        await firestore.collection('users').doc(uid).get();
+    DocumentSnapshot userSnapshot = await firestore.collection('users').doc(uid).get();
     String userName = userSnapshot['name'] ?? 'Unknown';
-
     QuerySnapshot querySnapshot = await firestore.collection('products').get();
     Set<String> uniqueNames = Set<String>();
     querySnapshot.docs.forEach((doc) {
       uniqueNames.add(doc['productCategoryName']);
     });
-
     setState(() {
       productCategoryNames = uniqueNames.toList();
     });
-
     _showCategoryDialog(userName);
   }
 
@@ -611,7 +593,7 @@ class _RecipesPageState extends State<RecipesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Pick Your Categories',
             style: TextStyle(fontSize: 18),
           ),
@@ -632,7 +614,7 @@ class _RecipesPageState extends State<RecipesScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(
+              child: const Text(
                 'Close',
                 style: TextStyle(color: Colors.cyan),
               ),
@@ -647,27 +629,21 @@ class _RecipesPageState extends State<RecipesScreen> {
   }
 
   void _fetchProductsByCategory(String category, String userName) async {
-    // Access Firestore instance
     FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-    // Access 'products' collection and query by category
     QuerySnapshot querySnapshot = await firestore
         .collection('products')
         .where('productCategoryName', isEqualTo: category)
         .get();
-
-    // Extract product titles and IDs from documents
     List<Map<String, String>> products = [];
     querySnapshot.docs.forEach((doc) {
       products.add({'id': doc.id, 'title': doc['title']});
     });
 
-    // Show dialog with product titles
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Products in $category', style: TextStyle(fontSize: 18)),
+          title: Text('Products in $category', style: const TextStyle(fontSize: 18)),
           content: SingleChildScrollView(
             child: ListBody(
               children: products.map((product) {
@@ -688,7 +664,7 @@ class _RecipesPageState extends State<RecipesScreen> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Close', style: TextStyle(color: Colors.cyan)),
+              child: const Text('Close', style: TextStyle(color: Colors.cyan)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -787,7 +763,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                           Column(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.image),
+                                icon: const Icon(Icons.image),
                                 onPressed: () => _pickImage(),
                               ),
                               if (imageFile != null)
@@ -801,13 +777,13 @@ class _RecipesPageState extends State<RecipesScreen> {
                                 ),
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 20,
                           ),
                           Column(
                             children: [
                               IconButton(
-                                icon: Icon(Icons.video_library),
+                                icon: const Icon(Icons.video_library),
                                 onPressed: () => _pickVideo(),
                               ),
                               if (videoThumbnail != null)
@@ -887,7 +863,7 @@ class _RecipesPageState extends State<RecipesScreen> {
     int? prepMinutes;
 
     final GlobalKey<FormState> _formKey =
-        GlobalKey<FormState>(); // Add form key
+        GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -895,10 +871,9 @@ class _RecipesPageState extends State<RecipesScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Add Recipe', style: TextStyle(fontSize: 15)),
+              title: const Text('Add Recipe', style: TextStyle(fontSize: 15)),
               content: SingleChildScrollView(
                 child: Form(
-                  // Wrap the content with Form widget
                   key: _formKey,
                   child: Column(
                     children: [
@@ -910,7 +885,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                           hintStyle: TextStyle(
                             color: Colors.grey,
                             fontSize: 12,
-                          ), // Optional: style for the hint text
+                          ),
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
                           ),
@@ -951,7 +926,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                         cursorColor: Colors.cyan,
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Ingredients',
                           hintText: 'Add your ingredients',
                           labelStyle: TextStyle(color: Colors.black),
@@ -975,7 +950,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                         cursorColor: Colors.cyan,
                       ),
                       TextFormField(
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Instructions',
                           hintText: 'Add your cooking steps',
                           labelStyle: TextStyle(color: Colors.black),
@@ -1009,20 +984,20 @@ class _RecipesPageState extends State<RecipesScreen> {
                         },
                         child: Container(
                           padding: EdgeInsets.symmetric(vertical: 16),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             border:
                                 Border(bottom: BorderSide(color: Colors.grey)),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
+                              const Text(
                                 'Cook Time',
                                 style: TextStyle(color: Colors.black),
                               ),
                               Text(
                                 _formatTime(prepHours, prepMinutes),
-                                style: TextStyle(color: Colors.black),
+                                style: const TextStyle(color: Colors.black),
                               ),
                             ],
                           ),
@@ -1038,7 +1013,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                         ].map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value, style: TextStyle(fontSize: 13)),
+                            child: Text(value, style: const TextStyle(fontSize: 13)),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -1046,7 +1021,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                             difficultyLevel = value;
                           });
                         },
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Difficulty Level',
                           focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.cyan),
@@ -1054,8 +1029,8 @@ class _RecipesPageState extends State<RecipesScreen> {
                           labelStyle: TextStyle(color: Colors.black),
                         ),
                         dropdownColor: Colors.white,
-                        icon: Icon(Icons.arrow_drop_down,
-                            color: Colors.black), // Change the color here
+                        icon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.black),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Please select a difficulty level';
@@ -1069,7 +1044,7 @@ class _RecipesPageState extends State<RecipesScreen> {
               ),
               actions: <Widget>[
                 TextButton(
-                  child: Text(
+                  child: const Text(
                     'Share',
                     style: TextStyle(color: Colors.cyan),
                   ),
@@ -1118,9 +1093,9 @@ class _RecipesPageState extends State<RecipesScreen> {
             children: [
               TimePickerSpinner(
                 is24HourMode: true,
-                normalTextStyle: TextStyle(fontSize: 16, color: Colors.black),
+                normalTextStyle: const TextStyle(fontSize: 16, color: Colors.black),
                 highlightedTextStyle:
-                    TextStyle(fontSize: 22, color: Colors.cyan),
+                    const TextStyle(fontSize: 22, color: Colors.cyan),
                 spacing: 20,
                 itemHeight: 40,
                 isForce2Digits: true,
@@ -1136,7 +1111,7 @@ class _RecipesPageState extends State<RecipesScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Cancel',
                 style: TextStyle(color: Colors.cyan),
               ),
@@ -1146,7 +1121,7 @@ class _RecipesPageState extends State<RecipesScreen> {
                 onTimeSelected(selectedHours, selectedMinutes);
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'OK',
                 style: TextStyle(color: Colors.cyan),
               ),
@@ -1219,11 +1194,8 @@ class _RecipesPageState extends State<RecipesScreen> {
     };
 
     try {
-      // Add the recipe data to 'recipes' collection
       DocumentReference recipeRef =
           await firestore.collection('recipes').add(data);
-
-      // Add the recipe data to 'userRecipes' array in the user's document
       await firestore.collection('users').doc(user.uid).update({
         'userRecipes': FieldValue.arrayUnion([
           {
@@ -1257,7 +1229,7 @@ class _RecipesPageState extends State<RecipesScreen> {
       print('Error uploading data: $error');
     } finally {
       setState(() {
-        _isLoading = false; // Set _isLoading to false when upload completes
+        _isLoading = false;
       });
     }
   }

@@ -22,7 +22,6 @@ class OrdersProvider with ChangeNotifier {
         .get()
         .then((QuerySnapshot ordersSnapshot) {
       _orders = [];
-      // _orders.clear();
       for (var element in ordersSnapshot.docs) {
         _orders.insert(
           0,

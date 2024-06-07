@@ -25,11 +25,9 @@ class _FetchScreenState extends State<FetchScreen> {
   void initState() {
     images.shuffle();
     Future.delayed(const Duration(microseconds: 5), () async {
-      final productsProvider =
-      Provider.of<ProductsProvider>(context, listen: false);
+      final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      final wishlistProvider =
-      Provider.of<WishlistProvider>(context, listen: false);
+      final wishlistProvider = Provider.of<WishlistProvider>(context, listen: false);
       // final orderProvider = Provider.of<OrdersProvider>(context, listen: false);
       final User? user = authInstance.currentUser;
       if (user == null) {

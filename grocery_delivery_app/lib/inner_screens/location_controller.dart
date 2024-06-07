@@ -14,7 +14,7 @@ import 'package:geolocator/geolocator.dart';
 class LocationController extends GetxController {
   Position? currentPosition;
   var isLoading = false.obs;
-  String? currentLocation;
+  RxString currentLocation = RxString("");
 
   Future<void> getCurrentLocation() async {
     try {
@@ -34,36 +34,28 @@ class LocationController extends GetxController {
       print(e);
     }
   }
+
   Future<void> getAddressFromLatLng(double lat, double long) async {
-    print(lat);
-    print(long);
     try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(lat, long);
-      Placemark placemark = placemarks[0];
-      currentLocation = "${placemark.subThoroughfare} ${placemark.thoroughfare}, ${placemark.locality}, ${placemark.postalCode}, ${placemark.administrativeArea}, ${placemark.country}";
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
+      if (placemarks.isNotEmpty) {
+        Placemark placemark = placemarks.first;
+
+        // Constructing the full address
+        currentLocation.value = "${placemark.street ?? placemark.name ?? ''}, ${placemark.locality ?? ''}, ${placemark.postalCode ?? ''}, ${placemark.administrativeArea ?? ''}, ${placemark.country ?? ''}";
+      } else {
+        currentLocation.value = "Address not found";
+      }
       update();
     } catch (e) {
       print(e);
-    }
-
-    final User? user = authInstance.currentUser;
-    String _uid = user!.uid;
-    try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(_uid)
-          .update({'lat': lat, 'long' : long});
-    } catch (err) {
-      Fluttertoast.showToast(
-          msg: "Something went wrong, please try again later",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          fontSize: 13);
+      currentLocation.value = "Error fetching address";
+      update();
     }
   }
-}
 
+  void updateAddress(String address, ) {
+    currentLocation.value = address;
+  }
+
+}

@@ -32,9 +32,9 @@ class CartScreen extends StatefulWidget {
 
 class _CartScreenState extends State<CartScreen> {
   DateTime? _selectedDateTime;
-  TextEditingController _noteMessage = TextEditingController();
+  final TextEditingController _noteMessage = TextEditingController();
   String? _noteMessageForDriver;
-  double _deliveryFee = 4.90;
+  final double _deliveryFee = 4.90;
 
   @override
   void dispose() {
@@ -203,49 +203,32 @@ class _CartScreenState extends State<CartScreen> {
 
     void _presentDatePicker() async {
       final now = DateTime.now();
-      final endDate =
-          now.add(Duration(days: 7)); // Allow selection up to 7 days from now
-      final pickedDate = await showDatePicker(
-        context: context,
-        initialDate: now,
-        firstDate: now,
-        lastDate: endDate,
-        builder: (BuildContext context, Widget? child) {
+      final endDate = now.add(const Duration(days: 7));
+      final pickedDate = await showDatePicker(context: context, initialDate: now, firstDate: now, lastDate: endDate, builder: (BuildContext context, Widget? child) {
           return Theme(
             data: ThemeData.dark().copyWith(
               colorScheme: const ColorScheme.dark(
-                primary: Colors.cyan, // Change text color to green
+                primary: Colors.cyan,
               ),
             ),
             child: child!,
           );
         },
       );
-
       if (pickedDate != null) {
-        final pickedTime = await showTimePicker(
-          context: context,
-          initialTime: TimeOfDay.now(),
-          builder: (BuildContext context, Widget? child) {
+        final pickedTime = await showTimePicker(context: context, initialTime: TimeOfDay.now(), builder: (BuildContext context, Widget? child) {
             return Theme(
               data: ThemeData.dark().copyWith(
                 colorScheme: const ColorScheme.dark(
-                  primary: Colors.cyan, // Change text color to green
+                  primary: Colors.cyan,
                 ),
               ),
               child: child!,
             );
           },
         );
-
         if (pickedTime != null) {
-          final selectedDateTime = DateTime(
-            pickedDate.year,
-            pickedDate.month,
-            pickedDate.day,
-            pickedTime.hour,
-            pickedTime.minute,
-          );
+          final selectedDateTime = DateTime(pickedDate.year, pickedDate.month, pickedDate.day, pickedTime.hour, pickedTime.minute);
           setState(() {
             _selectedDateTime = selectedDateTime;
           });
@@ -257,21 +240,15 @@ class _CartScreenState extends State<CartScreen> {
               backgroundColor: Colors.green,
               textColor: Colors.white,
               fontSize: 13);
-          print(_selectedDateTime);
         }
       }
     }
 
     DateTime now = DateTime.now().toUtc();
-
-    // Create a DateTime object based on _selectedDateTime or current time
     DateTime orderDateTime = _selectedDateTime ?? now;
-
-    // If Timestamp.now() is executed, add the UTC+8 offset and format the date and time
     if (_selectedDateTime == null) {
       orderDateTime = orderDateTime.add(Duration(hours: 0));
     }
-    // Format the date and time
     String formattedDateTime =
         DateFormat('yyyy-MM-dd hh:mm:ss a').format(orderDateTime);
 
@@ -280,21 +257,21 @@ class _CartScreenState extends State<CartScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text(
+            title: const Text(
               'Add a Note for Driver',
               style: TextStyle(fontSize: 19),
             ),
             content: TextField(
               controller: _noteMessage,
               maxLines: 5, // Set maxLines to 5
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Enter your note here',
                 hintStyle: TextStyle(color: Colors.grey),
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
                       color: Colors
-                          .cyan), // Change the underline color when focused
-                ), // Set the hint text color
+                          .cyan),
+                ),
               ),
               cursorColor: Colors.cyan,
             ),
@@ -326,16 +303,16 @@ class _CartScreenState extends State<CartScreen> {
                     });
                   }
                 },
-                child: Text(
+                child: const Text(
                   'Add',
                   style: TextStyle(color: Colors.cyan),
                 ),
               ),
               TextButton(
                 onPressed: () {
-                  Navigator.pop(context); // Close the dialog
+                  Navigator.pop(context);
                 },
-                child: Text(
+                child: const Text(
                   'Cancel',
                   style: TextStyle(color: Colors.cyan),
                 ),
@@ -344,7 +321,6 @@ class _CartScreenState extends State<CartScreen> {
           );
         },
       ).then((_) {
-        // Update the state of the widget containing GestureDetector
         setState(() {});
       });
     }
@@ -357,7 +333,7 @@ class _CartScreenState extends State<CartScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment
-                .stretch, // Align buttons to stretch across the width
+                .stretch,
             children: [
               Row(
                 children: [
@@ -391,10 +367,10 @@ class _CartScreenState extends State<CartScreen> {
                   )
                 ],
               ),
-              const SizedBox(height: 18), // Add some space between the buttons
+              const SizedBox(height: 18),
               Column(
                 crossAxisAlignment:
-                    CrossAxisAlignment.start, // Align elements to the start
+                    CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
                     onTap: _presentDatePicker,
@@ -407,8 +383,8 @@ class _CartScreenState extends State<CartScreen> {
                             color: color,
                             size: 16,
                           ),
-                          SizedBox(width: 8),
-                          Text(
+                          const SizedBox(width: 8),
+                          const Text(
                             'Schedule Delivery Date and Time *Optional',
                             style: TextStyle(
                                 fontSize: 14,
@@ -419,13 +395,13 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Expanded(
                         child: Container(
-                          height: 40, // Adjust the height as needed
+                          height: 40,
                           child: Row(
                             children: [
                               Text(
@@ -437,11 +413,11 @@ class _CartScreenState extends State<CartScreen> {
                                   color: color,
                                 ),
                               ),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               if (_selectedDateTime != null)
                                 Container(
-                                  width: 24, // Fixed width for the icon
-                                  height: 24, // Fixed height for the icon
+                                  width: 24,
+                                  height: 24,
                                   child: Align(
                                     alignment: Alignment.center,
                                     child: GestureDetector(
@@ -450,10 +426,10 @@ class _CartScreenState extends State<CartScreen> {
                                           _selectedDateTime = null;
                                         });
                                       },
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.remove_circle_outline,
                                         color: Colors.red,
-                                        size: 24, // Adjust size as needed
+                                        size: 24,
                                       ),
                                     ),
                                   ),
@@ -468,7 +444,7 @@ class _CartScreenState extends State<CartScreen> {
                     color: color,
                     thickness: 1,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   GestureDetector(
                     onTap: _noteForDriver,
                     child: Container(
@@ -480,8 +456,8 @@ class _CartScreenState extends State<CartScreen> {
                             color: color,
                             size: 16,
                           ),
-                          SizedBox(width: 8),
-                          Text(
+                          const SizedBox(width: 8),
+                          const Text(
                             'Note for Driver *Optional',
                             style: TextStyle(
                                 fontSize: 14,
@@ -492,35 +468,35 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Expanded(
                         child: Container(
-                          height: 70, // Adjust the height as needed
+                          height: 70,
                           child: Row(
                             children: [
                               Container(
                                 width:
-                                    300, // Set a specific width for the TextField container
+                                    300,
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: color, // Set the border color
-                                    width: 1, // Set the border width
+                                    color: color,
+                                    width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(
-                                      5), // Optionally, add border radius
+                                      5),
                                 ),
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(
+                                  padding: const EdgeInsets.symmetric(
                                       horizontal:
-                                          8), // Add padding to TextField
+                                          8),
                                   child: TextField(
                                     controller: _noteMessage,
                                     maxLines: null,
                                     readOnly: true,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       border: InputBorder.none,
                                       contentPadding: EdgeInsets.zero,
                                     ),
@@ -531,25 +507,23 @@ class _CartScreenState extends State<CartScreen> {
                                   ),
                                 ),
                               ),
-                              // Add SizedBox for spacing between TextField and the remove icon
-                              SizedBox(width: 5),
-                              // Use if-else to check if the note message is not empty
+                              const SizedBox(width: 5),
                               if (_noteMessageForDriver != null)
                                 Container(
-                                  width: 24, // Fixed width for the icon
-                                  height: 24, // Fixed height for the icon
+                                  width: 24,
+                                  height: 24,
                                   child: Align(
                                     alignment: Alignment.center,
                                     child: GestureDetector(
                                       onTap: () {
                                         setState(() {
                                           _noteMessage
-                                              .clear(); // Clear the text
+                                              .clear();
                                           _noteMessageForDriver =
-                                              null; // Clear the note message
+                                              null;
                                         });
                                       },
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.remove_circle_outline,
                                         color: Colors.red,
                                         size: 24, // Adjust size as needed
@@ -582,7 +556,7 @@ class _CartScreenState extends State<CartScreen> {
     String? noteMessageForDriver,
   ) {
 
-    DateTime newDateTime = orderDateTime.add(Duration(hours: 8));
+    DateTime newDateTime = orderDateTime.add(const Duration(hours: 8));
     String formattedDateTime = DateFormat.yMd().add_jm().format(newDateTime);
 
     double totalPayment = _deliveryFee + total;
@@ -595,19 +569,19 @@ class _CartScreenState extends State<CartScreen> {
             width: MediaQuery.of(context).size.width * 1.5,
             child: AlertDialog(
               contentPadding:
-                  EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text.rich(
+                  const Text.rich(
                     TextSpan(
                       children: [
                         WidgetSpan(
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 5),
+                            padding: EdgeInsets.only(right: 5),
                             child: Icon(
                               Icons.location_on,
                               color: Colors.black,
@@ -625,16 +599,16 @@ class _CartScreenState extends State<CartScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Text(
                     address.isEmpty ? 'No Address Found' : address,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.black,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Divider(
                     color: Colors.black,
                     thickness: 1,
@@ -678,69 +652,69 @@ class _CartScreenState extends State<CartScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(width: 20),
+                              const SizedBox(width: 20),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     productDetails['title'],
-                                    style: TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                   ),
-                                  SizedBox(height: 5),
+                                  const SizedBox(height: 5),
                                   Text(
                                     'x${productDetails['quantity']}',
-                                    style: TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                         ],
                       ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       'Delivery Date & Time : ',
                       style: TextStyle(
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
                       _selectedDateTime == null
                           ? formattedDateTime
                           : DateFormat.yMd().add_jm().format(_selectedDateTime!),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       'Note for Driver : ',
                       style: TextStyle(
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
                       noteMessageForDriver != null
                           ? noteMessageForDriver
                           : 'No Note for Driver',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Divider(
+                    const SizedBox(height: 10),
+                    const Divider(
                       color: Colors.black,
                       thickness: 1,
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Merchandise Total : ',
                           style: TextStyle(
                             fontWeight: FontWeight.normal,
@@ -749,17 +723,17 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         Text(
                           'RM${total.toStringAsFixed(2)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Delivery Fee : ',
                           style: TextStyle(
                             fontWeight: FontWeight.normal,
@@ -768,17 +742,17 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         Text(
                           'RM${_deliveryFee.toStringAsFixed(2)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Total Payment : ',
                           style: TextStyle(
                             fontWeight: FontWeight.normal,
@@ -787,7 +761,7 @@ class _CartScreenState extends State<CartScreen> {
                         ),
                         Text(
                           'RM${totalPayment.toStringAsFixed(2)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.black,
                           ),
@@ -801,7 +775,7 @@ class _CartScreenState extends State<CartScreen> {
                 TextButton(
                   onPressed: () {
                     String driverMessage = noteMessageForDriver ??
-                        ""; // Check if null, if so, assign an empty string
+                        "";
 
                     if (address.isEmpty) {
                       Fluttertoast.showToast(
@@ -820,7 +794,7 @@ class _CartScreenState extends State<CartScreen> {
                           driverMessage, totalPayment);
                     }
                   },
-                  child: Text(
+                  child: const Text(
                     'Confirm',
                     style: TextStyle(
                       color: Colors.cyan,
@@ -831,7 +805,7 @@ class _CartScreenState extends State<CartScreen> {
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: Text(
+                  child: const Text(
                     'Cancel',
                     style: TextStyle(
                       color: Colors.cyan,
@@ -853,16 +827,12 @@ class _CartScreenState extends State<CartScreen> {
     final User? user = authInstance.currentUser;
     final _uid = user!.uid;
     final cartId = const Uuid().v4();
-
-    // Add TextEditingController for card number, expiry date, and CVV
     TextEditingController _cardNumberController = TextEditingController();
     TextEditingController _expiryDateController = TextEditingController();
     TextEditingController _cvvController = TextEditingController();
 
-    // Variable to store user's existing cards
     List<Map<String, String>> userCards = [];
 
-    // Function to fetch user's existing cards from Firebase
     void fetchUserCards() {
       FirebaseFirestore.instance
           .collection('users')
@@ -879,10 +849,9 @@ class _CartScreenState extends State<CartScreen> {
       });
     }
 
-    // Fetch user's existing cards when the dialog is built
     fetchUserCards();
 
-    int? selectedIndex; // Track the index of the selected card
+    int? selectedIndex;
 
     showDialog(
       context: context,
@@ -891,7 +860,7 @@ class _CartScreenState extends State<CartScreen> {
           builder: (context, setState) {
             return SingleChildScrollView(
               child: AlertDialog(
-                title: Text(
+                title: const Text(
                   'Select Your Payment Method',
                   style: TextStyle(fontSize: 17),
                 ),
@@ -915,13 +884,13 @@ class _CartScreenState extends State<CartScreen> {
                                   },
                                   activeColor: Colors.cyan,
                                 ),
-                                Text(
+                                const Text(
                                   'Cash',
                                   style: TextStyle(color: Colors.black),
                                 ),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 20,
                             ),
                             Column(
@@ -936,7 +905,7 @@ class _CartScreenState extends State<CartScreen> {
                                   },
                                   activeColor: Colors.cyan,
                                 ),
-                                Text(
+                                const Text(
                                   'Card',
                                   style: TextStyle(color: Colors.black),
                                 ),
@@ -945,13 +914,12 @@ class _CartScreenState extends State<CartScreen> {
                           ],
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 10,
                       ),
                       if (_selectedPaymentMethod == 'Card')
                         Column(
                           children: [
-                            // Display existing cards
                             if (userCards.isNotEmpty)
                               Column(
                                 children: [
@@ -969,7 +937,7 @@ class _CartScreenState extends State<CartScreen> {
                                                 Text(
                                                   'Card Number: ${userCards[i]['cardNumber'] != null ? '*${userCards[i]['cardNumber']!.substring(userCards[i]['cardNumber']!.length - 4)}' : ''}',
                                                   style:
-                                                      TextStyle(fontSize: 15),
+                                                      const TextStyle(fontSize: 15),
                                                 )
                                               ],
                                             ),
@@ -989,11 +957,10 @@ class _CartScreenState extends State<CartScreen> {
                                     ),
                                 ],
                               ),
-                            // Text fields for card details
                             if (userCards.isEmpty) ...[
                               TextFormField(
                                 controller:
-                                    _cardNumberController, // Assign controller
+                                    _cardNumberController,
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   labelText: 'Card Number',
@@ -1017,7 +984,7 @@ class _CartScreenState extends State<CartScreen> {
                               ),
                               TextFormField(
                                 controller:
-                                    _expiryDateController, // Assign controller
+                                    _expiryDateController,
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   hintText: 'Expiry Date (MM/YY)',
@@ -1042,7 +1009,7 @@ class _CartScreenState extends State<CartScreen> {
                                 },
                               ),
                               TextFormField(
-                                controller: _cvvController, // Assign controller
+                                controller: _cvvController,
                                 keyboardType: TextInputType.number,
                                 decoration: const InputDecoration(
                                   labelText: 'CVV',
@@ -1156,7 +1123,7 @@ class _CartScreenState extends State<CartScreen> {
                         }
                       }
                     },
-                    child: Text(
+                    child: const Text(
                       'Ok',
                       style: TextStyle(color: Colors.cyan),
                     ),
@@ -1165,7 +1132,7 @@ class _CartScreenState extends State<CartScreen> {
                     onPressed: () {
                       Navigator.of(context).pop();
                     },
-                    child: Text(
+                    child: const Text(
                       'Cancel',
                       style: TextStyle(color: Colors.cyan),
                     ),
@@ -1268,7 +1235,9 @@ class _CartScreenState extends State<CartScreen> {
           cartProvider.clearLocalCart();
           ordersProvider.fetchOrders();
 
-          Navigator.pushReplacement(
+          Navigator.of(context).pop();
+
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const OrdersScreen()),
           );

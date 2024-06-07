@@ -9,7 +9,11 @@ import 'package:grocery_delivery_app/screens/user.dart';
 
 import '../consts/firebase_consts.dart';
 import '../services/global_method.dart';
+import '../services/utils.dart';
+import '../widgets/back_widget.dart';
+import '../widgets/text_widget.dart';
 import 'location_controller.dart';
+import 'location_screen_page.dart';
 
 class LocationScreen extends StatefulWidget {
   const LocationScreen({super.key});
@@ -25,6 +29,8 @@ class _LocationScreenState extends State<LocationScreen> {
   String? address;
   bool _isLoading = false;
   final User? user = authInstance.currentUser;
+
+  final LocationController controller = Get.put(LocationController());
 
   @override
   void initState() {
@@ -67,12 +73,27 @@ class _LocationScreenState extends State<LocationScreen> {
     print(_addressTextController.text);
   }
 
+
   @override
   Widget build(BuildContext context) {
+    Color color = Utils(context).color;
     return GetBuilder<LocationController>(
-      init: LocationController(),
       builder: (controller) {
         return Scaffold(
+          appBar: AppBar(
+            leading: const BackWidget(),
+            automaticallyImplyLeading: false,
+            elevation: 0,
+            centerTitle: false,
+            title: TextWidget(
+              text: 'My Address',
+              color: color,
+              textSize: 22,
+              isTitle: true,
+            ),
+            backgroundColor:
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+          ),
           body: SingleChildScrollView(
             child: Center(
               child: Column(
@@ -89,42 +110,33 @@ class _LocationScreenState extends State<LocationScreen> {
                             width: 200,
                             height: 200,
                           ),
-                          SizedBox(height: 20),
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.location_on),
-                              SizedBox(width: 8),
-                              Text(
-                                'Your Address',
-                                style: TextStyle(
-                                  fontSize: 23,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      controller.currentLocation != null &&
-                          controller.currentLocation!.isNotEmpty
-                          ? controller.currentLocation!
-                          : _addressTextController.text.isNotEmpty
-                          ? _addressTextController.text
-                          : 'No Address Found',
-                      style: const TextStyle(fontSize: 20),
-                      textAlign: TextAlign.center,
+                    padding: const EdgeInsets.symmetric(horizontal: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 28,
+                        ),
+                        Expanded(
+                          child: Text(
+                            _addressTextController.text.isEmpty ? 'No Address Found' : _addressTextController.text,
+                            style: const TextStyle(fontSize: 20),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 25),
                   if (controller.isLoading.value)
-                    CircularProgressIndicator(
+                    const CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
                     ),
                   const SizedBox(height: 10),
@@ -132,62 +144,44 @@ class _LocationScreenState extends State<LocationScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton.icon(
-                        onPressed: () async {
-                          await controller.getCurrentLocation();
+                        onPressed: () {
+                          Get.to(() => LocationScreenPage());
                         },
-                        icon: Icon(Icons.map),
+                        icon: const Icon(Icons.map),
                         style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
-                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+                          backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.cyan),
+                          foregroundColor:
+                          MaterialStateProperty.all<Color>(Colors.white),
                           shape: MaterialStateProperty.all<OutlinedBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                         ),
-                        label: const Text('Get your current Location'),
+                        label: const Text('Open Map to Pick Address'),
                       ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          _showAddressDialog();
-                        },
-                        icon: Icon(Icons.edit),
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
-                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                          shape: MaterialStateProperty.all<OutlinedBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                        label: const Text('Edit Address'),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: controller.currentLocation != null &&
-                            controller.currentLocation!.isNotEmpty
-                            ? () {
-                          _getCurrentLocation(controller.currentLocation, context);
-                        }
-                            : null,
-                        icon: Icon(Icons.save),
-                        style: ButtonStyle(
-                          backgroundColor: controller.currentLocation != null &&
-                              controller.currentLocation!.isNotEmpty
-                              ? MaterialStateProperty.all<Color>(Colors.cyan)
-                              : MaterialStateProperty.all<Color>(Colors.red),
-                          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-                          shape: MaterialStateProperty.all<OutlinedBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                        label: const Text('Save Address'),
-                      ),
-                      const SizedBox(height: 20),
+                      // const SizedBox(height: 20),
+                      // ElevatedButton.icon(
+                      //   onPressed: (){
+                      //     _getCurrentLocation(
+                      //       controller.currentLocation.value,
+                      //       context,
+                      //     );                        },
+                      //   icon: const Icon(Icons.save),
+                      //   style: ButtonStyle(
+                      //     backgroundColor: MaterialStateProperty.all<Color>(Colors.cyan),
+                      //     foregroundColor:
+                      //     MaterialStateProperty.all<Color>(Colors.white),
+                      //     shape: MaterialStateProperty.all<OutlinedBorder>(
+                      //       RoundedRectangleBorder(
+                      //         borderRadius: BorderRadius.circular(10),
+                      //       ),
+                      //     ),
+                      //   ),
+                      //   label: const Text('Save Address'),
+                      // ),
+                      // const SizedBox(height: 20),
                     ],
                   ),
                 ],
@@ -198,8 +192,6 @@ class _LocationScreenState extends State<LocationScreen> {
       },
     );
   }
-
-
 
 
   Future<void> _getCurrentLocation(
@@ -226,11 +218,11 @@ class _LocationScreenState extends State<LocationScreen> {
   }
 
   Future<void> _showAddressDialog() async {
-    bool isLoading = false; // Flag to track loading state
+    bool isLoading = false;
 
     await showDialog(
       context: context,
-      barrierDismissible: false, // Prevent dismissing the dialog while loading
+      barrierDismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
@@ -239,7 +231,7 @@ class _LocationScreenState extends State<LocationScreen> {
                 'Edit Address',
                 style: TextStyle(fontSize: 23),
               ),
-              content: SingleChildScrollView( // Wrap content in SingleChildScrollView
+              content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -248,13 +240,13 @@ class _LocationScreenState extends State<LocationScreen> {
                           ? null
                           : _addressTextController,
                       maxLines: 3,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'Address',
                         hintStyle: TextStyle(color: Colors.grey),
                         focusedBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                             color: Colors.cyan,
-                          ), // Change the underline color when focused
+                          ),
                         ),
                       ),
                       cursorColor: Colors.cyan,
@@ -265,14 +257,14 @@ class _LocationScreenState extends State<LocationScreen> {
               ),
               actions: [
                 if (isLoading)
-                  CircularProgressIndicator(
+                  const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),
                   )
                 else
                   TextButton(
                     onPressed: () async {
                       setState(() {
-                        isLoading = true; // Set isLoading to true when update starts
+                        isLoading = true;
                       });
 
                       String _uid = user!.uid;
@@ -282,11 +274,9 @@ class _LocationScreenState extends State<LocationScreen> {
                             .doc(_uid)
                             .update({
                           'shippingAddress': _addressTextController.text,
-                          // Update other fields as needed
                         });
                         setState(() {
                           address = _addressTextController.text;
-                          // Update other states as needed
                         });
                         Fluttertoast.showToast(
                             msg: "Updated Address",
@@ -296,14 +286,14 @@ class _LocationScreenState extends State<LocationScreen> {
                             backgroundColor: Colors.green,
                             textColor: Colors.white,
                             fontSize: 13);
-                        Navigator.pop(context); // Close dialog
+                        Navigator.pop(context);
                         Navigator.pop(context);
                       } catch (err) {
                         GlobalMethods.errorDialog(
                             subtitle: err.toString(), context: context);
                       } finally {
                         setState(() {
-                          isLoading = false; // Set isLoading to false when update completes
+                          isLoading = false;
                         });
                       }
                     },
@@ -319,6 +309,4 @@ class _LocationScreenState extends State<LocationScreen> {
       },
     );
   }
-
-
 }

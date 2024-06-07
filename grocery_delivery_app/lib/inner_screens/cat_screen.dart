@@ -58,54 +58,7 @@ class _FeedsScreenState extends State<CategoryScreen> {
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      height: kBottomNavigationBarHeight,
-                      child: TextField(
-                        focusNode: _searchTextFocusNode,
-                        controller: _searchTextController,
-                        onChanged: (valuee) {
-                          setState(() {
-                            listProductSearch =
-                                productProvider.searchQuery(valuee);
-                          });
-                        },
-                        style: TextStyle(color: color),
-                        decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                  color: Colors.cyan, width: 2)),
-                          enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                  color: Colors.cyan, width: 2)),
-                          hintText: "Search something...",
-                          hintStyle: TextStyle(
-                            color: color,
-                          ),
-                          prefixIcon: Icon(Icons.search, color: color,),
-                          suffix: IconButton(
-                            onPressed: () {
-                              _searchTextController.clear();
-                              _searchTextFocusNode.unfocus();
-                            },
-                            icon: Icon(Icons.close,
-                                color: _searchTextFocusNode.hasFocus
-                                    ? Colors.red
-                                    : color),
-                          ),
-                        ),
-                        cursorColor: Colors.cyan,
-                      ),
-                    ),
-                  ),
-                  _searchTextController!.text.isNotEmpty &&
-                          listProductSearch.isEmpty
-                      ? const EmptyProdWidget(
-                          text: 'No Product found, please try another keyword')
-                      : GridView.count(
+                  GridView.count(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           crossAxisCount: 2,

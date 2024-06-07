@@ -41,9 +41,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     elevation: 0,
                     centerTitle: false,
                     title: TextWidget(
-                      text: 'Your Orders (${orderList.length})',
+                      text: 'My Orders (${orderList.length})',
                       color: color,
-                      textSize: 24.0,
+                      textSize: 22,
                       isTitle: true,
                     ),
                     backgroundColor: Theme.of(context)

@@ -42,8 +42,6 @@ class _ViewedRecentlyWidgetState extends State<ViewedRecentlyWidget> {
       padding: const EdgeInsets.all(8.0),
       child:  GestureDetector(
         onTap: () {
-          // GlobalMethods.navigateTo(
-          //     ctx: context, routeName: ProductDetails.routeName);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

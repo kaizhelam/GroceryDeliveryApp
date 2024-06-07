@@ -14,20 +14,6 @@ class WishlistProvider with ChangeNotifier {
     return _wishlistItems;
   }
 
-  // void addRemoveProductToWishlist({required String productId}){
-  //   if(_wishlistItems.containsKey(productId)){
-  //     removeOneItemWishlist(productId);
-  //   }else{
-  //     _wishlistItems.putIfAbsent(productId, () => WishlistModel(id: DateTime.now().toString(), productId: productId));
-  //   }
-  //   notifyListeners();
-  // }
-
-  // void removeOneItemWishlist(String productId){
-  //   _wishlistItems.remove(productId);
-  //   notifyListeners();
-  // }
-
   final userCollection = FirebaseFirestore.instance.collection('users');
 
   Future<void> fetchWishlist() async {
@@ -80,6 +66,14 @@ class WishlistProvider with ChangeNotifier {
     await userCollection.doc(user!.uid).update({
       'userWish': [],
     });
+    Fluttertoast.showToast(
+        msg: "All Item Removed from your Wishlist.",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.orange,
+        textColor: Colors.white,
+        fontSize: 13);
     _wishlistItems.clear();
     notifyListeners();
   }

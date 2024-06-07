@@ -59,7 +59,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         return Center(
           child: Text(
             errorMessage,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         );
       },
@@ -226,7 +226,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
         ),
         titleSpacing: 10,
         iconTheme: IconThemeData(
-          color: color, // Change the color of the back arrow here
+          color: color,
         ),
       ),
       body: Stack(
@@ -234,17 +234,17 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.only(
-                  bottom: 150.0), // Ensure enough space for the card
+                  bottom: 150.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SizedBox(
-                    height: 200, // Adjust height as needed
+                    height: 200,
                     width: MediaQuery.of(context)
                         .size
-                        .width, // Adjust width as needed
+                        .width,
                     child: Padding(
-                      padding: EdgeInsets.all(16), // Adjust padding as needed
+                      padding: EdgeInsets.all(16),
                       child: LayoutBuilder(
                         builder: (context, constraints) {
                           return Chewie(controller: _chewieController);
@@ -254,14 +254,13 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                   ),
                   Padding(
                     padding: const EdgeInsets.all(
-                        16.0), // Adjust the padding value as needed
+                        16.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Center(
-                            // Center the text within its container
                             child: Text(
                               recipeData['text'],
                               style: TextStyle(
@@ -273,7 +272,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Padding(
@@ -289,7 +288,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Padding(
@@ -305,7 +304,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Padding(
@@ -315,13 +314,13 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             style: TextStyle(fontSize: 16, color: color),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Padding(
                           padding: const EdgeInsets.only(bottom: 8.0),
                           child: Row(
-                            children: [ // Add some spacing between the icon and text
+                            children: [
                               Text(
                                 'Cooking Time: ${formatCookingTime(recipeData['cookingTime'])}',
                                 style: TextStyle(fontSize: 16, color: color),
@@ -329,13 +328,13 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                               SizedBox(width: 8),
                               Icon(
                                 IconlyLight.timeCircle,
-                                size: 20, // Adjust the size of the icon as needed
-                                color: color, // Adjust the color of the icon as needed
+                                size: 20,
+                                color: color,
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Padding(
@@ -345,7 +344,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             style: TextStyle(fontSize: 16, color: color),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Padding(
@@ -355,14 +354,14 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             style: TextStyle(fontSize: 16, color: color),
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         ),
                         Text(
                           'Time Posted: ${formattedTime}',
                           style: TextStyle(fontSize: 16, color: color),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 12,
                         )
                       ],
@@ -377,7 +376,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
             left: 0,
             right: 0,
             child: Card(
-              margin: EdgeInsets.all(0),
+              margin: const EdgeInsets.all(0),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -392,7 +391,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    SizedBox(height: 16),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Container(
@@ -404,7 +403,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                             loadingBuilder: (BuildContext context, Widget child,
                                 ImageChunkEvent? loadingProgress) {
                               if (loadingProgress == null) {
-                                return child; // The image is fully loaded, return the image.
+                                return child;
                               } else {
                                 return Center(
                                   child: CircularProgressIndicator(
@@ -416,15 +415,15 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                                                     .expectedTotalBytes ??
                                                 1)
                                         : null,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                    valueColor: const AlwaysStoppedAnimation<Color>(
                                         Colors.cyan),
                                   ),
-                                ); // The image is still loading, return the spinner.
+                                );
                               }
                             },
                           ),
                         ),
-                        SizedBox(width: 16),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -434,7 +433,7 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                                 children: [
                                   Text(
                                     productName,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 18,
                                       color: Colors.black,
@@ -442,14 +441,14 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                                   ),
                                   Text(
                                     'Price: RM $productPrice',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.black,
                                     ),
                                   ),
                                   Text(
                                     'Total Sold: ${productSold.toString()}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.black,
                                     ),
@@ -459,8 +458,6 @@ class _RecipeDetailsScreenState extends State<RecipeDetailsScreen> {
                               GestureDetector(
                                 onTap: () async {
                                   _addItemToCart(recipeData['productID'], productName);
-                                  // await cartProvider.fetchCart();
-                                  // Navigator.of(context).pop();
                                 },
                                 child: Icon(
                                   productInCart ? Icons.check : IconlyLight.buy,

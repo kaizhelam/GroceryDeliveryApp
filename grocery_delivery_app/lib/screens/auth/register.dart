@@ -110,8 +110,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
             toastLength: Toast.LENGTH_SHORT,
             gravity: ToastGravity.BOTTOM,
             timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
+            backgroundColor: Colors.grey,
+            textColor: Colors.black,
             fontSize: 13
         );
         Navigator.of(context).pushReplacement(
@@ -344,7 +344,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         controller: _phoneNumberController,
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
-                              RegExp(r'[0-9]')), // Accept only numbers
+                              RegExp(r'[0-9]')),
                         ],
                         keyboardType: TextInputType.phone,
                         validator: (value) {

@@ -147,7 +147,7 @@ class _OrderWidgetState extends State<OrderWidget> {
               formattedDateTime,
               style: TextStyle(fontSize: 14, color: color),
             ),
-            SizedBox(
+            const SizedBox(
               height: 8,
             ),
             if (myOrderStatus == 3)
@@ -170,19 +170,19 @@ class _OrderWidgetState extends State<OrderWidget> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
-                      Icons.rate_review,
-                      color: Colors.cyan, // Change icon color as needed
-                      size: 16, // Adjust icon size as needed
+                    Icon(
+                      myRateStatus == 0 ? Icons.rate_review : Icons.check,
+                      color: myRateStatus == 0 ? Colors.orange : Colors.green,
+                      size: 16,
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 6,
                     ),
                     Text(
                       myRateStatus == 0 ? 'Rate & Review' : 'Product Rated',
-                      style: const TextStyle(
-                        fontSize: 14, // Adjust font size as needed
-                        color: Colors.cyan, // Change text color as needed
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: myRateStatus == 0 ? Colors.orange : Colors.green,
                       ),
                     ),
                   ],
@@ -195,16 +195,15 @@ class _OrderWidgetState extends State<OrderWidget> {
           padding: const EdgeInsets.only(left: 13),
           child: GestureDetector(
             onTap: () {
-              // Show dialog with timeline based on orderStatus when icon is tapped
               _showTimelineDialog(context, ordersModel.orderStatus, ordersModel.address);
             },
-            child: Row(
+            child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.more_horiz,
                   size: 40,
-                  color: Colors.white,// Adjust icon size as needed
+                  color: Colors.white,
                 ),
               ],
             ),
@@ -220,17 +219,16 @@ class _OrderWidgetState extends State<OrderWidget> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
+          title: const Text(
             'Order Status',
             style: TextStyle(fontSize: 18),
           ),
           content: SingleChildScrollView(
             child: SizedBox(
               width: double.maxFinite,
-              height: 270, // Set the height according to your content
+              height: 270,
               child: ListView.builder(
                 shrinkWrap: true,
-                // physics: NeverScrollableScrollPhysics(),
                 itemCount: OrderStatus.values.length,
                 itemBuilder: (context, index) {
                   final currentStatus = OrderStatus.values[index];
@@ -246,30 +244,30 @@ class _OrderWidgetState extends State<OrderWidget> {
                         height: 60,
                         color: _getStatusColor(currentStatus, orderStatus),
                       ),
-                      SizedBox(width: 15),
+                      const SizedBox(width: 15),
                       CircleAvatar(
                         backgroundColor: _getStatusColor(currentStatus, orderStatus),
                         radius: 20,
                         child: Text(
                           (index + 1).toString(),
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               _getStatusTitle(currentStatus),
-                              style: TextStyle(color: Colors.black, fontSize: 15),
+                              style: const TextStyle(color: Colors.black, fontSize: 15),
                             ),
-                            if (showSubtitle) // Conditionally show the subtitle for Delivered status
-                              Text(address, style: TextStyle(color: Colors.black),),
+                            if (showSubtitle)
+                              Text(address, style: const TextStyle(color: Colors.black),),
                           ],
                         ),
                       ),
-                      SizedBox(height: 20), // Add padding at the bottom of the CircleAvatar
+                      const SizedBox(height: 20),
                     ],
                   );
                 },
@@ -281,7 +279,7 @@ class _OrderWidgetState extends State<OrderWidget> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text(
+              child: const Text(
                 'Close',
                 style: TextStyle(color: Colors.cyan),
               ),
@@ -378,7 +376,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                         }),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     // Review text field
                     TextFormField(
                       controller: reviewController,
@@ -419,7 +417,7 @@ class _OrderWidgetState extends State<OrderWidget> {
                     }
                   },
                   child: const Text(
-                    'Submit',
+                    'Add',
                     style: TextStyle(color: Colors.cyan),
                   ),
                 ),

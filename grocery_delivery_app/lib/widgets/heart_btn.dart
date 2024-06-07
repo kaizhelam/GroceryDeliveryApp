@@ -63,8 +63,6 @@ class _HeartBTNState extends State<HeartBTN> {
             loading = false;
           });
         }
-        // print('user id is ${user.uid}');
-        // wishlistProvider.addRemoveProductToWishlist(productId: productId);
       },
       child: loading ? const SizedBox(height: 15, width: 15, child:CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(Colors.cyan),

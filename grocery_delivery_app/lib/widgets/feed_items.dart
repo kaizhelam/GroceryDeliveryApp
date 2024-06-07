@@ -31,7 +31,7 @@ class FeedsWidget extends StatefulWidget {
 class _FeedsWidgetState extends State<FeedsWidget> {
   final _quantityTextController = TextEditingController();
   late StreamSubscription<DocumentSnapshot> _subscription;
-  int _productSold = 0; // Initialize productSold to 0
+  int _productSold = 0;
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _FeedsWidgetState extends State<FeedsWidget> {
 
   @override
   void dispose() {
-    _subscription.cancel(); // Cancel the stream subscription when disposing
+    _subscription.cancel();
     _quantityTextController.dispose();
     super.dispose();
   }
@@ -131,7 +131,7 @@ class _FeedsWidgetState extends State<FeedsWidget> {
                                 textPrice: _quantityTextController.text,
                                 isOnSale: productModel.isOnSale,
                               ),
-                              SizedBox(width: 8), // Adjust the width as needed
+                              const SizedBox(width: 8),
                             ],
                           ),
                           TextWidget(text: '$_productSold Sold', color: color, textSize: 14),

@@ -88,7 +88,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirm Image', style: TextStyle(fontSize: 18)),
+          title: const Text('Confirm Image', style: TextStyle(fontSize: 18)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -98,15 +98,15 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                 height: 150,
                 fit: BoxFit.cover,
               ),
-              SizedBox(height: 10),
-              Text('Do you want to update the image?', style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 10),
+              const Text('Do you want to update the image?', style: TextStyle(color: Colors.black)),
             ],
           ),
           actions: [
             TextButton(
-              child: Text('Yes', style: TextStyle(color: Colors.cyan)),
+              child: const Text('Yes', style: TextStyle(color: Colors.cyan)),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop();
                 setState(() {
                   _isUploading = true;
                 });
@@ -114,7 +114,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
               },
             ),
             TextButton(
-              child: Text('Cancel', style: TextStyle(color: Colors.cyan)),
+              child: const Text('Cancel', style: TextStyle(color: Colors.cyan)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -165,7 +165,6 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
 
   Future<void> _updateRecipeImageUrl(String recipeID, String userID, String imageUrl) async {
     try {
-      // Update userRecipes in users collection
       DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(userID);
       DocumentSnapshot userDoc = await userRef.get();
 
@@ -191,7 +190,6 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
         );
       }
 
-      // Update imageUrl in recipes collection
       DocumentReference recipeRef = FirebaseFirestore.instance.collection('recipes').doc(recipeID);
       await recipeRef.update({'imageUrl': imageUrl});
 
@@ -248,14 +246,12 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
               if (!productSnapshot.hasData || !productSnapshot.data!.exists) {
                 return const Center(child: Text('Product not found'));
               }
-
-              // Fetch the ratingReview array from the product document
               final List<dynamic> userFavouriteRecipesArray = productSnapshot.data!['userFavouriteRecipes'];
 
               if (userFavouriteRecipesArray.isEmpty) {
                 return SizedBox(
                   height: MediaQuery.of(context).size.height * 0.1,
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'No Favourite Recipes available',
                       style: TextStyle(color: Colors.black),
@@ -277,7 +273,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                         radius: 20,
                         backgroundImage: profileImageUrl != null && profileImageUrl.toString().isNotEmpty
                             ? NetworkImage(profileImageUrl.toString()) as ImageProvider<Object>?
-                            : AssetImage('assets/images/user_icon.png'),
+                            : const AssetImage('assets/images/user_icon.png'),
                       ),
                       title: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -332,17 +328,17 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
         title: TextWidget(
           text: 'My Recipes',
           color: color,
-          textSize: 24,
+          textSize: 22,
           isTitle: true,
         ),
         titleSpacing: 10,
         iconTheme: IconThemeData(
-          color: color, // Change the color of the back arrow here
+          color: color,
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.favorite_border_outlined),
-            color: color, // Change the color of the icon
+            icon: const Icon(Icons.favorite_border_outlined),
+            color: color,
             onPressed: () {
               _viewAllFavouriteRecipes(context);
             },
@@ -353,7 +349,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
         future: _userRecipesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child:  CircularProgressIndicator(
+            return const Center(child:  CircularProgressIndicator(
               valueColor:
               AlwaysStoppedAnimation<Color>(
                   Colors.cyan),
@@ -364,7 +360,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
             final userRecipes = snapshot.data ?? [];
 
             if (userRecipes.isEmpty) {
-              return Center(
+              return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -391,7 +387,12 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                   child: Card(
                     color: Colors.white,
                     elevation: 4,
-                    margin: const EdgeInsets.all(10),
+                    margin: const EdgeInsets.fromLTRB(
+                        10,
+                        7,
+                        10,
+                        7
+                    ),
                     child: ListTile(
                       contentPadding: const EdgeInsets.all(10),
                       leading: SizedBox(
@@ -416,7 +417,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                         if (loadingProgress == null) {
                                           return child;
                                         } else {
-                                          return Center(
+                                          return const Center(
                                             child: CircularProgressIndicator(
                                               valueColor:
                                                   AlwaysStoppedAnimation<Color>(
@@ -432,7 +433,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                               right: 25,
                               child: Center(
                                 child: IconButton(
-                                  icon: Icon(IconlyLight.upload,
+                                  icon: const Icon(IconlyLight.upload,
                                       color: Colors.white),
                                   onPressed: () {
                                     final User? user = authInstance.currentUser;
@@ -450,10 +451,10 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                         children: [
                           Text(
                             recipe['text'],
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
-                              color: Colors.black, // Change text color here
+                              color: Colors.black,
                             ),
                             softWrap: true,
                           ),
@@ -462,21 +463,21 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                             'Difficulty Level: ${recipe['difficultyLevel']}',
                             style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.black, // Change text color here
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Time Posted: $formattedTime',
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 12,
-                              color: Colors.black, // Change text color here
+                              color: Colors.black,
                             ),
                           ),
                           const SizedBox(height: 4),
                           Text(
                             'Cooking Time: ${formatCookingTime(recipe['cookingTime'])}',
-                            style: TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 12),
                           ),
                           const SizedBox(
                             height: 10,
@@ -519,7 +520,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               text: recipe['videoUrl']);
 
                                       return AlertDialog(
-                                        title: Text('Edit Recipe',
+                                        title: const Text('Edit Recipe',
                                             style: TextStyle(fontSize: 18)),
                                         content: SingleChildScrollView(
                                           child: Column(
@@ -528,7 +529,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               TextField(
                                                 controller:
                                                     recipeNameController,
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Title',
                                                   labelStyle: TextStyle(
                                                       color: Colors.black),
@@ -543,7 +544,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               TextField(
                                                 controller:
                                                     recipeDescriptionController,
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Description',
                                                   labelStyle: TextStyle(
                                                       color: Colors.black),
@@ -558,7 +559,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               TextField(
                                                 controller:
                                                     recipeInstructionController,
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Instruction',
                                                   labelStyle: TextStyle(
                                                       color: Colors.black),
@@ -573,7 +574,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               TextField(
                                                 controller:
                                                     recipeIngredientsController,
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Ingredients',
                                                   labelStyle: TextStyle(
                                                       color: Colors.black),
@@ -585,7 +586,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                 ),
                                                 cursorColor: Colors.cyan,
                                               ),
-                                              SizedBox(
+                                              const SizedBox(
                                                 height: 10,
                                               ),
                                               GestureDetector(
@@ -622,7 +623,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               ),
                                               DropdownButtonFormField<String>(
                                                 value: difficultyLevel,
-                                                decoration: InputDecoration(
+                                                decoration: const InputDecoration(
                                                   labelText: 'Difficulty Level',
                                                   labelStyle: TextStyle(
                                                       color: Colors.black),
@@ -633,7 +634,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                   ),
                                                 ),
                                                 dropdownColor: Colors.white,
-                                                icon: Icon(
+                                                icon: const Icon(
                                                     Icons.arrow_drop_down,
                                                     color: Colors.black),
                                                 items: [
@@ -650,7 +651,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                       style: const TextStyle(
                                                           fontSize: 13,
                                                           color: Colors
-                                                              .black), // Set text color to white
+                                                              .black),
                                                     ),
                                                   );
                                                 }).toList(),
@@ -695,10 +696,9 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                               }
 
                                               Navigator.of(context)
-                                                  .pop(); // Close the dialog
+                                                  .pop();
 
                                               try {
-                                                // Update userRecipes in user's document
                                                 final userDocRef =
                                                     FirebaseFirestore.instance
                                                         .collection('users')
@@ -736,8 +736,6 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                     'userRecipes': userRecipes,
                                                   });
                                                 }
-
-                                                // Update the main recipes collection
                                                 final recipeDocRef =
                                                     FirebaseFirestore.instance
                                                         .collection('recipes')
@@ -793,7 +791,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                     color: Colors.cyan)),
                                             onPressed: () {
                                               Navigator.of(context)
-                                                  .pop(); // Close the dialog
+                                                  .pop();
                                             },
                                           ),
                                         ],
@@ -801,10 +799,10 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                     },
                                   );
                                 },
-                                child: Row(
+                                child: const Row(
                                   children: [
                                     Icon(IconlyLight.edit,
-                                        color: Colors.black), // Edit icon
+                                        color: Colors.black),
                                   ],
                                 ),
                               ),
@@ -823,24 +821,24 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: Text(
+                                        title: const Text(
                                           'Confirm Deletion',
                                           style: TextStyle(fontSize: 18),
                                         ),
-                                        content: Text(
+                                        content: const Text(
                                           'Are you sure you want to remove this recipe?',
                                           style: TextStyle(color: Colors.black),
                                         ),
                                         actions: [
                                           TextButton(
-                                            child: Text(
+                                            child: const Text(
                                               'Remove',
                                               style:
                                                   TextStyle(color: Colors.cyan),
                                             ),
                                             onPressed: () async {
                                               Navigator.of(context)
-                                                  .pop(); // Close the dialog
+                                                  .pop();
                                               try {
                                                 final userDocRef =
                                                     FirebaseFirestore.instance
@@ -886,7 +884,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                                     'Error deleting recipe: $error');
                                                 ScaffoldMessenger.of(context)
                                                     .showSnackBar(
-                                                  SnackBar(
+                                                  const SnackBar(
                                                     content: Text(
                                                         'Failed to delete recipe. Please try again later.'),
                                                     backgroundColor: Colors.red,
@@ -896,7 +894,7 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                             },
                                           ),
                                           TextButton(
-                                            child: Text(
+                                            child: const Text(
                                               'Cancel',
                                               style:
                                                   TextStyle(color: Colors.cyan),
@@ -911,10 +909,10 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
                                     },
                                   );
                                 },
-                                child: Row(
+                                child: const Row(
                                   children: [
                                     Icon(IconlyLight.delete,
-                                        color: Colors.black), // Delete icon
+                                        color: Colors.black),
                                   ],
                                 ),
                               ),
@@ -942,16 +940,16 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('How long does it take to cook this recipe?',
+          title: const Text('How long does it take to cook this recipe?',
               style: TextStyle(fontSize: 13)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TimePickerSpinner(
                 is24HourMode: true,
-                normalTextStyle: TextStyle(fontSize: 16, color: Colors.black),
+                normalTextStyle: const TextStyle(fontSize: 16, color: Colors.black),
                 highlightedTextStyle:
-                    TextStyle(fontSize: 22, color: Colors.cyan),
+                    const TextStyle(fontSize: 22, color: Colors.cyan),
                 spacing: 20,
                 itemHeight: 40,
                 isForce2Digits: true,
@@ -967,14 +965,14 @@ class _MyRecipesScreenState extends State<MyRecipesScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel', style: TextStyle(color: Colors.cyan)),
+              child: const Text('Cancel', style: TextStyle(color: Colors.cyan)),
             ),
             TextButton(
               onPressed: () {
                 onTimeSelected(selectedHours, selectedMinutes);
                 Navigator.of(context).pop();
               },
-              child: Text('OK', style: TextStyle(color: Colors.cyan)),
+              child: const Text('OK', style: TextStyle(color: Colors.cyan)),
             ),
           ],
         );

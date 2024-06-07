@@ -244,10 +244,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         _submitFormOnLogin();
                       },
                       buttonText: 'Sign In'),
-                  // const GoogleButton(),
-                  // const SizedBox(
-                  //   height: 10,
-                  // ),
                   Row(
                     children: [
                        Expanded(

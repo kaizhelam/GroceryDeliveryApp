@@ -1,6 +1,7 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:grocery_delivery_app/consts/theme_data.dart';
 import 'package:grocery_delivery_app/inner_screens/feeds_screen.dart';
 import 'package:grocery_delivery_app/inner_screens/on_sale_screen.dart';
@@ -32,15 +33,16 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   AwesomeNotifications().initialize(
-      null,
-      [
-        NotificationChannel(
-          channelKey: 'basic_channel',
-          channelName: 'basic_notification',
-          channelDescription: 'test',
-        )
-      ],
-      debug: true);
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'basic_channel',
+        channelName: 'basic_notification',
+        channelDescription: 'test',
+      )
+    ],
+    debug: true,
+  );
   runApp(const MyApp());
 }
 
@@ -56,7 +58,7 @@ class _MyAppState extends State<MyApp> {
 
   void getCurrentAppTheme() async {
     themeChangeProvider.setDarkTheme =
-        await themeChangeProvider.darkThemePrefs.getTheme();
+    await themeChangeProvider.darkThemePrefs.getTheme();
   }
 
   @override
@@ -76,16 +78,16 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               home: Scaffold(
                   body: Center(
-                child: CircularProgressIndicator(),
-              )),
+                    child: CircularProgressIndicator(),
+                  )),
             );
           } else if (snapshot.hasError) {
-            const MaterialApp(
+            return MaterialApp(
               debugShowCheckedModeBanner: false,
               home: Scaffold(
                   body: Center(
-                child: Text('An error occurred'),
-              )),
+                    child: Text('An error occurred'),
+                  )),
             );
           }
           return MultiProvider(
@@ -111,27 +113,27 @@ class _MyAppState extends State<MyApp> {
             ],
             child: Consumer<DarkThemeProvider>(
                 builder: (context, themeProvider, child) {
-              return MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: 'Grocery Delivery App',
-                  theme: Styles.themeData(themeProvider.getDarkTheme, context),
-                  home: const FetchScreen(),
-                  routes: {
-                    OnSaleScreen.routeName: (ctx) => const OnSaleScreen(),
-                    FeedsScreen.routeName: (ctx) => const FeedsScreen(),
-                    ProductDetails.routeName: (ctx) => const ProductDetails(),
-                    WishlistScreen.routeName: (ctx) => const WishlistScreen(),
-                    OrdersScreen.routeName: (ctx) => const OrdersScreen(),
-                    ViewedRecentlyScreen.routeName: (ctx) =>
+                  return GetMaterialApp(
+                      debugShowCheckedModeBanner: false,
+                      title: 'Grocery Delivery App',
+                      theme: Styles.themeData(themeProvider.getDarkTheme, context),
+                      home: const FetchScreen(),
+                      routes: {
+                        OnSaleScreen.routeName: (ctx) => const OnSaleScreen(),
+                        FeedsScreen.routeName: (ctx) => const FeedsScreen(),
+                        ProductDetails.routeName: (ctx) => const ProductDetails(),
+                        WishlistScreen.routeName: (ctx) => const WishlistScreen(),
+                        OrdersScreen.routeName: (ctx) => const OrdersScreen(),
+                        ViewedRecentlyScreen.routeName: (ctx) =>
                         const ViewedRecentlyScreen(),
-                    RegisterScreen.routeName: (ctx) => const RegisterScreen(),
-                    LoginScreen.routeName: (ctx) => const LoginScreen(),
-                    ForgetPasswordScreen.routeName: (ctx) =>
+                        RegisterScreen.routeName: (ctx) => const RegisterScreen(),
+                        LoginScreen.routeName: (ctx) => const LoginScreen(),
+                        ForgetPasswordScreen.routeName: (ctx) =>
                         const ForgetPasswordScreen(),
-                    CategoryScreen.routeName: (ctx) => const CategoryScreen(),
-                    RecipesScreen.routeName: (ctx) => const RecipesScreen(),
-                  });
-            }),
+                        CategoryScreen.routeName: (ctx) => const CategoryScreen(),
+                        RecipesScreen.routeName: (ctx) => const RecipesScreen(),
+                      });
+                }),
           );
         });
   }

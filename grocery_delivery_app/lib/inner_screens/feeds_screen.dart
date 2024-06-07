@@ -119,9 +119,8 @@ class _FeedsScreenState extends State<FeedsScreen> {
                       cursorColor: Colors.cyan,
                     ),
                   ),
-                  SizedBox(height: 10), // Adjust as needed
+                  const SizedBox(height: 10),
                   Row(
-                    // Wrap dropdown and apply button in a row
                     children: [
                       Expanded(
                         child: DropdownButton<String>(
@@ -130,7 +129,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             DropdownMenuItem(
                               value: "low_to_high",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Text(
                                   "Price Low to High",
                                   textAlign: TextAlign.center,
@@ -141,7 +140,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             DropdownMenuItem(
                               value: "high_to_low",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Text("Price High to Low",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: color)),
@@ -150,7 +149,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             DropdownMenuItem(
                               value: "name_a_to_z",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Text("Name A-Z",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: color)),
@@ -159,7 +158,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             DropdownMenuItem(
                               value: "name_z_to_a",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Text("Name Z-A",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: color)),
@@ -168,7 +167,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                             DropdownMenuItem(
                               value: "most_popular_sold",
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10),
+                                padding: const EdgeInsets.only(left: 10),
                                 child: Text("Most Popular Sold",
                                     textAlign: TextAlign.center,
                                     style: TextStyle(color: color)),
@@ -182,10 +181,9 @@ class _FeedsScreenState extends State<FeedsScreen> {
                           },
                         ),
                       ),
-                      SizedBox(width: 10), // Adjust as needed
+                      const SizedBox(width: 10),
                       SizedBox(
-                        // Set the width of the button
-                        width: 150, // Adjust the width as needed
+                        width: 150,
                         child: ElevatedButton(
                           onPressed: () {
                             if (_selectedSortOption == "low_to_high") {
@@ -195,10 +193,10 @@ class _FeedsScreenState extends State<FeedsScreen> {
                                     return a.salePrice.compareTo(b.salePrice);
                                   } else if (a.isOnSale) {
                                     return a.salePrice.compareTo(b
-                                        .price); // Compare sale price to regular price
+                                        .price);
                                   } else if (b.isOnSale) {
                                     return a.price.compareTo(b
-                                        .salePrice); // Compare regular price to sale price
+                                        .salePrice);
                                   } else {
                                     return a.price.compareTo(b.price);
                                   }
@@ -208,16 +206,12 @@ class _FeedsScreenState extends State<FeedsScreen> {
                               setState(() {
                                 allProducts.sort((a, b) {
                                   if (a.isOnSale && b.isOnSale) {
-                                    // Both products are on sale, compare sale prices
                                     return b.salePrice.compareTo(a.salePrice);
                                   } else if (a.isOnSale) {
-                                    // Only product A is on sale, compare sale price of A with regular price of B
                                     return b.price.compareTo(a.salePrice);
                                   } else if (b.isOnSale) {
-                                    // Only product B is on sale, compare regular price of B with sale price of A
                                     return b.salePrice.compareTo(a.price);
                                   } else {
-                                    // Neither product is on sale, compare regular prices
                                     return b.price.compareTo(a.price);
                                   }
                                 });
@@ -252,7 +246,7 @@ class _FeedsScreenState extends State<FeedsScreen> {
                               ),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             "Apply",
                             style: TextStyle(fontSize: 17),
                           ),

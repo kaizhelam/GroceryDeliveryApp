@@ -50,18 +50,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 textSize: 24,
                 isTitle: true,
               ),
-              SizedBox(height: 5,),
+              const SizedBox(height: 5,),
               TextWidget(
                 text: 'Fresh. Fast. Delivered.',
-                color: color, // Choose the color for your subtitle
-                textSize: 14, // Adjust the size of your subtitle text
+                color: color,
+                textSize: 14,
               ),
             ],
           ),
           titleSpacing: 10,
           automaticallyImplyLeading: false,
           actions: [
-            if (user == null) // Display the login icon if user is null
+            if (user == null)
               IconButton(
                 icon: Icon(IconlyLight.login, color: color),
                 onPressed: () {
